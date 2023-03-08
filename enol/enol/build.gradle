@@ -19,14 +19,16 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-security' // 로그인 관련
+//	implementation 'org.springframework.boot:spring-boot-starter-security' // 로그인 관련
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // jpa 추가
+	runtimeOnly 'com.h2database:h2:1.4.200' // h2 추가
 //	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.0' // DB 관련
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test' // 로그인 관련
+//	testImplementation 'org.springframework.security:spring-security-test' // 로그인 관련
 }
 
 tasks.named('test') {
