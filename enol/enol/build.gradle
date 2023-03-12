@@ -21,11 +21,15 @@ repositories {
 dependencies {
 //	implementation 'org.springframework.boot:spring-boot-starter-security' // 로그인 관련
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.1' // mariadb
 //	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.0' // DB 관련
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	runtimeOnly 'com.h2database:h2'
+
 //	testImplementation 'org.springframework.security:spring-security-test' // 로그인 관련
 }
 
