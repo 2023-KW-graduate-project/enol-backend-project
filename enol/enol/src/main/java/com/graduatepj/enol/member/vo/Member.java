@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Table(name="MEMBER")
 @Entity
 public class Member {
-    // 회원가입때 사용자에게 받을 정보
+    /** 회원가입때 사용자에게 받을 정보 */
     /** 사용자 ID */
     @Id
     @Column(name="MEMBERID")
@@ -30,6 +30,16 @@ public class Member {
     /** 암호화 비밀번호 */
     @Column(name="ENPASSWORD")
     private String enpassword;
+
+    /** 사용자 이메일 */
+    @Column(name = "EMAIL")
+    private String eMail;
+
+    /** 사용자 생일 */
+    @Column(name = "BDAY")
+    private String BDay;
+
+
 
 //    // 카카오맵에 필요한 것
 //    /** 카카오 id */

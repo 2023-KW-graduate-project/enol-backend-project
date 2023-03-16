@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>회원가입 페이지</title>
+    <meta charset="UTF-8">
+    <title>회원가입 페이지</title>
 </head>
-<body>
-<h1>회원가입 페이지</h1>
-<hr/>
-<form action="/member/join" method="post">
-  <input type="text" name="memberId" placeholder="MemberId"/> <br/>
-  <input type="password" name="password" placeholder="Password"/> <br/>
-  <input type="text" name="memberName" placeholder="MemberName"/> <br/>
-  <button>회원가입</button>
-</form>
-</body>
+    <body>
+        <h1>회원가입 페이지</h1>
+        <hr/>
+        <form action="/member/duplicationCheck" method="post">
+            ID : <input type="text" name="memberId" placeholder="MemberId"/> <br/>
+            <button>ID 중복 확인</button>
+        </form>
+        <hr/>
+        <form action="/member/join" method="post">
+            ID : <input type="text" name="memberId" placeholder="MemberId"/> <br/>
+            Password: <input type="password" name="password" placeholder="Password"/> <br/>
+            Name: <input type="text" name="memberName" placeholder="MemberName"/> <br/>
+            Email: <input type="text" name="eMail" placeholder="email"/> <br/>
+            BirthDay: <input type="text" name="BDay" placeholder="yymmdd"/> <br/>
+            <button>회원가입</button>
+        </form>
+    </body>
 </html>
