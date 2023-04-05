@@ -2,6 +2,8 @@ package com.graduatepj.enol.member.service;
 
 import com.graduatepj.enol.member.vo.Member;
 
+import java.util.List;
+
 public interface MemberService<Member> {
 
     /**
@@ -53,6 +55,12 @@ public interface MemberService<Member> {
      * @return
      */
     public abstract boolean deleteMember(Member member);
+
+    /**
+     * 회원들 정보 보이기
+     * @return
+     */
+    public abstract List<com.graduatepj.enol.member.vo.Member> showMembers();
 
 }
 

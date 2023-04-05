@@ -196,7 +196,14 @@ public class MemberServiceImpl implements MemberService<Member>{
             }
 
         }
-
         return false;
+    }
+
+    @Override
+    public List<Member> showMembers() {
+        log.info("showMembers memberServiceImpl start");
+        List<Member> members = memberRepository.findAll();
+        log.info("members = {}", members);
+        return members;
     }
 }

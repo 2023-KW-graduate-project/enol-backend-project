@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -16,6 +17,16 @@ public class MemberController {
     // 회원 가입, 중복 ID 확인, 아이디 확인, 비밀번호 변경, 고객 정보 수정(비밀번호, 취향), 사용자 삭제
     @Resource(name = "memberService")
     private MemberService memberService;
+
+    /**
+     * 유저 리스트 보이기
+     */
+    @GetMapping("/users")
+    public List<Member> showMemberList() {
+        log.info("MemberController.showMemberList START");
+        List<Member> memberList = memberService.showMembers();
+        return memberList;
+    }
 
     /**
      * 회원 가입 페이지
