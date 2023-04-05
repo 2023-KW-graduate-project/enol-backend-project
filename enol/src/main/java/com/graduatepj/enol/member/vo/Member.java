@@ -39,11 +39,15 @@ public class Member {
     @Column(name = "BDAY")
     private String BDay;
 
+    /** 사용자 닉네임 */
+    @Column(name = "NICKNAME")
+    private String nickName;
+
+    /** 사용자 성별 */
+    @Column(name = "GENDER")
+    private String gender;
 
 
-//    // 카카오맵에 필요한 것
-//    /** 카카오 id */
-//    private String kakaoId;
 //
 //    // 실행 중 필요한 사용자의 정보
 //    /** 현 위치 */
