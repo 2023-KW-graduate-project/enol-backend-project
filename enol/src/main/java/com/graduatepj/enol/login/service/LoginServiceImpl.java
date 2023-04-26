@@ -90,7 +90,7 @@ public class LoginServiceImpl implements LoginService<Member>{
 
                 log.info("memberId={}", member.getMemberId());
                 log.info("Password={}", member.getPassword());
-                log.info("EnPassword={}", member.getEnpassword());
+//                log.info("EnPassword={}", member.getEnpassword());
                 log.info("memberName={}", member.getMemberName());
                 log.info("Email={}", member.getEMail());
                 log.info("BirthDay={}", member.getBDay());

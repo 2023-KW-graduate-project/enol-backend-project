@@ -47,32 +47,32 @@ public class MemberController {
         return joinMember;
     }
 
-    /**
-     * 중복 ID 확인 버튼
-     * @param member
-     * @return
-     */
-    @PostMapping("duplicationCheck")
-    public String duplicationCheckMember(Member member) { // 프론트에서 가능할듯?, boolean으로 중복이면 false, 아니면 true식으로 반환하면 될듯
-        log.info("MemberController.dupChecker START");
-
-        log.info("memberId = {}", member.getMemberId());
-        log.info("memberPassword = {}", member.getPassword());
-        log.info("memberName = {}", member.getMemberName());
-        log.info("memberEmail = {}", member.getEMail());
-        log.info("memberBirthDay = {}", member.getBDay());
-
-        boolean dupChecker = memberService.checkDupUser(member.getMemberId());
-
-        if(dupChecker) { // true이면 중복 없음
-            log.info("MemberController.dupChecker No Duplicate END");
-            return "중복된 아이디 아님";
-        }
-        else {
-            log.info("MemberController.dupChecker Duplicate Id END");
-            return "중복된 아이디입니다.";
-        }
-    }
+//    /**
+//     * 중복 ID 확인 버튼
+//     * @param member
+//     * @return
+//     */
+//    @PostMapping("duplicationCheck")
+//    public String duplicationCheckMember(Member member) { // 프론트에서 가능할듯?, boolean으로 중복이면 false, 아니면 true식으로 반환하면 될듯
+//        log.info("MemberController.dupChecker START");
+//
+//        log.info("memberId = {}", member.getMemberId());
+//        log.info("memberPassword = {}", member.getPassword());
+//        log.info("memberName = {}", member.getMemberName());
+//        log.info("memberEmail = {}", member.getEMail());
+//        log.info("memberBirthDay = {}", member.getBDay());
+//
+//        boolean dupChecker = memberService.checkDupUser(member.getMemberId());
+//
+//        if(dupChecker) { // true이면 중복 없음
+//            log.info("MemberController.dupChecker No Duplicate END");
+//            return "중복된 아이디 아님";
+//        }
+//        else {
+//            log.info("MemberController.dupChecker Duplicate Id END");
+//            return "중복된 아이디입니다.";
+//        }
+//    }
 
     /**
      * 아이디 찾기

@@ -13,12 +13,12 @@ public interface MemberService<Member> {
      */
     public abstract com.graduatepj.enol.member.vo.Member joinUser(Member member);
 
-    /**
-     * ID 중복 확인 serivce
-     * @param memberId
-     * @return
-     */
-    public abstract boolean checkDupUser(String memberId);
+//    /**
+//     * ID 중복 확인 serivce
+//     * @param memberId
+//     * @return
+//     */
+//    public abstract boolean checkDupUser(String memberId);
 
     /**
      * ID 확인 service
