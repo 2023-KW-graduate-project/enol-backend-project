@@ -3,6 +3,8 @@ package com.graduatepj.enol.member.vo;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import net.bytebuddy.dynamic.loading.InjectionClassLoader;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 
 import javax.persistence.*;
 
@@ -13,7 +15,7 @@ public class Member {
     /** 회원가입때 사용자에게 받을 정보 */
     /** 사용자 ID */
     @Id
-    @GeneratedValue
+//    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="MEMBERID")
     private String memberId;
 
@@ -31,11 +33,11 @@ public class Member {
 
     /** 사용자 이메일 */
     @Column(name = "EMAIL")
-    private String eMail;
+    private String email;
 
     /** 사용자 생일 */
     @Column(name = "BDAY")
-    private String BDay;
+    private String birthday;
 
 //    /** 사용자 닉네임 */
 //    @Column(name = "NICKNAME")

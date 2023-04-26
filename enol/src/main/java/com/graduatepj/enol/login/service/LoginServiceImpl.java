@@ -92,8 +92,8 @@ public class LoginServiceImpl implements LoginService<Member>{
                 log.info("Password={}", member.getPassword());
 //                log.info("EnPassword={}", member.getEnpassword());
                 log.info("memberName={}", member.getMemberName());
-                log.info("Email={}", member.getEMail());
-                log.info("BirthDay={}", member.getBDay());
+                log.info("Email={}", member.getEmail());
+                log.info("BirthDay={}", member.getBirthday());
 
                 if(member.getPassword().equals(password)) { // password까지 맞는 경우 로그인 성공 - json으로 객체 던져줌
                     log.info("login success in LoginServiceimpl");

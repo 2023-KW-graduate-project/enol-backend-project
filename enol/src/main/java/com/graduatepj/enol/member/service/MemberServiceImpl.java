@@ -32,8 +32,8 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("joinMember.getMemberId = {}", joinMember.getMemberId());
         log.info("joinMember.getPassword = {}", joinMember.getPassword());
         log.info("joinMember.getMemberName = {}", joinMember.getMemberName());
-        log.info("joinMember.getMemberEmail = {}", joinMember.getEMail());
-        log.info("joinMember.getMemberBirthday = {}", joinMember.getBDay());
+        log.info("joinMember.getMemberEmail = {}", joinMember.getEmail());
+        log.info("joinMember.getMemberBirthday = {}", joinMember.getBirthday());
 //        log.info("joinMember.getNickName = {}", joinMember.getNickName());
         log.info("joinMember.getGender = {}", joinMember.getGender());
 
@@ -44,8 +44,8 @@ public class MemberServiceImpl implements MemberService<Member>{
         newMember.setMemberId(joinMember.getMemberId());
         newMember.setPassword(joinMember.getPassword());
         newMember.setMemberName(joinMember.getMemberName());
-        newMember.setEMail(joinMember.getEMail());
-        newMember.setBDay(joinMember.getBDay());
+        newMember.setEmail(joinMember.getEmail());
+        newMember.setBirthday(joinMember.getBirthday());
 //        newMember.setNickName(joinMember.getNickName());
         newMember.setGender(joinMember.getGender());
 
@@ -83,8 +83,8 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("checkUserId memberServiceImpl START");
 
         log.info("member.getMemberName = {}", member.getMemberName());
-        log.info("member.getMemberEMail = {}", member.getEMail());
-        log.info("member.getMemberBDay = {}", member.getBDay());
+        log.info("member.getMemberEMail = {}", member.getEmail());
+        log.info("member.getMemberBDay = {}", member.getBirthday());
 //        log.info("member.getMemberNickName = {}", member.getNickName());
         log.info("member.getMemberGender = {}", member.getGender());
 
@@ -93,12 +93,12 @@ public class MemberServiceImpl implements MemberService<Member>{
             log.info("Before IF checkMember.getMemberName = {}", checkMember.getMemberName());
             if(checkMember.getMemberName().equals(member.getMemberName())) { // 이름 같으면 다음거 다 같은지 보기
                 log.info("checkMember.getMemberName = {}", checkMember.getMemberName());
-                if(checkMember.getEMail().equals(member.getEMail())) { // email같으면 생일까지 같은지 확인
+                if(checkMember.getEmail().equals(member.getEmail())) { // email같으면 생일까지 같은지 확인
                     log.info("Name same");
-                    log.info("checkMember.getMemberEmail = {}", checkMember.getEMail());
-                    if(checkMember.getBDay().equals(member.getBDay())) {
+                    log.info("checkMember.getMemberEmail = {}", checkMember.getEmail());
+                    if(checkMember.getBirthday().equals(member.getBirthday())) {
                         log.info("Email same");
-                        log.info("checkMember.getMemberBirthDay = {}", checkMember.getBDay());
+                        log.info("checkMember.getMemberBirthDay = {}", checkMember.getBirthday());
 //                        if(checkMember.getNickName().equals(member.getNickName())) {
                             log.info("nickName same");
 //                            log.info("checkMember.getMemberNickName = {}", checkMember.getNickName());
@@ -122,8 +122,8 @@ public class MemberServiceImpl implements MemberService<Member>{
 
         log.info("member.getMemberId() = {}", member.getMemberId());
         log.info("member.getMemberName = {}", member.getMemberName());
-        log.info("member.getMemberEMail = {}", member.getEMail());
-        log.info("member.getMemberBDay = {}", member.getBDay());
+        log.info("member.getMemberEMail = {}", member.getEmail());
+        log.info("member.getMemberBDay = {}", member.getBirthday());
 //        log.info("member.getMemberNickName = {}", member.getNickName());
         log.info("member.getMemberGender = {}", member.getGender());
 
@@ -134,8 +134,8 @@ public class MemberServiceImpl implements MemberService<Member>{
                 log.info("checkMember.getMemberId = {}", checkMember.getMemberId());
                 log.info("ID same");
                 if(checkMember.getMemberName().equals(member.getMemberName()) &&
-                checkMember.getEMail().equals(member.getEMail()) &&
-                checkMember.getBDay().equals(member.getBDay()) &&
+                checkMember.getEmail().equals(member.getEmail()) &&
+                checkMember.getBirthday().equals(member.getBirthday()) &&
 //                checkMember.getNickName().equals(member.getNickName()) &&
                 checkMember.getGender().equals(member.getGender())) { // 입력한 정보가 다 맞은 경우 해당 멤버 객체 반환
                     log.info("All info same");
@@ -157,8 +157,8 @@ public class MemberServiceImpl implements MemberService<Member>{
 
         log.info("member.getMemberId() = {}", member.getMemberId());
         log.info("member.getMemberName = {}", member.getMemberName());
-        log.info("member.getMemberEMail = {}", member.getEMail());
-        log.info("member.getMemberBDay = {}", member.getBDay());
+        log.info("member.getMemberEMail = {}", member.getEmail());
+        log.info("member.getMemberBDay = {}", member.getBirthday());
 //        log.info("member.getMemberNickName = {}", member.getNickName());
         log.info("member.getMemberGender = {}", member.getGender());
 
@@ -171,8 +171,8 @@ public class MemberServiceImpl implements MemberService<Member>{
                 changeMember.setMemberName(member.getMemberName());
                 changeMember.setPassword(member.getPassword());
 //                changeMember.setEnpassword(member.getEnpassword());
-                changeMember.setEMail(member.getEMail());
-                changeMember.setBDay(member.getBDay());
+                changeMember.setEmail(member.getEmail());
+                changeMember.setBirthday(member.getBirthday());
 //                changeMember.setNickName(member.getNickName());
                 changeMember.setGender(member.getGender());
 
@@ -199,8 +199,8 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("member.getMemberId() = {}", member.getMemberId());
         log.info("member.getPassword() = {}", member.getPassword());
         log.info("member.getMemberName = {}", member.getMemberName());
-        log.info("member.getMemberEMail = {}", member.getEMail());
-        log.info("member.getMemberBDay = {}", member.getBDay());
+        log.info("member.getMemberEMail = {}", member.getEmail());
+        log.info("member.getMemberBDay = {}", member.getBirthday());
 //        log.info("member.getMemberNickName = {}", member.getNickName());
         log.info("member.getMemberGender = {}", member.getGender());
 
