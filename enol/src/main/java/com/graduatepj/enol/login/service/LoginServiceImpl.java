@@ -68,8 +68,7 @@ public class LoginServiceImpl implements LoginService<Member>{
 
     /**
      * 로그인 메서드
-     * @param memberId
-     * @param password
+     * @param member
      * @return
      */
     @Override
@@ -94,6 +93,7 @@ public class LoginServiceImpl implements LoginService<Member>{
                 log.info("memberName={}", loginMember.getMemberName());
                 log.info("Email={}", loginMember.getEmail());
                 log.info("BirthDay={}", loginMember.getBirthday());
+                log.info("gender={}", loginMember.getGender());
 
                 if(loginMember.getPassword().equals(member.getPassword())) { // password까지 맞는 경우 로그인 성공 - json으로 객체 던져줌
                     log.info("login success in LoginServiceimpl");

@@ -24,7 +24,7 @@ public class LoginController {
      * @param member
      * @return
      */
-    @GetMapping("/login")
+    @PostMapping("/login")
     public Member login(@RequestBody Member member) {
         log.info("LoginController.login START");
         log.info("memberId = {}", member.getMemberId());
