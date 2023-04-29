@@ -73,29 +73,29 @@ public class LoginServiceImpl implements LoginService<Member>{
      * @return
      */
     @Override
-    public Member Login(String memberId, String password) {
+    public Member Login(Member member) {
         log.info("login serviceImpl START");
 
-        log.info("input memberId={}", memberId);
-        log.info("input password={}", password);
+        log.info("input memberId={}", member.getMemberId());
+        log.info("input password={}", member.getPassword());
 
-        log.info("memberRepository.existsById(memberId) = {}", memberRepository.existsById(memberId));
-        if(memberRepository.existsById(memberId)) { // 해당 id가 존재하면 password 맞춰봐야 함
+        log.info("memberRepository.existsById(memberId) = {}", memberRepository.existsById(member.getMemberId()));
+        if(memberRepository.existsById(member.getMemberId())) { // 해당 id가 존재하면 password 맞춰봐야 함
             log.info("inputMember id exist");
-            Optional<Member> checkMember = memberRepository.findById(memberId);
+            Optional<Member> checkMember = memberRepository.findById(member.getMemberId());
             log.info("checkMember.isPresent() = {}", checkMember.isPresent());
 
             if(checkMember.isPresent()) {
-                Member member = checkMember.get();
+                Member loginMember = checkMember.get();
 
-                log.info("memberId={}", member.getMemberId());
-                log.info("Password={}", member.getPassword());
-//                log.info("EnPassword={}", member.getEnpassword());
-                log.info("memberName={}", member.getMemberName());
-                log.info("Email={}", member.getEmail());
-                log.info("BirthDay={}", member.getBirthday());
+                log.info("memberId={}", loginMember.getMemberId());
+                log.info("Password={}", loginMember.getPassword());
+//                log.info("EnPassword={}", loginMember.getEnpassword());
+                log.info("memberName={}", loginMember.getMemberName());
+                log.info("Email={}", loginMember.getEmail());
+                log.info("BirthDay={}", loginMember.getBirthday());
 
-                if(member.getPassword().equals(password)) { // password까지 맞는 경우 로그인 성공 - json으로 객체 던져줌
+                if(loginMember.getPassword().equals(member.getPassword())) { // password까지 맞는 경우 로그인 성공 - json으로 객체 던져줌
                     log.info("login success in LoginServiceimpl");
                     return checkMember.get();
                 }

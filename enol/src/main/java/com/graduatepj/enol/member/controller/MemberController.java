@@ -79,9 +79,9 @@ public class MemberController {
      * @param member
      * @return
      */
-    @GetMapping("checkId")
+    @PostMapping("checkId")
     public Member checkId(@RequestBody Member member) {
-//    public Member checkId(@RequestBody String memberName, @RequestBody String eMail, @RequestBody String BDay) {
+//    public Member checkId(@RequestBody String memberName, String eMail, String BDay) {
         log.info("MemberController.checkId START");
 
         log.info("memberName = {}", member.getMemberName());
@@ -106,7 +106,7 @@ public class MemberController {
      * @param member
      * @return
      */
-    @GetMapping("findPW")
+    @PostMapping("findPW")
     public Member findPW(@RequestBody Member member) {
 //    public Member findPW(@RequestBody String memberId, @RequestBody String memberName, @RequestParam String eMail, @RequestParam String BDay) {
         log.info("MemberController.findPassword START");
@@ -144,7 +144,7 @@ public class MemberController {
      * @param password
      * @return
      */
-    @GetMapping("changePW")
+    @PostMapping("changePW")
     public Member changePW(@RequestBody Member member, @RequestParam String password) {
         log.info("MemberController.changePassword START");
 
@@ -162,7 +162,7 @@ public class MemberController {
      * 사용자가 입력했던 취향 변경
      * @return
      */
-    @GetMapping("modifyMember")
+    @PostMapping("modifyMember")
     public Member modifyMember() {
         log.info("MemberController.modifyMember START");
 
@@ -174,7 +174,7 @@ public class MemberController {
      * 계정 삭제
      * @return
      */
-    @GetMapping("deleteMember")
+    @PostMapping("deleteMember")
     public boolean deleteMember(@RequestBody Member member) {
         log.info("MemberController.deleteMember START");
         log.info("memberId = {}", member.getMemberId());

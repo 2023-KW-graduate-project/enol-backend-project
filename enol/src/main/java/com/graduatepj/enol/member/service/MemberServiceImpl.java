@@ -78,6 +78,11 @@ public class MemberServiceImpl implements MemberService<Member>{
 //        }
 //    }
 
+    /**
+     * 아이디 찾기
+     * @param member
+     * @return
+     */
     @Override
     public Member checkUserId(Member member) {
         log.info("checkUserId memberServiceImpl START");
@@ -116,6 +121,11 @@ public class MemberServiceImpl implements MemberService<Member>{
         return null; // 같은게 없으면 null 반환
     }
 
+    /**
+     * 비밀번호 찾기
+     * @param member
+     * @return
+     */
     @Override
     public Member findUserPassword(Member member) {
         log.info("findUserPassword memberServiceImpl START");
@@ -151,6 +161,12 @@ public class MemberServiceImpl implements MemberService<Member>{
         return null; // 같은게 없으면 null 반환
     }
 
+    /**
+     * 비밀번호 바꾸기
+     * @param member
+     * @param changePW
+     * @return
+     */
     @Override
     public Member ChangeUserPassword(Member member, String changePW) {
         log.info("changeUserPassword memberServiceImpl START");
