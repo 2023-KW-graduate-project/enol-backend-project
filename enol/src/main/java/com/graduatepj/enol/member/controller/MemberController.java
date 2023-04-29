@@ -87,11 +87,13 @@ public class MemberController {
         log.info("memberName = {}", member.getMemberName());
         log.info("eMail = {}", member.getEmail());
         log.info("BDay = {}", member.getBirthday());
+        log.info("gender = {}", member.getGender());
 
         Member checkMember = new Member();
         checkMember.setMemberName(member.getMemberName());
         checkMember.setEmail(member.getEmail());
         checkMember.setBirthday(member.getBirthday());
+        checkMember.setGender(member.getGender());
 
         Member checkedmember = memberService.checkUserId(checkMember);
 
@@ -115,6 +117,7 @@ public class MemberController {
         log.info("memberName = {}", member.getMemberName());
         log.info("eMail = {}", member.getEmail());
         log.info("BDay = {}", member.getBirthday());
+        log.info("gender = {}", member.getGender());
 
 //        log.info("memberId = {}", memberId);
 //        log.info("memberName = {}", memberName);
@@ -126,6 +129,7 @@ public class MemberController {
         changeMember.setMemberName(member.getMemberName());
         changeMember.setEmail(member.getEmail());
         changeMember.setBirthday(member.getBirthday());
+        changeMember.setGender(member.getGender());
 
 //        Member changeMember = new Member();
 //        changeMember.setMemberId(memberId);

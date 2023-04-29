@@ -105,8 +105,10 @@ public class MemberServiceImpl implements MemberService<Member>{
                         log.info("Email same");
                         log.info("checkMember.getMemberBirthDay = {}", checkMember.getBirthday());
 //                        if(checkMember.getNickName().equals(member.getNickName())) {
-                            log.info("nickName same");
+//                            log.info("nickName same");
 //                            log.info("checkMember.getMemberNickName = {}", checkMember.getNickName());
+                        log.info("member.getGender = {}", member.getGender());
+                        log.info("checkMember.getGender = {}", checkMember.getGender());
                             if(checkMember.getGender().equals(member.getGender())) {
                                 log.info("gender same");
                                 log.info("checkMember.getMemberGender = {}", checkMember.getGender());
