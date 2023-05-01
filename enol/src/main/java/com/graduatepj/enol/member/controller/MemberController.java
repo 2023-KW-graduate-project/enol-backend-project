@@ -41,6 +41,7 @@ public class MemberController {
         log.info("memberName = {}", member.getMemberName());
         log.info("memberEmail = {}", member.getEmail());
         log.info("memberBirthDay = {}", member.getBirthday());
+        log.info("memberGender = {}", member.getGender());
         Member joinMember = memberService.joinUser(member);
 
         log.info("MemberController.join Success!!!");
@@ -81,7 +82,6 @@ public class MemberController {
      */
     @PostMapping("checkId")
     public Member checkId(@RequestBody Member member) {
-//    public Member checkId(@RequestBody String memberName, String eMail, String BDay) {
         log.info("MemberController.checkId START");
 
         log.info("memberName = {}", member.getMemberName());
@@ -95,11 +95,10 @@ public class MemberController {
         checkMember.setBirthday(member.getBirthday());
         checkMember.setGender(member.getGender());
 
-        Member checkedmember = memberService.checkUserId(checkMember);
+        Member checkedMember = memberService.checkUserId(checkMember);
 
         log.info("MemberController.checkId END");
-        return checkedmember;
-
+        return checkedMember;
     }
 
     /**
@@ -119,11 +118,6 @@ public class MemberController {
         log.info("BDay = {}", member.getBirthday());
         log.info("gender = {}", member.getGender());
 
-//        log.info("memberId = {}", memberId);
-//        log.info("memberName = {}", memberName);
-//        log.info("eMail = {}", eMail);
-//        log.info("BDay = {}", BDay);
-
         Member changeMember = new Member();
         changeMember.setMemberId(member.getMemberId());
         changeMember.setMemberName(member.getMemberName());
@@ -131,15 +125,9 @@ public class MemberController {
         changeMember.setBirthday(member.getBirthday());
         changeMember.setGender(member.getGender());
 
-//        Member changeMember = new Member();
-//        changeMember.setMemberId(memberId);
-//        changeMember.setMemberName(memberName);
-//        changeMember.setEmail(eMail);
-//        changeMember.setBirthday(BDay);
+        Member changedMember = memberService.findUserPassword(changeMember); // 비밀번호 변경할 member 객체 OR null
 
-        Member changedmember = memberService.findUserPassword(changeMember); // 비밀번호 변경할 member 객체 OR null
-
-        return changedmember;
+        return changedMember;
     }
 
     /**

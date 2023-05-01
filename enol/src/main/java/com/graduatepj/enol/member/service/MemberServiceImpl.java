@@ -34,11 +34,7 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("joinMember.getMemberName = {}", joinMember.getMemberName());
         log.info("joinMember.getMemberEmail = {}", joinMember.getEmail());
         log.info("joinMember.getMemberBirthday = {}", joinMember.getBirthday());
-//        log.info("joinMember.getNickName = {}", joinMember.getNickName());
         log.info("joinMember.getGender = {}", joinMember.getGender());
-
-        // 중복되지 않은 경우 memberRepository에 저장하고 반환
-//        String encPassword = passwordEncoder.encode(password); // 암호화한 패스워드
 
         Member newMember = new Member();
         newMember.setMemberId(joinMember.getMemberId());
@@ -46,7 +42,6 @@ public class MemberServiceImpl implements MemberService<Member>{
         newMember.setMemberName(joinMember.getMemberName());
         newMember.setEmail(joinMember.getEmail());
         newMember.setBirthday(joinMember.getBirthday());
-//        newMember.setNickName(joinMember.getNickName());
         newMember.setGender(joinMember.getGender());
 
         memberRepository.save(newMember);
@@ -90,7 +85,6 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("member.getMemberName = {}", member.getMemberName());
         log.info("member.getMemberEMail = {}", member.getEmail());
         log.info("member.getMemberBDay = {}", member.getBirthday());
-//        log.info("member.getMemberNickName = {}", member.getNickName());
         log.info("member.getMemberGender = {}", member.getGender());
 
         List<Member> memberList = memberRepository.findAll();
@@ -104,9 +98,6 @@ public class MemberServiceImpl implements MemberService<Member>{
                     if(checkMember.getBirthday().equals(member.getBirthday())) {
                         log.info("Email same");
                         log.info("checkMember.getMemberBirthDay = {}", checkMember.getBirthday());
-//                        if(checkMember.getNickName().equals(member.getNickName())) {
-//                            log.info("nickName same");
-//                            log.info("checkMember.getMemberNickName = {}", checkMember.getNickName());
                         log.info("member.getGender = {}", member.getGender());
                         log.info("checkMember.getGender = {}", checkMember.getGender());
                             if(checkMember.getGender().equals(member.getGender())) {
@@ -114,7 +105,6 @@ public class MemberServiceImpl implements MemberService<Member>{
                                 log.info("checkMember.getMemberGender = {}", checkMember.getGender());
                                 return checkMember; // 다 같으면 해당 멤버 객체 반환
                             }
-//                        }
                     }
                 }
             }
@@ -136,7 +126,6 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("member.getMemberName = {}", member.getMemberName());
         log.info("member.getMemberEMail = {}", member.getEmail());
         log.info("member.getMemberBDay = {}", member.getBirthday());
-//        log.info("member.getMemberNickName = {}", member.getNickName());
         log.info("member.getMemberGender = {}", member.getGender());
 
         List<Member> memberList = memberRepository.findAll();
@@ -148,7 +137,6 @@ public class MemberServiceImpl implements MemberService<Member>{
                 if(checkMember.getMemberName().equals(member.getMemberName()) &&
                 checkMember.getEmail().equals(member.getEmail()) &&
                 checkMember.getBirthday().equals(member.getBirthday()) &&
-//                checkMember.getNickName().equals(member.getNickName()) &&
                 checkMember.getGender().equals(member.getGender())) { // 입력한 정보가 다 맞은 경우 해당 멤버 객체 반환
                     log.info("All info same");
                     return checkMember; // ID가 같은 해당 멤버 객체 반환
