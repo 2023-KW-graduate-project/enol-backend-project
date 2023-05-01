@@ -68,6 +68,7 @@ public class LoginServiceImpl implements LoginService<Member>{
 
     /**
      * 로그인 메서드
+     * 성공 확인
      * @param member
      * @return
      */
@@ -89,7 +90,6 @@ public class LoginServiceImpl implements LoginService<Member>{
 
                 log.info("memberId={}", loginMember.getMemberId());
                 log.info("Password={}", loginMember.getPassword());
-//                log.info("EnPassword={}", loginMember.getEnpassword());
                 log.info("memberName={}", loginMember.getMemberName());
                 log.info("Email={}", loginMember.getEmail());
                 log.info("BirthDay={}", loginMember.getBirthday());

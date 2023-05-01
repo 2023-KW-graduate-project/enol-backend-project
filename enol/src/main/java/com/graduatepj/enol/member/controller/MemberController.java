@@ -20,6 +20,7 @@ public class MemberController {
 
     /**
      * 유저 리스트 보이기
+     * 성공 확인
      */
     @GetMapping("/users")
     public List<Member> showMemberList() {
@@ -30,6 +31,7 @@ public class MemberController {
 
     /**
      * 회원 가입 페이지
+     * 성공 확인
      * @return
      */
     @PostMapping("/join")
@@ -77,10 +79,11 @@ public class MemberController {
 
     /**
      * 아이디 찾기
+     * 성공 확인
      * @param member
      * @return
      */
-    @PostMapping("checkId")
+    @PostMapping("/checkId")
     public Member checkId(@RequestBody Member member) {
         log.info("MemberController.checkId START");
 
@@ -104,10 +107,11 @@ public class MemberController {
     /**
      * 비밀 번호 찾기 페이지
      * 해당 member 객체를 리턴하면 비밀번호 변경 창에서 변경한 비밀번호대로 다시 저장
+     * 성공 확인
      * @param member
      * @return
      */
-    @PostMapping("findPW")
+    @PostMapping("/findPW")
     public Member findPW(@RequestBody Member member) {
 //    public Member findPW(@RequestBody String memberId, @RequestBody String memberName, @RequestParam String eMail, @RequestParam String BDay) {
         log.info("MemberController.findPassword START");
@@ -136,7 +140,7 @@ public class MemberController {
      * @param password
      * @return
      */
-    @PostMapping("changePW")
+    @PostMapping("/changePW")
     public Member changePW(@RequestBody Member member, @RequestParam String password) {
         log.info("MemberController.changePassword START");
 
@@ -154,7 +158,7 @@ public class MemberController {
      * 사용자가 입력했던 취향 변경
      * @return
      */
-    @PostMapping("modifyMember")
+    @PostMapping("/modifyMember")
     public Member modifyMember() {
         log.info("MemberController.modifyMember START");
 
@@ -166,7 +170,7 @@ public class MemberController {
      * 계정 삭제
      * @return
      */
-    @PostMapping("deleteMember")
+    @PostMapping("/deleteMember")
     public boolean deleteMember(@RequestBody Member member) {
         log.info("MemberController.deleteMember START");
         log.info("memberId = {}", member.getMemberId());

@@ -21,6 +21,7 @@ public class LoginController {
 
     /**
      * 로그인 페이지
+     * 성공 확인
      * @param member
      * @return
      */

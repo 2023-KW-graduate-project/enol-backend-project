@@ -13,8 +13,6 @@ import java.util.List;
 @Service("memberService")
 @Slf4j
 public class MemberServiceImpl implements MemberService<Member>{
-//    @Autowired
-//    private PasswordEncoder passwordEncoder;
 
     private static final Logger logger = LoggerFactory.getLogger(MemberServiceImpl.class); // 로거 띄우기 위해
 
@@ -23,6 +21,7 @@ public class MemberServiceImpl implements MemberService<Member>{
 
     /**
      * 회원가입 메서드
+     * 성공 확인
      * @param joinMember
      */
     @Override
@@ -75,6 +74,7 @@ public class MemberServiceImpl implements MemberService<Member>{
 
     /**
      * 아이디 찾기
+     * 성공 확인
      * @param member
      * @return
      */
@@ -115,6 +115,7 @@ public class MemberServiceImpl implements MemberService<Member>{
 
     /**
      * 비밀번호 찾기
+     * 성공 확인
      * @param member
      * @return
      */
@@ -165,7 +166,6 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("member.getMemberName = {}", member.getMemberName());
         log.info("member.getMemberEMail = {}", member.getEmail());
         log.info("member.getMemberBDay = {}", member.getBirthday());
-//        log.info("member.getMemberNickName = {}", member.getNickName());
         log.info("member.getMemberGender = {}", member.getGender());
 
         List<Member> memberList = memberRepository.findAll();
@@ -176,10 +176,8 @@ public class MemberServiceImpl implements MemberService<Member>{
                 changeMember.setMemberId(member.getMemberId());
                 changeMember.setMemberName(member.getMemberName());
                 changeMember.setPassword(member.getPassword());
-//                changeMember.setEnpassword(member.getEnpassword());
                 changeMember.setEmail(member.getEmail());
                 changeMember.setBirthday(member.getBirthday());
-//                changeMember.setNickName(member.getNickName());
                 changeMember.setGender(member.getGender());
 
                 memberRepository.save(changeMember);
@@ -207,7 +205,6 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("member.getMemberName = {}", member.getMemberName());
         log.info("member.getMemberEMail = {}", member.getEmail());
         log.info("member.getMemberBDay = {}", member.getBirthday());
-//        log.info("member.getMemberNickName = {}", member.getNickName());
         log.info("member.getMemberGender = {}", member.getGender());
 
         List<Member> memberList = memberRepository.findAll();
@@ -225,6 +222,11 @@ public class MemberServiceImpl implements MemberService<Member>{
         return false;
     }
 
+    /**
+     * 유저 리스트 보이기
+     * 성공 확인
+     * @return
+     */
     @Override
     public List<Member> showMembers() {
         log.info("showMembers memberServiceImpl start");

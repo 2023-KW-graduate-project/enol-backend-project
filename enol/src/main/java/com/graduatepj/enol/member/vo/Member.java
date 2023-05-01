@@ -2,11 +2,11 @@ package com.graduatepj.enol.member.vo;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-import net.bytebuddy.dynamic.loading.InjectionClassLoader;
-import org.springframework.boot.autoconfigure.web.WebProperties;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Getter @Setter
 @Table(name="MEMBER")
@@ -15,7 +15,6 @@ public class Member {
     /** 회원가입때 사용자에게 받을 정보 */
     /** 사용자 ID */
     @Id
-//    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="MEMBERID")
     private String memberId;
 
@@ -27,10 +26,6 @@ public class Member {
     @Column(name="PASSWORD")
     private String password;
 
-//    /** 암호화 비밀번호 */
-//    @Column(name="ENPASSWORD")
-//    private String enpassword;
-
     /** 사용자 이메일 */
     @Column(name = "EMAIL")
     private String email;
@@ -38,10 +33,6 @@ public class Member {
     /** 사용자 생일 */
     @Column(name = "BDAY")
     private String birthday;
-
-//    /** 사용자 닉네임 */
-//    @Column(name = "NICKNAME")
-//    private String nickName;
 
     /** 사용자 성별 */
     @Column(name = "GENDER")
