@@ -1,4 +1,4 @@
-package com.graduatepj.enol.makeCourse.vo;
+package com.graduatepj.enol.makeCourse.dto;
 
 import lombok.Getter;
 import lombok.Setter;

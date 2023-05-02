@@ -1,13 +1,16 @@
-package com.graduatepj.enol.makeCourse.vo;
+package com.graduatepj.enol.makeCourse.dto;
 
-import com.graduatepj.enol.member.vo.Member;
-import lombok.Getter;
-import lombok.Setter;
+import com.graduatepj.enol.makeCourse.vo.BigCourseOutline;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class FirstCourse {
     // 맞춤 코스 제작 코스 - 입력: 인원수, 약속시간(시작, 끝), 코스 키워드(1개 이상), 모임의 목적, 가고 싶은 카테고리, 식사 유무 - 이건 모든 Course 클래스가 가지도록 함
 
@@ -16,8 +19,7 @@ public class FirstCourse {
 
 //    private int peopleNumber; // 인원수
 
-    private List<Member> memberList = new ArrayList<Member>(); // 회원들 리스트
-
+    private List<SelectedMemberDto> memberList = new ArrayList<>(); // 회원들 리스트
 
     private int startTime; // 약속 시작 시간
 
@@ -34,8 +36,6 @@ public class FirstCourse {
     private String mainBigCategory; // 코스의 주 장소가 될 카테고리
 
     private List<BigCourseOutline> bigCategoryCourses = new ArrayList<>(); // bigCategory로 이루어진 코스들을 동적 배열로 가짐
-
-    public FirstCourse() {   }
 
     public FirstCourse(BigCourseOutline bigCourseOutline) { bigCategoryCourses.add(bigCourseOutline);}
 
