@@ -15,6 +15,7 @@ public class Course {
     private Long id;
     @ElementCollection
     private List<String> categories;
+
     /** 피로도 */
     private int fatigability;
 

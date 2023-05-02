@@ -1,18 +1,17 @@
-package com.graduatepj.enol.member.vo;
+package com.graduatepj.enol.makeCourse.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.graduatepj.enol.member.vo.Member;
+import lombok.*;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Getter
 @Setter
-@Table(name = "MEMBER")
-@Entity
-public class Member {
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class MemberDto {
     /** 회원가입때 사용자에게 받을 정보 */
     /**
      * 사용자 ID
@@ -26,18 +25,6 @@ public class Member {
      */
     @Column(name = "MEMBERNAME")
     private String memberName;
-
-    /**
-     * 비밀번호
-     */
-    @Column(name = "PASSWORD")
-    private String password;
-
-    /**
-     * 사용자 이메일
-     */
-    @Column(name = "EMAIL")
-    private String email;
 
     /**
      * 사용자 생일
@@ -66,6 +53,18 @@ public class Member {
      */
     private int activity;
 
+    public static MemberDto fromEntity(Member member) {
+        return MemberDto.builder()
+                .memberId(member.getMemberId())
+                .memberName(member.getMemberName())
+                .birthday(member.getBirthday())
+                .gender(member.getGender())
+                .fatigability(member.getFatigability())
+                .specification(member.getSpecification())
+                .activity(member.getActivity())
+                .build();
+    }
+
 
 //
 //    // 실행 중 필요한 사용자의 정보
@@ -90,5 +89,4 @@ public class Member {
 ////
 ////    /** 놀거리 리스트 */
 ////    private List<PlayDVO> playList;
-
 }
