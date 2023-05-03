@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 public class SecondCourse {
     private CourseDto selectedCourse;
+    private String wantedCategory;
     private List<String> detailCategories;
 
     public SecondCourse(CourseDto selectedCourse) {

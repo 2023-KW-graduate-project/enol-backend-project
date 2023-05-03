@@ -8,6 +8,7 @@ import com.graduatepj.enol.makeCourse.dto.*;
 import com.graduatepj.enol.makeCourse.type.CategoryPriority;
 import com.graduatepj.enol.makeCourse.vo.Course;
 import com.graduatepj.enol.makeCourse.vo.DColCategory;
+import com.graduatepj.enol.makeCourse.dto.StoreDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -26,6 +27,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     private final MemberRepository memberRepository;
     private final StoreRepository storeRepository;
     private static final int CATEGORY_NUM = 62;
+    private static final int FILTER_RADIUS = 200;
 
     private final DColCategoryRepository dColCategoryRepositroy;
 
@@ -164,7 +166,14 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 //         리스트에서 무작위로 하나의 요소 선택
         for (String s : firstCourse.getCategories()) {
             List<String> smallCategories = SmallCategory.getInstance().getCategories().get(s);
-            detailCategories.add(smallCategories.get(rand.nextInt(smallCategories.size())));
+            String randomCategory = smallCategories.get(rand.nextInt(smallCategories.size()));
+            // firstCourse의 wantedCategory를 secondCourse에 옮기기
+            if(firstCourse.getWantedCategory().equals(s)){
+                detailCategories.add(0, randomCategory);
+                secondCourse.setWantedCategory(firstCourse.getWantedCategory());
+            }else{
+                detailCategories.add(randomCategory);
+            }
         }
         secondCourse.setDetailCategories(detailCategories);
         return secondCourse;
@@ -173,6 +182,33 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     // 실제 가게들 선택 및 최적화 알고리즘 적용
     @Override
     public FinalCourse finalCourseFiltering(SecondCourse secondCourse) {
+        boolean check=false;
+        StoreDto[] filteredStore = new StoreDto[secondCourse.getDetailCategories().size()];
+        // wantedCategory 데이터를 전부 별점순으로 가져오기(내림차순)
+        List<StoreDto> wantedCategoryStoreList = storeRepository
+                .findAllByCategoryInOrderByRateDesc(secondCourse.getWantedCategory())
+                .stream()
+                .map(StoreDto::fromEntity)
+                .collect(Collectors.toList());
+        // 카테고리를 돌려보면서 하나하나 반경 기준으로 가져오기.
+        for(StoreDto s : wantedCategoryStoreList){
+            filteredStore[0]=s;
+            for (int i = 1; i < filteredStore.length; i++) {
+                filteredStore[i]= StoreDto.fromEntity(
+                        storeRepository.findHighestRatedStoreByCategoryAndLocationAndRadius(
+                                secondCourse.getDetailCategories().get(i), s.getX(), s.getY(), FILTER_RADIUS));
+                if(filteredStore[i] == null){
+                    break;
+                }else if(i== filteredStore.length-1){
+                    check=true;
+                }
+            }
+            if(check){
+                break;
+            }
+        }
+
+
         return null;
     }
 
