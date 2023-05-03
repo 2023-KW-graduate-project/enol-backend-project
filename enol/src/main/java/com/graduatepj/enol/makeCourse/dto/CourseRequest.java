@@ -22,7 +22,8 @@ public class CourseRequest {
     // 필수 장소(미선택시 C열 기준 우선순위 선정)
     private String wantedCategory;
     // 필터링 사용 목적(수치 필터링)
-    private List<Boolean> courseKeywords;
+    private List<Boolean> courseKeywords; // 8개
     // 필터링 사용 목적(컷)
-    private List<Boolean> goals;
+    private List<Boolean> goals; // 10개
+
 }

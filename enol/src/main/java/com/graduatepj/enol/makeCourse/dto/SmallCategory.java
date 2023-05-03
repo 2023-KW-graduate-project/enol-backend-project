@@ -20,7 +20,7 @@ public class SmallCategory {
 
     private Map<String, List<String>> categories;
 
-    private SmallCategory() {
+    private SmallCategory() { // D열과 C열을 연결시키는 클래스인듯
         categories = new HashMap<>();
         categories.put("놀기 Main 스포츠", Arrays.asList("수상스포츠", "클라이밍", "수영장", "스킨스쿠버", "스케이트장"));
         categories.put("놀기 Main 자연", Arrays.asList("산", "계곡"));

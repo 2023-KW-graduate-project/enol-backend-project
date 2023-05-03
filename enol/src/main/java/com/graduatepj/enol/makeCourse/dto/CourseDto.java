@@ -4,6 +4,7 @@ import com.graduatepj.enol.makeCourse.vo.Course;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -12,7 +13,7 @@ import java.util.List;
 @Builder
 public class CourseDto {
 
-    private List<String> categories;
+    private List<String> categories; // c열로 이루어진 리스트
     private boolean mealCheck;
     // 필수 장소(미선택시 C열 기준 우선순위 선정)
     private String wantedCategory;
@@ -55,4 +56,11 @@ public class CourseDto {
                 .rate(course.getRate())
                 .build();
     }
+
+    
+    // 추가
+    /**
+     * 어느 목적이 어떤 카테고리에 속하는지 저장하는 map
+     */
+    private Map<String, String> goalMatch; // 첫번째 string이 C열 카테고리 두번째 string이 속하는 목적
 }
