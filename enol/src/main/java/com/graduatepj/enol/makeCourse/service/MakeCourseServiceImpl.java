@@ -1,11 +1,9 @@
 package com.graduatepj.enol.makeCourse.service;
 
-import com.graduatepj.enol.makeCourse.dao.CourseRepository;
-import com.graduatepj.enol.makeCourse.dao.DColCategoryRepository;
-import com.graduatepj.enol.makeCourse.dao.MemberRepository;
-import com.graduatepj.enol.makeCourse.dao.StoreRepository;
+import com.graduatepj.enol.makeCourse.dao.*;
 import com.graduatepj.enol.makeCourse.dto.*;
 import com.graduatepj.enol.makeCourse.type.CategoryPriority;
+import com.graduatepj.enol.makeCourse.vo.Category;
 import com.graduatepj.enol.makeCourse.vo.Course;
 import com.graduatepj.enol.makeCourse.vo.DColCategory;
 import com.graduatepj.enol.makeCourse.dto.StoreDto;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -29,7 +28,13 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     private static final int CATEGORY_NUM = 62;
     private static final int FILTER_RADIUS = 200;
 
-    private final DColCategoryRepository dColCategoryRepositroy;
+    private final CategoryRepository categoryRepository;
+    private final Course1Repository course1Repository;
+    private final Course2Repository course2Repository;
+    private final Course3Repository course3Repository;
+    private final Course4Repository course4Repository;
+    private final CourseV2Repository courseV2Repository;
+    private final CoursePurposeRepository coursePurposeRepository;
 
     // 실제로 해야할 것
     @Override
@@ -58,13 +63,20 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
 
         // 멤버 데이터 가져오기 - 약속에 함께하는 멤버 리스트 생성
+        // member DB 나오는대로 수정해야 할수도 - ID가 아니라 코드가 pk이면 pk로 find해야 하므로 - 일단 놔둠
         List<MemberDto> memberList = memberRepository
                 .findAllByIdIn(courseRequest.getMemberIdList())
                 .stream()
                 .map(member -> (MemberDto.fromEntity(member)))
                 .collect(Collectors.toList());
 
-        log.info("Member List = {}", memberList); // 로그로 멤버 리스트 확인
+        // 로그로 멤버 리스트 확인
+        for(MemberDto memberDto : memberList) {
+            log.info("Member List = ");
+            log.info("{}", memberDto);
+        }
+        log.info("--- memberList end --- ");
+
 
         // 멤버들의 특성치 평균 구하기 - 약속에 함께하는 멤버 전체의 피로도, 특이도, 활동성의 평균 값 구하기
         MemberDto avgMember = new MemberDto();
@@ -74,19 +86,11 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             avgMember.setActivity(memberList.stream().mapToInt(MemberDto::getActivity).sum() / memberList.size());
         }
 
-        log.info("avgMember = {}", avgMember); // 멤버들의 평균 객체
+        // 로그로 멤버들의 특성치 평균 확인
+        log.info("avgMember.getFatigability() = {}", avgMember.getFatigability());
+        log.info("avgMember.getActivity() = {}", avgMember.getActivity());
+        log.info("avgMember.getSpecification() = {}", avgMember.getSpecification());
 
-        // 입력받은 정보들을 모두 firstCourse에 넣는 과정 **
-//        FirstCourse course;
-
-        // firstCourse에 내용 확인
-//        log.info("firstCourse.getMemberList = {}", course.getMemberList());
-//        log.info("firstCourse.getStartTime = {}", course.getStartTime());
-//        log.info("firstCourse.getFinishTime = {}", course.getFinishTime());
-//        log.info("firstCourse.getCourseKeyword = {}", course.getCourseKeyword());
-//        log.info("firstCourse.getGoal = {}", course.getGoal());
-//        log.info("firstCourse.getWantedCategory = {}", course.getWantedCategory());
-//        log.info("firstCourse.isMealCheck = {}", course.isMealCheck());
 
         // 시간 제한으로 가능한 모든 코스 받아오기(시간은 24시간으로 받아야함) - 분 말고 몇시인지만 받을거임
         // 시간에 따라 코스에 속할 카테고리 개수 정하기 - 최대 main 4개나 sub 4개
@@ -155,6 +159,320 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     }
 
 
+    @Override
+    public CourseDto firstCourseFiltering1(CourseRequest courseRequest) { // course_v2 사용
+        // C열 카테고리로 이루어진 코스 생성
+        log.info("firstCourseFiltering Start!");
+
+        // 인자값이 잘 들어왔는지 확인하는 로그
+        log.info("courseRequest.getNumPeople = {}", courseRequest.getNumPeople());
+        log.info("courseRequest.getMemberIdList = {}", courseRequest.getMemberIdList());
+        log.info("courseRequest.isMealCheck = {}", courseRequest.isMealCheck());
+        log.info("courseRequest.getStartTime = {}, FinishTime = {}", courseRequest.getStartTime(), courseRequest.getFinishTime());
+        log.info("courseRequest.getWantedCategory = {}", courseRequest.getWantedCategory());
+        log.info("courseRequest.getCourseKeywords = {}", courseRequest.getCourseKeywords());
+        log.info("courseRequest.getCourseGoals = {}", courseRequest.getGoals());
+
+
+        // 멤버 데이터 가져오기 - 약속에 함께하는 멤버 리스트 생성
+        // member DB 나오는대로 수정해야 할수도 - ID가 아니라 코드가 pk이면 pk로 find해야 하므로 - 일단 놔둠
+        List<MemberDto> memberList = memberRepository
+                .findAllByIdIn(courseRequest.getMemberIdList())
+                .stream()
+                .map(member -> (MemberDto.fromEntity(member)))
+                .collect(Collectors.toList());
+
+        // 로그로 멤버 리스트 확인
+        for(MemberDto memberDto : memberList) {
+            log.info("Member List = ");
+            log.info("{}", memberDto);
+        }
+        log.info("--- memberList end --- ");
+
+
+        // 멤버들의 특성치 평균 구하기 - 약속에 함께하는 멤버 전체의 피로도, 특이도, 활동성의 평균 값 구하기
+        MemberDto avgMember = new MemberDto();
+        if (!memberList.isEmpty()) {
+            avgMember.setFatigability(memberList.stream().mapToInt(MemberDto::getFatigability).sum() / memberList.size());
+            avgMember.setSpecification(memberList.stream().mapToInt(MemberDto::getSpecification).sum() / memberList.size());
+            avgMember.setActivity(memberList.stream().mapToInt(MemberDto::getActivity).sum() / memberList.size());
+        }
+
+        // 로그로 멤버들의 특성치 평균 확인
+        log.info("avgMember.getFatigability() = {}", avgMember.getFatigability());
+        log.info("avgMember.getActivity() = {}", avgMember.getActivity());
+        log.info("avgMember.getSpecification() = {}", avgMember.getSpecification());
+
+
+        // 시간 제한으로 가능한 모든 코스 받아오기(시간은 24시간으로 받아야함) - 분 말고 몇시인지만 받을거임
+        // 시간에 따라 코스에 속할 카테고리 개수 정하기 - 최대 main 4개나 sub 4개
+        int totalTime = courseRequest.getFinishTime() - courseRequest.getStartTime(); // 총 소요 시간
+
+        List<CourseDto> timeCourseList = courseV2Repository.findAllByTime(totalTime); // 원래처럼 하나의 테이블에서 시간에 맞는거만 뽑아냄
+
+
+        
+        List<CourseDto> filteredCourse = new ArrayList<>(); // 마지막에 반환할 CourseDto를 담을 리스트, 모든 조건에 해당하는 것만 담을 예정
+
+
+        List<Integer> courseGoalList = new ArrayList<>();
+
+        for(int i=0; i<10; i++) {
+            if(courseRequest.getGoals().get(i)) {
+                courseGoalList.add(1);
+            }
+            else courseGoalList.add(0);
+        }
+
+
+        for (CourseDto courseInfo : timeCourseList) { // 시간으로 필터링한 코스 틀 전체에서 하나씩 가져옴
+            List<String> course = courseInfo.getCategories(); // 코스 가져오기 - ex) 놀기Main, 관게Main
+
+
+            // 필수 장소 있을때 그게 들어가게 일단 필터링 
+            if (courseRequest.getWantedCategory() != null) { // 가고싶은 카테고리 있으면
+                if (!course.contains(courseRequest.getWantedCategoryGroup())) { // 필수장소(카테고리) 필터링 - 없으면 continue하도록
+                    continue;
+                }
+            }
+            // 여기까지 filteredCourse에 아무것도 없는거임
+
+            /** 목적으로 필터링 */
+            // 시간이랑 목적 한거 교집합 구하기 - 생긴게 너무 달라서 안됨
+
+            // goal로 필터링해서 맞는 categoryGroupCode를 뽑아낸 리스트
+            List<String> goalFilteringList =  coursePurposeRepository.findByCategoryGroupCodeOrWalkOrDrinkOrExperienceOrHealingOrWatchOrIntellectualOrViewOrNormalOrSportsOrSolo(courseGroupCode, courseGoalList.get(0), courseGoalList.get(1), courseGoalList.get(2), courseGoalList.get(3), courseGoalList.get(4), courseGoalList.get(5), courseGoalList.get(6), courseGoalList.get(7), courseGoalList.get(8), courseGoalList.get(9)));
+
+            // 그렇다면 time으로 필터링 한 것 중 목적으로 필터링한거에서 CategoryGroupCode를 가지지 않는 것을 지워보자
+
+
+            // 여기까지 filteredCourse에 아무것도 없는거임
+//            if (!firstCourseGoalFiltering(courseInfo, courseRequest, filteredCourse)) // 코스 목적으로 필터링
+//                continue;
+
+
+            int count = 0;
+            for(String courseGroupCode : course) { // course에 들어가는 categoryGroup 중 하나라도 목적을 만족하는게 있으면 목적에 맞는거고 아니면 안맞는 것 - 목적3개인데 카테고리 2개짜리인거 있을 수도 있으니까
+                for(String goalfilteringcourseGroupCode : goalFilteringList) {
+                    if(!courseGroupCode.equals(goalfilteringcourseGroupCode)) { // 목적으로 필터링한 것을 가지지 않으면 제거
+                        continue;
+                    }
+                    else // 목적으로 필터링 한것을 가지는 코스 틀이라면
+                        count++;
+
+                }
+                if(count == 0) {
+                    timeCourseList.remove(courseInfo); // 현재 courseDto인 courseInfo 삭제
+                }
+
+            }
+            /** 목적으로 필터링 끝 */ // - 내일 다시 점검함
+
+//            firstCourseGoalFiltering(courseInfo, courseRequest, filteredCourse); // 코스 목적으로 필터링 - 안에서 filterCourse를 add하고 C열 카테고리에 목적을 map으로 가짐
+
+
+            int N = 0; // 키워드 수치 비교에서 N을 어떻게 할지에 따라 결정
+
+            if (!firstCourseKeywordFiltering(courseInfo, courseRequest, N)) // 코스 키워드로 필터링
+                continue;
+            filteredCourse.add(CourseDto.fromEntity(courseInfo)); // 시간 맞는거 중에서 필수 장소, 목적, 키워드 해당하는 것만 add
+        } // filteredCourse에는 모든 조건에 맞는 C열로 이루어진 코스 틀만 들어있을 것
+
+        // 개수, 목적, 키워드까지로 필터링된 코스 개수와 뭔지 보여주는 로그
+        log.info("filteredCourse.size = {}", filteredCourse.size()); // 필터링된 코스 개수
+        for(int i=0; i< filteredCourse.size(); i++)
+            log.info("filteredCourse List {} = {}", i, filteredCourse.get(i)); // 필터링된 코스 확인
+
+
+        // 코사인 유사도 평가로 뽑는 방법(1)
+        log.info("computeSimilarity Start!");
+        List<CourseDto> courseAfterSimilarity = computeSimilarity(filteredCourse, avgMember);
+        // 랜덤으로 뽑는 방법(2)
+        // 랜덤 객체 생성
+        //Random rand = new Random();
+        // 리스트에서 무작위로 하나의 요소 선택
+        // CourseDto randomCourse = filteredCourse.get(rand.nextInt(filteredCourse.size()));
+        CourseDto selectedCourse = courseAfterSimilarity.get(0); // 유사도 계산하거나 랜덤 뽑은것 중 첫번재로 나온 것을 코스틀로 지정
+        selectedCourse.setMealCheck(courseRequest.isMealCheck()); // 식사 유무 저장
+        selectedCourse.setWantedCategory(courseRequest.getWantedCategory()); // 필수 카테고리 저장
+
+        // wantedCategory가 null인 경우 우선순위에 따른 주장소 선택(main)
+        log.info("firstCourseFiltering Start!");
+        if (selectedCourse.getWantedCategory() == null) { // 필수 카테고리 없는 경우 우선순위에 따라 코스의 주 카테고리 지정
+            // 우선순위에 따른 주장소 선택
+            for (CategoryPriority p : CategoryPriority.values()) {
+                for (String category : selectedCourse.getCategories()) {
+                    if (category.contains(p.getName())) { // 우선순위 순으로 해당 C열 카테고리를 가졌는지 확인
+                        selectedCourse.setWantedCategory(p.getName()); // 가졌으면 wantedCategory로 지정하고 탈출
+                        break;
+                    }
+                }
+                if (selectedCourse.getWantedCategory() != null) { // ???
+                    break;
+                }
+            }
+        }
+        log.info("selectedCourse = {}", selectedCourse);
+        return selectedCourse; // 다 거르고 최종 필터링된 selectedCourse 하나만 반환
+    }
+
+    @Override
+    public CourseDto firstCourseFiltering2(CourseRequest courseRequest) { // course1,2,3,4 사용
+        // C열 카테고리로 이루어진 코스 생성
+        log.info("firstCourseFiltering Start!");
+
+        // 인자값이 잘 들어왔는지 확인하는 로그
+        log.info("courseRequest.getNumPeople = {}", courseRequest.getNumPeople());
+        log.info("courseRequest.getMemberIdList = {}", courseRequest.getMemberIdList());
+        log.info("courseRequest.isMealCheck = {}", courseRequest.isMealCheck());
+        log.info("courseRequest.getStartTime = {}, FinishTime = {}", courseRequest.getStartTime(), courseRequest.getFinishTime());
+        log.info("courseRequest.getWantedCategory = {}", courseRequest.getWantedCategory());
+        log.info("courseRequest.getCourseKeywords = {}", courseRequest.getCourseKeywords());
+        log.info("courseRequest.getCourseGoals = {}", courseRequest.getGoals());
+
+
+        // 멤버 데이터 가져오기 - 약속에 함께하는 멤버 리스트 생성
+        // member DB 나오는대로 수정해야 할수도 - ID가 아니라 코드가 pk이면 pk로 find해야 하므로 - 일단 놔둠
+        List<MemberDto> memberList = memberRepository
+                .findAllByIdIn(courseRequest.getMemberIdList())
+                .stream()
+                .map(member -> (MemberDto.fromEntity(member)))
+                .collect(Collectors.toList());
+
+        // 로그로 멤버 리스트 확인
+        for(MemberDto memberDto : memberList) {
+            log.info("Member List = ");
+            log.info("{}", memberDto);
+        }
+        log.info("--- memberList end --- ");
+
+
+        // 멤버들의 특성치 평균 구하기 - 약속에 함께하는 멤버 전체의 피로도, 특이도, 활동성의 평균 값 구하기
+        MemberDto avgMember = new MemberDto();
+        if (!memberList.isEmpty()) {
+            avgMember.setFatigability(memberList.stream().mapToInt(MemberDto::getFatigability).sum() / memberList.size());
+            avgMember.setSpecification(memberList.stream().mapToInt(MemberDto::getSpecification).sum() / memberList.size());
+            avgMember.setActivity(memberList.stream().mapToInt(MemberDto::getActivity).sum() / memberList.size());
+        }
+
+        // 로그로 멤버들의 특성치 평균 확인
+        log.info("avgMember.getFatigability() = {}", avgMember.getFatigability());
+        log.info("avgMember.getActivity() = {}", avgMember.getActivity());
+        log.info("avgMember.getSpecification() = {}", avgMember.getSpecification());
+
+
+        // 시간 제한으로 가능한 모든 코스 받아오기(시간은 24시간으로 받아야함) - 분 말고 몇시인지만 받을거임
+        // 시간에 따라 코스에 속할 카테고리 개수 정하기 - 최대 main 4개나 sub 4개
+        int totalTime = courseRequest.getFinishTime() - courseRequest.getStartTime(); // 총 소요 시간
+
+        List<CourseDto> timeCourseList1 = Stream.concat(course1Repository.findAllByTime(totalTime).stream(), course2Repository.findAllByTime(totalTime).stream()).collect(Collectors.toList()); // Course1, Course2에서 시간 맞는거 가져와서 합친 리스트
+        List<CourseDto> timeCourseList2 = Stream.concat(course3Repository.findAllByTime(totalTime).stream(), course4Repository.findAllByTime(totalTime).stream()).collect(Collectors.toList()); // Course3, Course4에서 시간 맞는거 가져와서 합친 리스트
+        List<CourseDto> timeCourseList = Stream.concat(timeCourseList1.stream(), timeCourseList2.stream()).collect(Collectors.toList()); // 위 두 개 리스트를 합쳐서 Course1부터 Course4까지 나온 리스트 다 가진 리스트
+
+        // Course1,2,3,4 4개가 다 다르므로 그것을 통합하여 필요한 것들을 사용하기 위해 CourseDto로 반환형 하고 이것에 넣어서 사용
+        List<CourseDto> filteredCourse = new ArrayList<>(); // 마지막에 반환할 CourseDto를 담을 리스트, 모든 조건에 해당하는 것만 담을 예정
+
+        List<Integer> courseGoalList = new ArrayList<>();
+
+        for(int i=0; i<10; i++) {
+            if(courseRequest.getGoals().get(i)) {
+                courseGoalList.add(1);
+            }
+            else courseGoalList.add(0);
+        }
+
+        for (CourseDto courseInfo : timeCourseList) { // 시간으로 필터링한 코스 틀 전체에서 하나씩 가져옴
+            List<String> course = courseInfo.getCategories(); // 코스 가져오기 - ex) 놀기Main 스포츠, 관게Main 관람
+
+
+            // 필수 장소 있을때 그게 들어가게 일단 필터링
+            if (courseRequest.getWantedCategory() != null) { // 가고싶은 카테고리 있으면
+                if (!course.contains(courseRequest.getWantedCategoryGroup())) { // 필수장소(카테고리) 필터링 - 가져온 코스에서 wantedCategoryGroup이 있는지 확인
+                    continue;
+                }
+            }
+
+            /** 목적으로 필터링 */
+            // 시간이랑 목적 한거 교집합 구하기 - 생긴게 너무 달라서 안됨
+
+            // goal로 필터링해서 맞는 categoryGroupCode를 뽑아낸 리스트
+            List<String> goalFilteringList =  coursePurposeRepository.findByCategoryGroupCodeOrWalkOrDrinkOrExperienceOrHealingOrWatchOrIntellectualOrViewOrNormalOrSportsOrSolo(courseGroupCode, courseGoalList.get(0), courseGoalList.get(1), courseGoalList.get(2), courseGoalList.get(3), courseGoalList.get(4), courseGoalList.get(5), courseGoalList.get(6), courseGoalList.get(7), courseGoalList.get(8), courseGoalList.get(9)));
+
+            // 그렇다면 time으로 필터링 한 것 중 목적으로 필터링한거에서 CategoryGroupCode를 가지지 않는 것을 지워보자
+
+
+            // 여기까지 filteredCourse에 아무것도 없는거임
+//            if (!firstCourseGoalFiltering(courseInfo, courseRequest, filteredCourse)) // 코스 목적으로 필터링
+//                continue;
+
+
+            int count = 0;
+            for(String courseGroupCode : course) { // course에 들어가는 categoryGroup 중 하나라도 목적을 만족하는게 있으면 목적에 맞는거고 아니면 안맞는 것 - 목적3개인데 카테고리 2개짜리인거 있을 수도 있으니까
+                for(String goalfilteringcourseGroupCode : goalFilteringList) {
+                    if(!courseGroupCode.equals(goalfilteringcourseGroupCode)) { // 목적으로 필터링한 것을 가지지 않으면 제거
+                        continue;
+                    }
+                    else // 목적으로 필터링 한것을 가지는 코스 틀이라면
+                        count++;
+
+                }
+                if(count == 0) {
+                    timeCourseList.remove(courseInfo); // 현재 courseDto인 courseInfo 삭제
+                }
+
+            }
+            /** 목적으로 필터링 끝 */ // - 내일 다시 점검함
+
+//            firstCourseGoalFiltering(courseInfo, courseRequest, filteredCourse); // 코스 목적으로 필터링 - 안에서 filterCourse를 add하고 C열 카테고리에 목적을 map으로 가짐
+
+
+            int N = 0; // 키워드 수치 비교에서 N을 어떻게 할지에 따라 결정
+
+            if (!firstCourseKeywordFiltering(courseInfo, courseRequest, N)) // 코스 키워드로 필터링
+                continue;
+            filteredCourse.add(CourseDto.fromEntity(courseInfo)); // 시간 맞는거 중에서 필수 장소, 목적, 키워드 해당하는 것만 add
+        } // filteredCourse에는 모든 조건에 맞는 C열로 이루어진 코스 틀만 들어있을 것
+
+        // 개수, 목적, 키워드까지로 필터링된 코스 개수와 뭔지 보여주는 로그
+        log.info("filteredCourse.size = {}", filteredCourse.size()); // 필터링된 코스 개수
+        for(int i=0; i< filteredCourse.size(); i++)
+            log.info("filteredCourse List {} = {}", i, filteredCourse.get(i)); // 필터링된 코스 확인
+
+
+        // 코사인 유사도 평가로 뽑는 방법(1)
+        log.info("computeSimilarity Start!");
+        List<CourseDto> courseAfterSimilarity = computeSimilarity(filteredCourse, avgMember);
+        // 랜덤으로 뽑는 방법(2)
+        // 랜덤 객체 생성
+        //Random rand = new Random();
+        // 리스트에서 무작위로 하나의 요소 선택
+        // CourseDto randomCourse = filteredCourse.get(rand.nextInt(filteredCourse.size()));
+        CourseDto selectedCourse = courseAfterSimilarity.get(0); // 유사도 계산하거나 랜덤 뽑은것 중 첫번재로 나온 것을 코스틀로 지정
+        selectedCourse.setMealCheck(courseRequest.isMealCheck()); // 식사 유무 저장
+        selectedCourse.setWantedCategory(courseRequest.getWantedCategory()); // 필수 카테고리 저장
+
+        // wantedCategory가 null인 경우 우선순위에 따른 주장소 선택(main)
+        log.info("firstCourseFiltering Start!");
+        if (selectedCourse.getWantedCategory() == null) { // 필수 카테고리 없는 경우 우선순위에 따라 코스의 주 카테고리 지정
+            // 우선순위에 따른 주장소 선택
+            for (CategoryPriority p : CategoryPriority.values()) {
+                for (String category : selectedCourse.getCategories()) {
+                    if (category.contains(p.getName())) { // 우선순위 순으로 해당 C열 카테고리를 가졌는지 확인
+                        selectedCourse.setWantedCategory(p.getName()); // 가졌으면 wantedCategory로 지정하고 탈출
+                        break;
+                    }
+                }
+                if (selectedCourse.getWantedCategory() != null) { // ???
+                    break;
+                }
+            }
+        }
+        log.info("selectedCourse = {}", selectedCourse);
+        return selectedCourse; // 다 거르고 최종 필터링된 selectedCourse 하나만 반환
+        return null;
+    }
+
+
     // 세부 카테고리를 결정
     // 일단 죄다 랜덤으로 뽑긴 했는데 세부적으로 뭐 기타특징 같은거 고려해야함.
     @Override
@@ -219,10 +537,21 @@ public class MakeCourseServiceImpl implements MakeCourseService {
      * @param courseRequest - 입력으로 들어온 코스 목적을 사용하기 위해
      * @return
      */
-    private void firstCourseGoalFiltering(Course course, CourseRequest courseRequest, List<CourseDto> filteredCourse) {
+    private void firstCourseGoalFiltering(CourseDto course, CourseRequest courseRequest, List<CourseDto> filteredCourse) {
         // course에 목적이 있으면 return true, 없으면 return false
 
         String[] courseGoals = course.getGoals().split(","); // 각 코스의 목적이 여러 개 있는 경우를 위해 ,로 구분
+
+        List<Integer> courseGoalList = new ArrayList<>();
+
+        for(int i=0; i<10; i++) {
+            if(courseRequest.getGoals().get(i)) {
+                courseGoalList.add(1);
+            }
+            else courseGoalList.add(0)
+        }
+
+
 
         String[] goalNames = {"산책", "음주", "체험", "힐링", "관람", "지적활동", "경치", "일반", "스포츠", "솔로"}; // 목적 이름 리스트
 
@@ -237,9 +566,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
                         List<String> CColKeyList = new ArrayList<>(); // d열 카테고리가 속하는 c열 카테고리의 이름을 담을 리스트 - 어차피 1개만 담김
                         // 해당 목적이 속하는 D열 카테고리를 찾고, - 여러개니까 리스트일 것
-                        List<DColCategory> dColCategoriesList = dColCategoryRepositroy.findAllByGoal(goal); // 해당 goal에 맞는 DColCategory 가져오기
+                        List<Category> dColCategoriesList = categoryRepository.findAllByGoal(goal); // 해당 goal에 맞는 DColCategory 가져오기
 
-                        for (DColCategory dColCategory: dColCategoriesList) { // 리스트에 속하는 D열 카테고리 하나하나마다 수행
+                        for (Category dColCategory: dColCategoriesList) { // 리스트에 속하는 D열 카테고리 하나하나마다 수행
 
                             SmallCategory smallCategory = SmallCategory.getInstance();
                             // 그 D열 카테고리가 속하는 C열 카테고리를 찾고 - CColKeyList에 넣어놓음
@@ -272,6 +601,75 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         return; // 위 반복문에서 return되지 않으면 add없이 그냥 끝냄
     }
 
+    private boolean firstCourseGoalFiltering2(List<String> course, CourseRequest courseRequest, List<CourseDto> filteredCourse) {
+        // course에 목적이 있으면 return true, 없으면 return false
+
+        for(String categoryGroupCode : course) {
+            if()
+        }
+
+
+        String[] courseGoals = course.getGoals().split(","); // 각 코스의 목적이 여러 개 있는 경우를 위해 ,로 구분
+
+        List<Integer> courseGoalList = new ArrayList<>();
+
+        for(int i=0; i<10; i++) {
+            if(courseRequest.getGoals().get(i)) {
+                courseGoalList.add(1);
+            }
+            else courseGoalList.add(0)
+        }
+
+
+
+        String[] goalNames = {"산책", "음주", "체험", "힐링", "관람", "지적활동", "경치", "일반", "스포츠", "솔로"}; // 목적 이름 리스트
+
+
+        for (int i = 0; i < 10; i++) { // 신책, 음주, 체험, 힐링, 관람, 지적활동, 경치, 일반, 스포츠, 솔로
+            if (courseRequest.getGoals().get(i)) { // 목적 하나씩 가져와서 있는 경우만 필터링 진행
+
+                for (String goal : courseGoals) { // course가 가지는 목적들 하나하나가 goal
+                    if (!goal.equals(goalNames[i])) { // 해당 목적이 없으면 다음으로 넘김
+                        continue; // 해당 목적이 없으면 다음으로 넘기기
+                    } else { // 목적이 있으면
+
+                        List<String> CColKeyList = new ArrayList<>(); // d열 카테고리가 속하는 c열 카테고리의 이름을 담을 리스트 - 어차피 1개만 담김
+                        // 해당 목적이 속하는 D열 카테고리를 찾고, - 여러개니까 리스트일 것
+                        List<Category> dColCategoriesList = categoryRepository.findAllByGoal(goal); // 해당 goal에 맞는 DColCategory 가져오기
+
+                        for (Category dColCategory: dColCategoriesList) { // 리스트에 속하는 D열 카테고리 하나하나마다 수행
+
+                            SmallCategory smallCategory = SmallCategory.getInstance();
+                            // 그 D열 카테고리가 속하는 C열 카테고리를 찾고 - CColKeyList에 넣어놓음
+                            for(Map.Entry<String, List<String>> entry : smallCategory.getCategories().entrySet()) {
+                                for(int j=0; j<dColCategoriesList.size(); j++) {
+                                    if(entry.getValue().contains(dColCategoriesList.get(j))) {
+                                        CColKeyList.add(entry.getKey());
+                                    }
+                                }
+                            }
+
+                        }
+
+                        // 그 C열 카테고리에 목적을 연결시키는 goalMatch를 채운다 - CColKeyList에 있는 C열 카테고리들을 이용해 goalMatch에 채움
+                        for(String cColKey : CColKeyList) {
+                            filteredCourse.add(CourseDto.fromEntity(course)); // 사용자가 입력한 목적을 갖는 것에 대해 filterCourse.add시킴
+                            CourseDto courseDto = filteredCourse.get(filteredCourse.size()-1); // add시킨 CourseDto를 set하기 위해 get으로 꺼내옴
+
+                            Map<String, String> addGoalMatch = new HashMap<>(); // setGoalMatch 하기 위해 Map 하나 생성
+                            addGoalMatch.put(cColKey, goal); // C열이 키, 들어가는 목적이 value
+                            courseDto.setGoalMatch(addGoalMatch); // 키 밸류 맞춘 map을 추가
+
+                        }
+
+                        return; // 하나라도 해당하는 목적이 있으면 true 반환 - 목적 2개 했는데 3시간이면 메인 한개만 해야할 수도 있으므로
+                    }
+                }
+            }
+        }
+        return; // 위 반복문에서 return되지 않으면 add없이 그냥 끝냄
+    }
+
     /**
      * 코스 키워드 필터링
      * @param course
@@ -279,7 +677,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
      * @param N
      * @return
      */
-    private Boolean firstCourseKeywordFiltering(Course course, CourseRequest courseRequest, int N) {
+    private Boolean firstCourseKeywordFiltering(CourseDto course, CourseRequest courseRequest, int N) {
         // N보다 높거나 낮은것을 따지므로
         // course에 키워드가 해당되면 return true, 해당되지 않으면 return false
 
@@ -334,21 +732,21 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                             continue; // 앉아서놀기인데 활동성이 낮으면 다른 키워드들도 비교해봐야 함
                         }
 
-                    case 6: // 실외위주
-                        if( !(course.getOutdoor() > N) ) {
-                            return false; // 실외위주인데 실내외수치가 낮으면 false 반환
-                        }
-                        else {
-                            continue; // 액티비티인데 활동성이 높으면 다른 키워드들도 비교해봐야 함
-                        }
-
-                    case 7: // 실내위주
-                        if( (course.getOutdoor() > N) ) {
-                            return false; // 실내위주인데 실내외수치가 높으면 false 반환
-                        }
-                        else {
-                            continue; // 앉아서놀기인데 활동성이 낮으면 다른 키워드들도 비교해봐야 함
-                        }
+//                    case 6: // 실외위주
+//                        if( !(course.getOutdoor() > N) ) {
+//                            return false; // 실외위주인데 실내외수치가 낮으면 false 반환
+//                        }
+//                        else {
+//                            continue; // 액티비티인데 활동성이 높으면 다른 키워드들도 비교해봐야 함
+//                        }
+//
+//                    case 7: // 실내위주
+//                        if( (course.getOutdoor() > N) ) {
+//                            return false; // 실내위주인데 실내외수치가 높으면 false 반환
+//                        }
+//                        else {
+//                            continue; // 앉아서놀기인데 활동성이 낮으면 다른 키워드들도 비교해봐야 함
+//                        }
                 }
             }
         }
