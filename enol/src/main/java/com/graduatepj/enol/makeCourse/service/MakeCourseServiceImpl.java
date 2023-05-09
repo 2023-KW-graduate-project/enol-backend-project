@@ -1,17 +1,27 @@
 package com.graduatepj.enol.makeCourse.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graduatepj.enol.makeCourse.dao.*;
 import com.graduatepj.enol.makeCourse.dto.*;
 import com.graduatepj.enol.makeCourse.type.CategoryPriority;
 import com.graduatepj.enol.makeCourse.vo.Category;
 import com.graduatepj.enol.makeCourse.vo.Course;
 import com.graduatepj.enol.makeCourse.vo.DColCategory;
-import com.graduatepj.enol.makeCourse.dto.StoreDto;
+import com.graduatepj.enol.makeCourse.dto.PlaceDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,9 +32,12 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class MakeCourseServiceImpl implements MakeCourseService {
 
+    @Value("${kakao.rest.api.key}")
+    private String apikey;
+
     private final CourseRepository courseRepository;
-    private final MemberRepository memberRepository;
-    private final StoreRepository storeRepository;
+    private final CourseMemberRepository courseMemberRepository;
+    private final PlaceRepository placeRepository;
     private static final int CATEGORY_NUM = 62;
     private static final int FILTER_RADIUS = 200;
 
@@ -64,7 +77,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
         // 멤버 데이터 가져오기 - 약속에 함께하는 멤버 리스트 생성
         // member DB 나오는대로 수정해야 할수도 - ID가 아니라 코드가 pk이면 pk로 find해야 하므로 - 일단 놔둠
-        List<MemberDto> memberList = memberRepository
+        List<MemberDto> memberList = courseMemberRepository
                 .findAllByIdIn(courseRequest.getMemberIdList())
                 .stream()
                 .map(member -> (MemberDto.fromEntity(member)))
@@ -94,6 +107,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
         // 시간 제한으로 가능한 모든 코스 받아오기(시간은 24시간으로 받아야함) - 분 말고 몇시인지만 받을거임
         // 시간에 따라 코스에 속할 카테고리 개수 정하기 - 최대 main 4개나 sub 4개
+        if(courseRequest.getStartTime()>=courseRequest.getFinishTime()){
+            courseRequest.setFinishTime(24+courseRequest.getFinishTime());
+        }
         int time = courseRequest.getFinishTime() - courseRequest.getStartTime(); // 약속 총 소요시간
         List<Course> timeCourse = courseRepository.findAllByTime(time); // 해당 time에 맞는 코스리스트 가져오기 - 시간으로 필터링
         List<CourseDto> filteredCourse = new ArrayList<>();
@@ -176,7 +192,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
         // 멤버 데이터 가져오기 - 약속에 함께하는 멤버 리스트 생성
         // member DB 나오는대로 수정해야 할수도 - ID가 아니라 코드가 pk이면 pk로 find해야 하므로 - 일단 놔둠
-        List<MemberDto> memberList = memberRepository
+        List<MemberDto> memberList = courseMemberRepository
                 .findAllByIdIn(courseRequest.getMemberIdList())
                 .stream()
                 .map(member -> (MemberDto.fromEntity(member)))
@@ -333,7 +349,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
         // 멤버 데이터 가져오기 - 약속에 함께하는 멤버 리스트 생성
         // member DB 나오는대로 수정해야 할수도 - ID가 아니라 코드가 pk이면 pk로 find해야 하므로 - 일단 놔둠
-        List<MemberDto> memberList = memberRepository
+        List<MemberDto> memberList = courseMemberRepository
                 .findAllByIdIn(courseRequest.getMemberIdList())
                 .stream()
                 .map(member -> (MemberDto.fromEntity(member)))
@@ -488,47 +504,45 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             // firstCourse의 wantedCategory를 secondCourse에 옮기기
             if(firstCourse.getWantedCategory().equals(s)){
                 detailCategories.add(0, randomCategory);
-                secondCourse.setWantedCategory(firstCourse.getWantedCategory());
+                secondCourse.setWantedCategoryCode(firstCourse.getWantedCategory());
             }else{
                 detailCategories.add(randomCategory);
             }
         }
-        secondCourse.setDetailCategories(detailCategories);
+        secondCourse.setDetailCategoryCodes(detailCategories);
         return secondCourse;
     }
 
     // 실제 가게들 선택 및 최적화 알고리즘 적용
     @Override
     public FinalCourse finalCourseFiltering(SecondCourse secondCourse) {
-        boolean check=false;
-        StoreDto[] filteredStore = new StoreDto[secondCourse.getDetailCategories().size()];
+        boolean complete=false;
+        int num=1;
+        Double[] mainCoordinate = new Double[]{0.0, 0.0};
+        List<PlaceDto> restaurants=new ArrayList<>();
         // wantedCategory 데이터를 전부 별점순으로 가져오기(내림차순)
-        List<StoreDto> wantedCategoryStoreList = storeRepository
-                .findAllByCategoryInOrderByRateDesc(secondCourse.getWantedCategory())
-                .stream()
-                .map(StoreDto::fromEntity)
-                .collect(Collectors.toList());
+        List<PlaceDto> wantedCategoryPlaceList = getCategoryPlaceList(secondCourse.getWantedCategoryCode());
         // 카테고리를 돌려보면서 하나하나 반경 기준으로 가져오기.
-        for(StoreDto s : wantedCategoryStoreList){
-            filteredStore[0]=s;
-            for (int i = 1; i < filteredStore.length; i++) {
-                filteredStore[i]= StoreDto.fromEntity(
-                        storeRepository.findHighestRatedStoreByCategoryAndLocationAndRadius(
-                                secondCourse.getDetailCategories().get(i), s.getX(), s.getY(), FILTER_RADIUS));
-                if(filteredStore[i] == null){
-                    break;
-                }else if(i== filteredStore.length-1){
-                    check=true;
-                }
-            }
-            if(check){
-                break;
-            }
+        List<PlaceDto> wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 1, mainCoordinate);
+        // 만약 결과가 없다면 두번째 우선순위 카테고리 데이터를 전부 별점순으로 가져오기(내림차순)
+        if(wantedCourse.isEmpty()){
+            wantedCategoryPlaceList = getCategoryPlaceList(secondCourse.getDetailCategoryCodes().get(1));
+            wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 2, mainCoordinate);
+            if(wantedCourse.isEmpty()) throw new RuntimeException("not enough data so no recommendation!");
         }
+        // 아침 : 8시~10시 점심 : 12시~2시 저녁 : 6시~8시에 노는시간이 걸쳐있을 경우, 식사 포함. 안걸쳐있으면 그냥 하나만 추가.
+        if(secondCourse.getMealCheck()){
+            num=getRestaurantNum(secondCourse.getStartTime(), secondCourse.getEndTime());
+            restaurants = getRestaurantFromApi(mainCoordinate, num);
+        }
+        // 최적화 알고리즘 적용(순서 결정)
 
 
-        return null;
+
+        return places;
     }
+
+
 
 
     /**
@@ -788,5 +802,103 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         similarCourses.sort(Comparator.comparing(CourseDto::getSimilarity).reversed());
 
         return similarCourses;
+    }
+
+    private List<PlaceDto> getCategoryPlaceList(String category) {
+        return placeRepository
+                .findAllByCategoryInOrderByRateDesc(category)
+                .stream()
+                .map(PlaceDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    private List<PlaceDto> getFinalCourse(SecondCourse secondCourse, List<PlaceDto> wantedCategoryPlaceList, int start, Double[] mainCoordinate) {
+        List<PlaceDto> course=new ArrayList<>();
+        for(PlaceDto s : wantedCategoryPlaceList){
+            course.clear();
+            for (int i = start; i < secondCourse.getDetailCategoryCodes().size(); i++) {
+                PlaceDto place= PlaceDto.fromEntity(
+                        placeRepository.findRandomPlaceByCategoryAndLocationAndRadius(
+                                secondCourse.getDetailCategoryCodes().get(i), s.getX(), s.getY(), FILTER_RADIUS));
+                if(place==null){
+                    break;
+                }else if(i== secondCourse.getDetailCategoryCodes().size()-1){
+                    mainCoordinate[0]=s.getX();
+                    mainCoordinate[1]=s.getY();
+                    return course;
+                }
+                course.add(place);
+            }
+        }
+        return null;
+    }
+
+    private List<PlaceDto> getRestaurantFromApi(Double[] mainCoordinate, int num) {
+        int cnt=0;
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x="+mainCoordinate[0]+"&y="+mainCoordinate[1]+"&radius="+FILTER_RADIUS;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "KakaoAK " + apikey);
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
+        ResponseEntity<String> response = restTemplate.exchange(
+                builder.toUriString(),
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root = null;
+        try {
+            root = objectMapper.readTree(response.getBody());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("getRestaurantApi failed!");
+        }
+        JsonNode documents = root.path("documents");;
+        List<PlaceDto> places = new ArrayList<>();
+        for (JsonNode document : documents) {
+            String placeName = document.path("place_name").asText();
+            String categoryCode = document.path("category_name").asText();
+            String addressName = document.path("address_name").asText();
+            double x = Double.parseDouble(document.path("x").asText());
+            double y = Double.parseDouble(document.path("y").asText());
+            String phone = document.path("phone").asText();
+
+            PlaceDto place = PlaceDto.builder()
+                    .name(placeName)
+                    .categoryCode(categoryCode)
+                    .addressName(addressName)
+                    .x(x)
+                    .y(y)
+                    .phoneNumber(phone)
+                    .build();
+            if(places.stream().anyMatch(p -> p.getCategoryCode().equals(String.valueOf(categoryCode)))) continue;
+            places.add(place);
+            cnt++;
+            if(cnt>=num){
+                for(PlaceDto restaurant : places) restaurant.setCategoryCode("FD6");
+                return places;
+            }
+        }
+        return places;
+    }
+
+    private int getRestaurantNum(int start, int end) {
+        int cnt=1;
+        boolean breakfast = (start >= 8 && end <= 10);
+        boolean lunch = (start >= 12 && end <= 14);
+        boolean dinner = (start >= 18 && end <= 20);
+
+        if (breakfast && lunch && dinner) {
+            cnt = 3;
+        } else if ((breakfast && lunch) || (lunch && dinner) || (breakfast && dinner)) {
+            cnt = 2;
+        } else if (breakfast || lunch || dinner) {
+            cnt = 1;
+        } else {
+            cnt = 1;
+        }
+
+        return cnt;
     }
 }

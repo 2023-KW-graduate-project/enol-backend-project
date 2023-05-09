@@ -38,3 +38,4 @@ out/
 
 ### API KEY properties ###
 application-apikey.properties
+application-db.properties

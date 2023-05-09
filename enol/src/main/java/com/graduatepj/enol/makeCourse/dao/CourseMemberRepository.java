@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface CourseMemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT m FROM Member m WHERE m.memberId IN :memberIdList")
     List<Member> findAllByIdIn(@Param("memberIdList") List<Long> memberIdList);
 }
