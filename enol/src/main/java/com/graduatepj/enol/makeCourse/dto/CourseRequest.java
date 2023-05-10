@@ -33,9 +33,9 @@ public class CourseRequest {
     private String wantedCategory;
 
     // 필터링 사용 목적(수치 필터링)
-    private List<Boolean> courseKeywords; // 8개
+    private List<Integer> courseKeywords; // 6개
 
     // 필터링 사용 목적(컷)
-    private List<Boolean> goals; // 10개
+    private List<Integer> goals; // 10개
 
 }

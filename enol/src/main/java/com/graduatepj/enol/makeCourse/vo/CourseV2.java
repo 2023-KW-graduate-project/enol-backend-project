@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Entity(name = "course_v2")
 public class CourseV2 {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "course_id")
     private String id; // Course_id
 //    @ElementCollection
@@ -50,7 +50,7 @@ public class CourseV2 {
 
     /** 평점 */
     @Column(name = "rating")
-    private double rating;
+    private double rate;
 
 
 }

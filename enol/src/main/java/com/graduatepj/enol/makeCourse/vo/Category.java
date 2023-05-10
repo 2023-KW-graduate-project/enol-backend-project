@@ -38,20 +38,5 @@ public class Category {
     @Column(name = "활동성")
     private int activity;
 
-//    /**
-//     * 시간
-//     */
-//    private int time;
-//
-//    /**
-//     * 별점
-//     */
-//    private int rate;
-
-
-    /**
-     * 코스별 목적(기타특징 -> 없어도 무관)
-     */
-//    private String goal; // D열에 해당하는 카테고리가 각각 어떤 코스 목적을 갖는지 적을 것
 
 }

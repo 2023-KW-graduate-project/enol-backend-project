@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface CourseV2Repository extends JpaRepository<CourseV2, String> {
-    List<CourseDto> findAllByTime(Integer time);
+    List<CourseV2> findAllByTime(Integer time);
 }
