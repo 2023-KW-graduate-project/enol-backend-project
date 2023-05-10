@@ -19,5 +19,5 @@ public interface MakeCourseService {
     public abstract SecondCourse secondCourseFiltering(CourseDto firstCourse);
 
     // 세 번째 코스 생성 - 가게들로 이루어진 최종 코스 생성
-    public abstract FinalCourse finalCourseFiltering(SecondCourse secondCourse);
+    public abstract List<PlaceDto> finalCourseFiltering(SecondCourse secondCourse);
 }

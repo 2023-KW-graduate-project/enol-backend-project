@@ -474,9 +474,11 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
     // 실제 가게들 선택 및 최적화 알고리즘 적용
     @Override
-    public FinalCourse finalCourseFiltering(SecondCourse secondCourse) {
+    public List<PlaceDto> finalCourseFiltering(SecondCourse secondCourse) {
         boolean complete=false;
-        int num=1;
+        int num=0;
+        boolean[] meal = new boolean[4];
+        int[] partition=new int[4];
         Double[] mainCoordinate = new Double[]{0.0, 0.0};
         List<PlaceDto> restaurants=new ArrayList<>();
         // wantedCategory 데이터를 전부 별점순으로 가져오기(내림차순)
@@ -491,15 +493,19 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         }
         // 아침 : 8시~10시 점심 : 12시~2시 저녁 : 6시~8시에 노는시간이 걸쳐있을 경우, 식사 포함. 안걸쳐있으면 그냥 하나만 추가.
         if(secondCourse.getMealCheck()){
-            num=getRestaurantNum(secondCourse.getStartTime(), secondCourse.getEndTime());
+            meal=getRestaurantNum(secondCourse.getStartTime(), secondCourse.getEndTime());
+            for (int i = 0; i < meal.length; i++) if(meal[i]) num++;
             restaurants = getRestaurantFromApi(mainCoordinate, num);
         }
         // 최적화 알고리즘 적용(순서 결정)
-
-
-
-        return places;
+        // 식사 앞뒤로 몇개의 가게 들어갈지 구하는 메소드
+        partition=getPartition(wantedCourse, secondCourse.getStartTime(), secondCourse.getEndTime());
+        // 최적화(노가다 순열)
+        List<PlaceDto> finalCourse = optimizeCourse(wantedCourse, restaurants, secondCourse.getMealCheck(), partition);
+        return finalCourse;
     }
+
+
 
 
     /**
@@ -686,22 +692,91 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         return places;
     }
 
-    private int getRestaurantNum(int start, int end) {
+    private boolean[] getRestaurantNum(int start, int end) {
         int cnt=1;
-        boolean breakfast = (start >= 8 && end <= 10);
-        boolean lunch = (start >= 12 && end <= 14);
-        boolean dinner = (start >= 18 && end <= 20);
-
-        if (breakfast && lunch && dinner) {
-            cnt = 3;
-        } else if ((breakfast && lunch) || (lunch && dinner) || (breakfast && dinner)) {
-            cnt = 2;
-        } else if (breakfast || lunch || dinner) {
-            cnt = 1;
-        } else {
-            cnt = 1;
+        boolean[] meal=new boolean[]{false, false, false, false};
+        if(start<=10){
+            meal[0]=true;
+            if(end<=14){
+                meal[1]=true;
+            }
+            if (end<=20){
+                meal[2]=true;
+            }
+        }else if(start<=14){
+            meal[1]=true;
+            if(end<=20){
+                meal[2]=true;
+            }
+        }else if(start<=20){
+            meal[2]=true;
+        }else{
+            meal[3]=true;
         }
 
-        return cnt;
+        return meal;
     }
+
+    private int[] getPartition(List<PlaceDto> wantedCourse, int start, int end) {
+        int[] partTime=new int[4];
+        int[] partition = new int[4];
+        int cnt=wantedCourse.size();
+        for(int i=start;i<=end;i++){
+            if(i<9) partTime[0]++;
+            else if(i<13) partTime[1]++;
+            else if(i<20) partTime[2]++;
+            else partTime[3]++;
+        }
+        if(partTime[1]!=0 && cnt!=0){
+            partition[1]++;
+            cnt--;
+        }
+        if(partTime[2]!=0 && cnt!=0){
+            partition[2]++;
+            cnt--;
+        }
+        if(partTime[0]!=0 && cnt!=0){
+            partition[0]++;
+            cnt--;
+        }
+        if(partTime[3]!=0 && cnt!=0){
+            partition[3]++;
+            cnt--;
+        }
+        if(cnt!=0){
+            while(cnt!=0){
+                int index=0;
+                int max=0;
+                for (int i = 0; i < partition.length; i++) {
+                    if(max<partTime[i] && partTime[i]<=0){
+                        max=partTime[i];
+                        index=i;
+                    }
+                }
+                partTime[index]-=3;
+                cnt--;
+            }
+        }
+        return partition;
+    }
+
+    private List<PlaceDto> optimizeCourse(List<PlaceDto> wantedCourse, List<PlaceDto> restaurants, Boolean mealCheck, int[] partition) {
+        List<PlaceDto> drinkPlace = new ArrayList<>();
+        List<PlaceDto> otherPlace = new ArrayList<>();
+        List<PlaceDto> finalCourse = new ArrayList<>();
+
+        for (PlaceDto place : wantedCourse) {
+            if (place.getCategoryCode().equals("RS2")) {
+                drinkPlace.add(place);
+            } else {
+                otherPlace.add(place);
+            }
+        }
+
+        // 팩토리얼과 순열을 구하는 메소드가 필요함.
+        // 노가다하면 구할 수 있음(최대 144번)
+
+        return finalCourse;
+    }
+
 }
