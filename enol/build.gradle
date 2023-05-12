@@ -24,6 +24,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // jpa 추가
 	implementation 'org.apache.commons:commons-text:1.9' // 코사인 유사도 관련
 	implementation 'org.apache.commons:commons-math3:3.6.1' // 코사인 유사도 관련
+	implementation 'org.apache.commons:commons-collections4:4.4' // 순열
 	runtimeOnly 'com.h2database:h2:1.4.200' // h2 추가
 //	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.0' // DB 관련
 	implementation 'mysql:mysql-connector-java:8.0.32' // MySQL

@@ -13,6 +13,7 @@ import com.graduatepj.enol.makeCourse.vo.DColCategory;
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,11 +53,11 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
     // 실제로 해야할 것
     @Override
-    public List<CourseResponse> MakeCourse(CourseRequest courseRequest) {
+    public List<PlaceDto> MakeCourse(CourseRequest courseRequest) {
         CourseDto firstCourse = firstCourseFiltering(courseRequest);
         SecondCourse secondCourse = secondCourseFiltering(firstCourse);
-        FinalCourse finalCourse = finalCourseFiltering(secondCourse);
-        return null;
+        List<PlaceDto> finalCourse = finalCourseFiltering(secondCourse);
+        return finalCourse;
     }
 
 
@@ -475,10 +476,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     // 실제 가게들 선택 및 최적화 알고리즘 적용
     @Override
     public List<PlaceDto> finalCourseFiltering(SecondCourse secondCourse) {
-        boolean complete=false;
         int num=0;
-        boolean[] meal = new boolean[4];
-        int[] partition=new int[4];
+        boolean[] meal;
+        int[] partition;
         Double[] mainCoordinate = new Double[]{0.0, 0.0};
         List<PlaceDto> restaurants=new ArrayList<>();
         // wantedCategory 데이터를 전부 별점순으로 가져오기(내림차순)
@@ -486,10 +486,10 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         // 카테고리를 돌려보면서 하나하나 반경 기준으로 가져오기.
         List<PlaceDto> wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 1, mainCoordinate);
         // 만약 결과가 없다면 두번째 우선순위 카테고리 데이터를 전부 별점순으로 가져오기(내림차순)
-        if(wantedCourse.isEmpty()){
+        if(wantedCourse == null){
             wantedCategoryPlaceList = getCategoryPlaceList(secondCourse.getDetailCategoryCodes().get(1));
             wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 2, mainCoordinate);
-            if(wantedCourse.isEmpty()) throw new RuntimeException("not enough data so no recommendation!");
+            if(wantedCourse == null) throw new RuntimeException("not enough data so no recommendation!");
         }
         // 아침 : 8시~10시 점심 : 12시~2시 저녁 : 6시~8시에 노는시간이 걸쳐있을 경우, 식사 포함. 안걸쳐있으면 그냥 하나만 추가.
         if(secondCourse.getMealCheck()){
@@ -501,7 +501,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         // 식사 앞뒤로 몇개의 가게 들어갈지 구하는 메소드
         partition=getPartition(wantedCourse, secondCourse.getStartTime(), secondCourse.getEndTime());
         // 최적화(노가다 순열)
-        List<PlaceDto> finalCourse = optimizeCourse(wantedCourse, restaurants, secondCourse.getMealCheck(), partition);
+        List<PlaceDto> finalCourse = optimizeCourse(wantedCourse, restaurants, partition);
         return finalCourse;
     }
 
@@ -623,20 +623,34 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
     private List<PlaceDto> getFinalCourse(SecondCourse secondCourse, List<PlaceDto> wantedCategoryPlaceList, int start, Double[] mainCoordinate) {
         List<PlaceDto> course=new ArrayList<>();
+        Set<PlaceDto> uniquePlaces = new HashSet<>(); // 중복 체크를 위한 HashSet
         for(PlaceDto s : wantedCategoryPlaceList){
             course.clear();
+            uniquePlaces.clear(); // 새로운 시작 위치마다 HashSet 초기화
+            Loop1:
             for (int i = start; i < secondCourse.getDetailCategoryCodes().size(); i++) {
-                PlaceDto place= PlaceDto.fromEntity(
-                        placeRepository.findRandomPlaceByCategoryAndLocationAndRadius(
-                                secondCourse.getDetailCategoryCodes().get(i), s.getX(), s.getY(), FILTER_RADIUS));
-                if(place==null){
-                    break;
-                }else if(i== secondCourse.getDetailCategoryCodes().size()-1){
-                    mainCoordinate[0]=s.getX();
-                    mainCoordinate[1]=s.getY();
-                    return course;
+                int maxRetry = 3; // 최대 재시도 횟수 설정
+                int retryCount = 0; // 재시도 횟수 카운트
+
+                while (retryCount < maxRetry) {
+                    PlaceDto place = PlaceDto.fromEntity(
+                            placeRepository.findRandomPlaceByCategoryAndLocationAndRadius(
+                                    secondCourse.getDetailCategoryCodes().get(i), s.getX(), s.getY(), FILTER_RADIUS));
+                    if (place == null) {
+                        break Loop1;
+                    } else if (uniquePlaces.add(place)) {
+                        course.add(place);
+                        if (i == secondCourse.getDetailCategoryCodes().size() - 1) {
+                            mainCoordinate[0] = s.getX();
+                            mainCoordinate[1] = s.getY();
+                            return course;
+                        }
+                        break;
+                    }
+
+                    retryCount++;
                 }
-                course.add(place);
+                if(retryCount==maxRetry) break;
             }
         }
         return null;
@@ -760,10 +774,18 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         return partition;
     }
 
-    private List<PlaceDto> optimizeCourse(List<PlaceDto> wantedCourse, List<PlaceDto> restaurants, Boolean mealCheck, int[] partition) {
+    private List<PlaceDto> optimizeCourse(List<PlaceDto> wantedCourse, List<PlaceDto> restaurants, int[] partition) {
         List<PlaceDto> drinkPlace = new ArrayList<>();
         List<PlaceDto> otherPlace = new ArrayList<>();
         List<PlaceDto> finalCourse = new ArrayList<>();
+        List<PlaceDto> candidateCourse = new ArrayList<>();
+
+        double minDistance=Double.MAX_VALUE;
+        double calculateDistance = 0.0;
+
+        List<List<PlaceDto>> drinkPermutations = new ArrayList<>();
+        List<List<PlaceDto>> otherPermutations = new ArrayList<>();
+        List<List<PlaceDto>> restaurantPermutations = new ArrayList<>();
 
         for (PlaceDto place : wantedCourse) {
             if (place.getCategoryCode().equals("RS2")) {
@@ -773,10 +795,138 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             }
         }
 
+        drinkPermutations = generatePermutations(drinkPlace);
+        otherPermutations = generatePermutations(otherPlace);
+        restaurantPermutations = generatePermutations(restaurants);
+
         // 팩토리얼과 순열을 구하는 메소드가 필요함.
         // 노가다하면 구할 수 있음(최대 144번)
+        if(drinkPlace.isEmpty()){
+            if(restaurants.isEmpty()){
+                // 일반형만 있는 경우
+                for(List<PlaceDto> otherPerm : otherPermutations){
+                    candidateCourse.addAll(otherPerm);
+                    calculateDistance = calculateDistance(candidateCourse);
+                    if(minDistance>calculateDistance){
+                        minDistance = calculateDistance;
+                        finalCourse=candidateCourse;
+                    }
 
+                }
+            }else{
+                // 일반형 + 식사체크
+                for(List<PlaceDto> otherPerm : otherPermutations){
+                    for(List<PlaceDto> restPerm : restaurantPermutations){
+                        candidateCourse = makeCandidateCourse(otherPerm, null, restPerm, partition);
+                        candidateCourse.addAll(otherPerm);
+                        calculateDistance = calculateDistance(candidateCourse);
+                        if(minDistance>calculateDistance){
+                            minDistance = calculateDistance;
+                            finalCourse=candidateCourse;
+                        }
+                    }
+                }
+            }
+        }else if(otherPlace.isEmpty()){
+            if(restaurants.isEmpty()){
+                // 음주형만 있는 경우
+                for(List<PlaceDto> drinkPerm : drinkPermutations){
+                    candidateCourse.addAll(drinkPerm);
+                    calculateDistance = calculateDistance(candidateCourse);
+                    if(minDistance>calculateDistance){
+                        minDistance = calculateDistance;
+                        finalCourse=candidateCourse;
+                    }
+                }
+            }else{
+                // 음주형 + 식사체크
+                for(List<PlaceDto> drinkPerm : drinkPermutations){
+                    for(List<PlaceDto> restPerm : restaurantPermutations){
+                        candidateCourse = makeCandidateCourse(null, drinkPerm, restPerm, partition);
+                        calculateDistance = calculateDistance(candidateCourse);
+                        if(minDistance>calculateDistance){
+                            minDistance = calculateDistance;
+                            finalCourse=candidateCourse;
+                        }
+                    }
+                }
+            }
+        }else if (restaurants.isEmpty()){
+            // 일반형 + 음주형
+            for(List<PlaceDto> otherPerm : otherPermutations){
+                for(List<PlaceDto> drinkPerm : drinkPermutations){
+                    candidateCourse.addAll(otherPerm);
+                    candidateCourse.addAll(drinkPerm);
+                    calculateDistance = calculateDistance(candidateCourse);
+                    if(minDistance>calculateDistance){
+                        minDistance = calculateDistance;
+                        finalCourse=candidateCourse;
+                    }
+                }
+            }
+        }else{
+            // 일반형 + 음주형 + 식사체크
+            for(List<PlaceDto> otherPerm : otherPermutations){
+                for(List<PlaceDto> drinkPerm : drinkPermutations){
+                    for(List<PlaceDto> restPerm : restaurantPermutations){
+                        candidateCourse = makeCandidateCourse(otherPerm, drinkPerm, restPerm, partition);
+                        calculateDistance = calculateDistance(candidateCourse);
+                        if(minDistance>calculateDistance){
+                            minDistance = calculateDistance;
+                            finalCourse=candidateCourse;
+                        }
+                    }
+                }
+            }
+        }
         return finalCourse;
+    }
+
+    private List<PlaceDto> makeCandidateCourse(List<PlaceDto> otherPerm, List<PlaceDto> drinkPerm, List<PlaceDto> restPerm, int[] partition) {
+        int otherIdx=0;
+        int drinkIdx=0;
+        int restIdx=0;
+        List<PlaceDto> candidateCourse= new ArrayList<>();
+        for (int i = 0; i < partition.length; i++) {
+            for (int j = 0; j < partition[i]; j++) {
+                if(otherPerm!=null && otherIdx<otherPerm.size()){
+                    candidateCourse.add(otherPerm.get(otherIdx));
+                    otherIdx++;
+                }else if(drinkPerm!=null && drinkIdx<drinkPerm.size()){
+                    candidateCourse.add(otherPerm.get(drinkIdx));
+                    drinkIdx++;
+                }
+            }
+            if(restPerm!=null && restIdx<restPerm.size()){
+                candidateCourse.add(restPerm.get(restIdx));
+                restIdx++;
+            }
+        }
+        return candidateCourse;
+    }
+
+    private double calculateDistance(List<PlaceDto> candidateCourse) {
+        double totalDistance=0.0;
+
+        for (int i = 0; i < candidateCourse.size()-1; i++) {
+            PlaceDto placeA = candidateCourse.get(i);
+            PlaceDto placeB = candidateCourse.get(i + 1);
+
+            double distance = calculateEuclideanDistance(placeA.getX(), placeA.getY(), placeB.getX(), placeB.getY());
+            totalDistance += distance;
+        }
+        return totalDistance;
+    }
+
+    private double calculateEuclideanDistance(double x1, double y1, double x2, double y2) {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    private List<List<PlaceDto>> generatePermutations(List<PlaceDto> places) {
+        List<List<PlaceDto>> result = new ArrayList<>(CollectionUtils.permutations(places));
+        return result;
     }
 
 }

@@ -2,8 +2,10 @@ package com.graduatepj.enol.makeCourse.controller;
 
 import com.graduatepj.enol.makeCourse.dto.CourseRequest;
 import com.graduatepj.enol.makeCourse.dto.CourseResponse;
+import com.graduatepj.enol.makeCourse.dto.PlaceDto;
 import com.graduatepj.enol.makeCourse.service.MakeCourseService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,8 +28,8 @@ public class MakeCourseController {
     }
 
     @PostMapping
-    public List<CourseResponse> createCustomCourse(@RequestBody CourseRequest requestData) {
-        return makeCourseService.MakeCourse(requestData);
+    public ResponseEntity<List<PlaceDto>> createCustomCourse(@RequestBody CourseRequest requestData) {
+        return ResponseEntity.ok(makeCourseService.MakeCourse(requestData));
     }
 
 }
