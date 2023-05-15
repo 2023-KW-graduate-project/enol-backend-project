@@ -6,11 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graduatepj.enol.makeCourse.dao.*;
 import com.graduatepj.enol.makeCourse.dto.*;
 import com.graduatepj.enol.makeCourse.type.CategoryPriority;
-import com.graduatepj.enol.makeCourse.vo.Category;
-import com.graduatepj.enol.makeCourse.vo.Course;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
-import com.graduatepj.enol.makeCourse.vo.DColCategory;
-import com.graduatepj.enol.makeCourse.dto.PlaceDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -27,7 +23,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -202,7 +197,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 .collect(Collectors.toList());
 
         // 로그로 멤버 리스트 확인
-        for(MemberDto memberDto : memberList) {
+        for (MemberDto memberDto : memberList) {
             log.info("Member List = ");
             log.info("{}", memberDto);
         }
@@ -226,8 +221,8 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         boolean dawnDrink = false; // 새벽이라 음주 추천하기 위해 - 기본 false
         // 시간 제한으로 가능한 모든 코스 받아오기(시간은 24시간으로 받아야함) - 분 말고 몇시인지만 받을거임
         // 시간에 따라 코스에 속할 카테고리 개수 정하기 - 최대 main 4개나 sub 4개
-        if(courseRequest.getStartTime()>=courseRequest.getFinishTime()){ // 새벽시간대를 고려한 시간 설정 - 이 경우는 새벽 포함
-            courseRequest.setFinishTime(24+courseRequest.getFinishTime());
+        if (courseRequest.getStartTime() >= courseRequest.getFinishTime()) { // 새벽시간대를 고려한 시간 설정 - 이 경우는 새벽 포함
+            courseRequest.setFinishTime(24 + courseRequest.getFinishTime());
             dawnDrink = true; // 새벽이 포함되면 true로
         }
         int totalTime = courseRequest.getFinishTime() - courseRequest.getStartTime(); // 총 소요 시간
@@ -256,11 +251,11 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
             List<String> course = new ArrayList<>(); // 코스 가져오기 - ex) 놀기Main 스포츠, 관게Main 휴식, ..
             course.add(courseInfo.getCategoryGroupCode1()); // 1번은 무조건 값이 있으므로 그냥 넣음
-            if(courseInfo.getCategoryGroupCode2() != null)
+            if (courseInfo.getCategoryGroupCode2() != null)
                 course.add(courseInfo.getCategoryGroupCode2()); // null이 아닌 경우에만 추가
-            if(courseInfo.getCategoryGroupCode3() != null)
+            if (courseInfo.getCategoryGroupCode3() != null)
                 course.add(courseInfo.getCategoryGroupCode3()); // null이 아닌 경우에만 추가
-            if(courseInfo.getCategoryGroupCode4() != null)
+            if (courseInfo.getCategoryGroupCode4() != null)
                 course.add(courseInfo.getCategoryGroupCode4()); // null이 아닌 경우에만 추가
 
 
@@ -275,30 +270,28 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
             // 그렇다면 time으로 필터링 한 것 중 목적으로 필터링한거에서 CategoryGroupCode를 가지지 않는 것을 지워보자
             countGoal = 0;
-            for(String courseGroupCode : course) { // course에 들어가는 categoryGroup 중 하나라도 목적을 만족하는게 있으면 목적에 맞는거고 아니면 안맞는 것 - 목적3개인데 카테고리 2개짜리인거 있을 수도 있으니까
+            for (String courseGroupCode : course) { // course에 들어가는 categoryGroup 중 하나라도 목적을 만족하는게 있으면 목적에 맞는거고 아니면 안맞는 것 - 목적3개인데 카테고리 2개짜리인거 있을 수도 있으니까
 
                 // goal이 단 한개라도 있는 category_group_code를 뽑은 리스트
-                List<String> goalFilteringList =  coursePurposeRepository.findByCategoryGroupCodeOrWalkOrDrinkOrExperienceOrHealingOrWatchOrIntellectualOrViewOrNormalOrSportsOrSolo(courseGroupCode, courseRequest.getGoals().get(0), courseRequest.getGoals().get(1), courseRequest.getGoals().get(2), courseRequest.getGoals().get(3), courseRequest.getGoals().get(4), courseRequest.getGoals().get(5), courseRequest.getGoals().get(6), courseRequest.getGoals().get(7), courseRequest.getGoals().get(8), courseRequest.getGoals().get(9));
+                List<String> goalFilteringList = coursePurposeRepository.findByCategoryGroupCodeOrWalkOrDrinkOrExperienceOrHealingOrWatchOrIntellectualOrViewOrNormalOrSportsOrSolo(courseGroupCode, courseRequest.getGoals().get(0), courseRequest.getGoals().get(1), courseRequest.getGoals().get(2), courseRequest.getGoals().get(3), courseRequest.getGoals().get(4), courseRequest.getGoals().get(5), courseRequest.getGoals().get(6), courseRequest.getGoals().get(7), courseRequest.getGoals().get(8), courseRequest.getGoals().get(9));
 
-                for(String goalFilteringCategoryGroupCode : goalFilteringList) { // 목적 필터링 리스트에서 CategoryGroupCode만 뽑아
-                    if(!courseGroupCode.equals(goalFilteringCategoryGroupCode)) { // 목적으로 필터링한 것을 가지지 않으면 제거
+                for (String goalFilteringCategoryGroupCode : goalFilteringList) { // 목적 필터링 리스트에서 CategoryGroupCode만 뽑아
+                    if (!courseGroupCode.equals(goalFilteringCategoryGroupCode)) { // 목적으로 필터링한 것을 가지지 않으면 제거
                         continue;
-                    }
-                    else {// 목적으로 필터링 한것을 가지는 코스 틀이라면
+                    } else {// 목적으로 필터링 한것을 가지는 코스 틀이라면
                         countGoal++;
 
                     }
                 }
             }
             // 현재 Dto의 카테고리들이 목적을 만족하는 CourseGroupCode들 중 한 개라도 가지는지 확인
-            if(countGoal == 0) { // goal로 필터링 된거랑 하나도 매칭되는게 없으면 timeCourseList에서 빼버리기
+            if (countGoal == 0) { // goal로 필터링 된거랑 하나도 매칭되는게 없으면 timeCourseList에서 빼버리기
                 timeCourseList.remove(courseInfo); // 현재 courseDto인 courseInfo 삭제
             }
 
             /** 목적으로 필터링 끝 */
             // 가고싶은 카테고리 체크 안했으면 우선순위에 따라 처리하는 부분 추가해야 함
             // 사용자가 체크한 목적이 어떤게 어떤 C열 카테고리와 매핑되는지 알 수 있는 변수도 추가해야 함
-
 
 
             int N = 0; // 키워드 수치 비교에서 N을 어떻게 할지에 따라 결정 ----------- 멤버 DB 나오면 해야 함
@@ -311,7 +304,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
         // 개수, 목적, 키워드까지로 필터링된 코스 개수와 뭔지 보여주는 로그
         log.info("filteredCourse.size = {}", filteredCourse.size()); // 필터링된 코스 개수
-        for(int i=0; i< filteredCourse.size(); i++)
+        for (int i = 0; i < filteredCourse.size(); i++)
             log.info("filteredCourse List {} = {}", i, filteredCourse.get(i)); // 필터링된 코스 확인
 
 
@@ -331,11 +324,11 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         // categories 변수 지우고 categoryGroupCode1,2,3,4로 DB 맞춰서 새로 만듦
         List<String> course = new ArrayList<>(); // 코스 가져오기 - ex) 놀기Main 스포츠, 관게Main 휴식, ..
         course.add(selectedCourse.getCategoryGroupCode1()); // 1번은 무조건 값이 있으므로 그냥 넣음
-        if(selectedCourse.getCategoryGroupCode2() != null)
+        if (selectedCourse.getCategoryGroupCode2() != null)
             course.add(selectedCourse.getCategoryGroupCode2()); // null이 아닌 경우에만 추가
-        if(selectedCourse.getCategoryGroupCode3() != null)
+        if (selectedCourse.getCategoryGroupCode3() != null)
             course.add(selectedCourse.getCategoryGroupCode3()); // null이 아닌 경우에만 추가
-        if(selectedCourse.getCategoryGroupCode4() != null)
+        if (selectedCourse.getCategoryGroupCode4() != null)
             course.add(selectedCourse.getCategoryGroupCode4()); // null이 아닌 경우에만 추가
 
         // wantedCategory가 null인 경우 우선순위에 따른 주장소 선택(main)
@@ -372,28 +365,28 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         boolean haveGoal; // goal을 가지는 categoryGroup이 있는 경우
 
         // course - 최종 코스 틀에서 categoryGroup을 갖는 리스트
-        for(String courseCategoryGroup : course) {
+        for (String courseCategoryGroup : course) {
             List<Integer> goalList = coursePurposeRepository.findWalkDrinkExperienceHealingWatchIntellectualViewNormalSportsSoloByCategoryGroupCode(courseCategoryGroup);
 
             Map<String, List<Integer>> goalMap = new HashMap<>();
             List<Integer> matching = new ArrayList<>(); // 목적 리스트 0,1로 구성
             haveGoal = false;
 
-            for(int i=0; i<10; i++) {
-                if( (courseRequest.getGoals().get(i) == 1) && (goalList.get(i) == 1) ) { // request로 받은 목적 리스트에서 목적이 참이고 해당 courseCategoryGroup의 목적도 1인 경우 추가
+            for (int i = 0; i < 10; i++) {
+                if ((courseRequest.getGoals().get(i) == 1) && (goalList.get(i) == 1)) { // request로 받은 목적 리스트에서 목적이 참이고 해당 courseCategoryGroup의 목적도 1인 경우 추가
                     matching.add(1);
                     haveGoal = true;
-                }
-                else matching.add(0);
+                } else matching.add(0);
             }
-            if(haveGoal) {
+            if (haveGoal) {
                 goalMap.put(courseCategoryGroup, matching); // 목적이 하나라도 있으면 맵에 저장하고
                 selectedCourse.setGoalMatch(goalMap); // goalMatch에 저장
             }
 
         }
         log.info("selectedCourse.getGoalMatch = {}", selectedCourse.getGoalMatch());
-        if(dawnDrink) selectedCourse.setDawnDrink(true); // 새벽 음주 courseDto에 체크하도록
+        if (dawnDrink)
+            selectedCourse.setDawnDrink(true); // 새벽 음주 courseDto에 체크하도록
         log.info("selectedCourse.isDawnDrink = {}", selectedCourse.isDawnDrink());
         return selectedCourse; // 다 거르고 최종 필터링된 selectedCourse 하나만 반환
     }
@@ -407,11 +400,11 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         // categories 변수 지우고 categoryGroupCode1,2,3,4로 DB 맞춰서 새로 만듦
         List<String> course = new ArrayList<>(); // 코스 가져오기 - ex) 놀기Main 스포츠, 관게Main 휴식, ..
         course.add(firstCourse.getCategoryGroupCode1()); // 1번은 무조건 값이 있으므로 그냥 넣음
-        if(firstCourse.getCategoryGroupCode2() != null)
+        if (firstCourse.getCategoryGroupCode2() != null)
             course.add(firstCourse.getCategoryGroupCode2()); // null이 아닌 경우에만 추가
-        if(firstCourse.getCategoryGroupCode3() != null)
+        if (firstCourse.getCategoryGroupCode3() != null)
             course.add(firstCourse.getCategoryGroupCode3()); // null이 아닌 경우에만 추가
-        if(firstCourse.getCategoryGroupCode4() != null)
+        if (firstCourse.getCategoryGroupCode4() != null)
             course.add(firstCourse.getCategoryGroupCode4()); // null이 아닌 경우에만 추가
 
         SecondCourse secondCourse = new SecondCourse(firstCourse); // firstCourse로 나온 CourseDto로 SecondCoures의 CourseDto selectedCourse 채움
@@ -455,7 +448,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 detailCategories.add(randomCategory); // 필수 카테고리가 아니고 goalMatching된 categoryGroup도 없는 경우 랜덤한거 넣기
             }
         }
-            secondCourse.setDetailCategoryCodes(detailCategories);
+        secondCourse.setDetailCategoryCodes(detailCategories);
 
 
 //            //원래 내용
@@ -476,40 +469,54 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     // 실제 가게들 선택 및 최적화 알고리즘 적용
     @Override
     public List<PlaceDto> finalCourseFiltering(SecondCourse secondCourse) {
-        int num=0;
+        int num = 0;
         boolean[] meal;
         int[] partition;
         Double[] mainCoordinate = new Double[]{0.0, 0.0};
-        List<PlaceDto> restaurants=new ArrayList<>();
+        List<PlaceDto> restaurants = new ArrayList<>();
         // wantedCategory 데이터를 전부 별점순으로 가져오기(내림차순)
         List<PlaceDto> wantedCategoryPlaceList = getCategoryPlaceList(secondCourse.getWantedCategoryCode());
         // 카테고리를 돌려보면서 하나하나 반경 기준으로 가져오기.
         List<PlaceDto> wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 1, mainCoordinate);
         // 만약 결과가 없다면 두번째 우선순위 카테고리 데이터를 전부 별점순으로 가져오기(내림차순)
-        if(wantedCourse == null){
+        if (wantedCourse == null) {
             wantedCategoryPlaceList = getCategoryPlaceList(secondCourse.getDetailCategoryCodes().get(1));
             wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 2, mainCoordinate);
-            if(wantedCourse == null) throw new RuntimeException("not enough data so no recommendation!");
+            if (wantedCourse == null)
+                throw new RuntimeException("not enough data so no recommendation!");
         }
         // 아침 : 8시~10시 점심 : 12시~2시 저녁 : 6시~8시에 노는시간이 걸쳐있을 경우, 식사 포함. 안걸쳐있으면 그냥 하나만 추가.
-        if(secondCourse.getMealCheck()){
-            meal=getRestaurantNum(secondCourse.getStartTime(), secondCourse.getEndTime());
-            for (int i = 0; i < meal.length; i++) if(meal[i]) num++;
+        if (secondCourse.getMealCheck()) {
+            meal = getRestaurantNum(secondCourse.getStartTime(), secondCourse.getEndTime());
+            for (int i = 0; i < meal.length; i++) if (meal[i]) num++;
             restaurants = getRestaurantFromApi(mainCoordinate, num);
         }
         // 최적화 알고리즘 적용(순서 결정)
         // 식사 앞뒤로 몇개의 가게 들어갈지 구하는 메소드
-        partition=getPartition(wantedCourse, secondCourse.getStartTime(), secondCourse.getEndTime());
+        partition = getPartition(wantedCourse, secondCourse.getStartTime(), secondCourse.getEndTime());
         // 최적화(노가다 순열)
-        List<PlaceDto> finalCourse = optimizeCourse(wantedCourse, restaurants, partition);
-        return finalCourse;
+        return optimizeCourse(wantedCourse, restaurants, partition);
     }
 
-
+    // 프론트 테스트용
+    @Override
+    public List<PlaceDto> testCourse() {
+        int placeCount = (int) (Math.random() * 5) + 1;  // 1에서 5 사이의 랜덤한 개수
+        int restCount = (int) (Math.random() * 4);  // 0에서 3 사이의 랜덤한 개수
+        List<PlaceDto> testCourseList = placeRepository
+                .findRandomPlaces(placeCount)
+                .stream()
+                .map(PlaceDto::fromEntity)
+                .collect(Collectors.toList());
+        Double[] mainCoordinate = new Double[]{testCourseList.get(0).getX(), testCourseList.get(0).getY()};
+        testCourseList.addAll(getRestaurantFromApi(mainCoordinate, restCount));
+        return testCourseList;
+    }
 
 
     /**
      * 코스 키워드 필터링
+     *
      * @param course
      * @param courseRequest
      * @param N
@@ -523,50 +530,44 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             if (courseRequest.getCourseKeywords().get(i) == 1) { // 키워드 하나씩 가져와서 있는 경우만 필터링 진행
                 switch (i) {
                     case 0: // 이색
-                        if( !(course.getSpecification() > N) ) { // 하나라도 해당되지 않으면 false 반환
+                        if (!(course.getSpecification() > N)) { // 하나라도 해당되지 않으면 false 반환
                             return false; // 이색인데 특이도가 낮으면 false 반환
-                        }
-                        else {
+                        } else {
                             continue; // 이색인데 특이도가 높으면 다른 키워드들도 비교해봐야 함
                         }
 
                     case 1: // 일상
-                        if( (course.getSpecification() > N) ) {
+                        if ((course.getSpecification() > N)) {
                             return false; // 일상인데 특이도가 높으면 false 반환
-                        }
-                        else {
+                        } else {
                             continue; // 일상인데 특이도가 낮으면 다른 키워드들도 비교해봐야 함
                         }
 
                     case 2: // 체력높음
-                        if( !(course.getFatigability() > N) ) {
+                        if (!(course.getFatigability() > N)) {
                             return false; // 채력높음인데 피로도가 낮으면 false 반환
-                        }
-                        else {
+                        } else {
                             continue; // 체력높음인데 피로도가 높으면 다른 키워드들도 비교해봐야 함
                         }
 
                     case 3: // 체력낮음
-                        if( (course.getFatigability() > N) ) {
+                        if ((course.getFatigability() > N)) {
                             return false; // 체력낮음인데 피로도가 높으면 false 반환
-                        }
-                        else {
+                        } else {
                             continue; // 체력낮음인데 피로도가 낮으면 다른 키워드들도 비교해봐야 함
                         }
 
                     case 4: // 액티비티
-                        if( !(course.getActivity() > N) ) {
+                        if (!(course.getActivity() > N)) {
                             return false; // 액티비티인데 활동성이 낮으면 false 반환
-                        }
-                        else {
+                        } else {
                             continue; // 액티비티인데 활동성이 높으면 다른 키워드들도 비교해봐야 함
                         }
 
                     case 5: // 앉아서 놀기
-                        if( (course.getActivity() > N) ) {
+                        if ((course.getActivity() > N)) {
                             return false; // 앉아서놀기인데 활동성이 높으면 false 반환
-                        }
-                        else {
+                        } else {
                             continue; // 앉아서놀기인데 활동성이 낮으면 다른 키워드들도 비교해봐야 함
                         }
 
@@ -613,18 +614,21 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         return similarCourses;
     }
 
-    private List<PlaceDto> getCategoryPlaceList(String category) {
-        return placeRepository
-                .findAllByCategoryInOrderByRateDesc(category)
+    private List<PlaceDto> getCategoryPlaceList(String categoryCode) {
+        List<PlaceDto> placeDtoList = placeRepository
+                .findAllByCategoryCode(categoryCode)
+//                .findAllByCategoryInOrderByRateDesc(categoryCode)
                 .stream()
                 .map(PlaceDto::fromEntity)
                 .collect(Collectors.toList());
+        Collections.shuffle(placeDtoList);
+        return placeDtoList;
     }
 
     private List<PlaceDto> getFinalCourse(SecondCourse secondCourse, List<PlaceDto> wantedCategoryPlaceList, int start, Double[] mainCoordinate) {
-        List<PlaceDto> course=new ArrayList<>();
+        List<PlaceDto> course = new ArrayList<>();
         Set<PlaceDto> uniquePlaces = new HashSet<>(); // 중복 체크를 위한 HashSet
-        for(PlaceDto s : wantedCategoryPlaceList){
+        for (PlaceDto s : wantedCategoryPlaceList) {
             course.clear();
             uniquePlaces.clear(); // 새로운 시작 위치마다 HashSet 초기화
             Loop1:
@@ -650,20 +654,20 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
                     retryCount++;
                 }
-                if(retryCount==maxRetry) break;
+                if (retryCount == maxRetry) break;
             }
         }
         return null;
     }
 
     private List<PlaceDto> getRestaurantFromApi(Double[] mainCoordinate, int num) {
-        int cnt=0;
+        int cnt = 0;
         RestTemplate restTemplate = new RestTemplate();
-        String url = "https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x="+mainCoordinate[0]+"&y="+mainCoordinate[1]+"&radius="+FILTER_RADIUS;
+        String url = "https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=" + mainCoordinate[0] + "&y=" + mainCoordinate[1] + "&radius=" + FILTER_RADIUS;
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "KakaoAK " + apikey);
         HttpEntity<?> entity = new HttpEntity<>(headers);
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
         ResponseEntity<String> response = restTemplate.exchange(
                 builder.toUriString(),
                 HttpMethod.GET,
@@ -677,7 +681,8 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("getRestaurantApi failed!");
         }
-        JsonNode documents = root.path("documents");;
+        JsonNode documents = root.path("documents");
+        ;
         List<PlaceDto> places = new ArrayList<>();
         for (JsonNode document : documents) {
             String placeName = document.path("place_name").asText();
@@ -695,11 +700,13 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                     .y(y)
                     .phoneNumber(phone)
                     .build();
-            if(places.stream().anyMatch(p -> p.getCategoryCode().equals(String.valueOf(categoryCode)))) continue;
+            if (places.stream().anyMatch(p -> p.getCategoryCode().equals(String.valueOf(categoryCode))))
+                continue;
             places.add(place);
             cnt++;
-            if(cnt>=num){
-                for(PlaceDto restaurant : places) restaurant.setCategoryCode("FD6");
+            if (cnt >= num) {
+                for (PlaceDto restaurant : places)
+                    restaurant.setCategoryCode("FD6");
                 return places;
             }
         }
@@ -707,67 +714,67 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     }
 
     private boolean[] getRestaurantNum(int start, int end) {
-        int cnt=1;
-        boolean[] meal=new boolean[]{false, false, false, false};
-        if(start<=10){
-            meal[0]=true;
-            if(end<=14){
-                meal[1]=true;
+        int cnt = 1;
+        boolean[] meal = new boolean[]{false, false, false, false};
+        if (start <= 10) {
+            meal[0] = true;
+            if (end <= 14) {
+                meal[1] = true;
             }
-            if (end<=20){
-                meal[2]=true;
+            if (end <= 20) {
+                meal[2] = true;
             }
-        }else if(start<=14){
-            meal[1]=true;
-            if(end<=20){
-                meal[2]=true;
+        } else if (start <= 14) {
+            meal[1] = true;
+            if (end <= 20) {
+                meal[2] = true;
             }
-        }else if(start<=20){
-            meal[2]=true;
-        }else{
-            meal[3]=true;
+        } else if (start <= 20) {
+            meal[2] = true;
+        } else {
+            meal[3] = true;
         }
 
         return meal;
     }
 
     private int[] getPartition(List<PlaceDto> wantedCourse, int start, int end) {
-        int[] partTime=new int[4];
+        int[] partTime = new int[4];
         int[] partition = new int[4];
-        int cnt=wantedCourse.size();
-        for(int i=start;i<=end;i++){
-            if(i<9) partTime[0]++;
-            else if(i<13) partTime[1]++;
-            else if(i<20) partTime[2]++;
+        int cnt = wantedCourse.size();
+        for (int i = start; i <= end; i++) {
+            if (i < 9) partTime[0]++;
+            else if (i < 13) partTime[1]++;
+            else if (i < 20) partTime[2]++;
             else partTime[3]++;
         }
-        if(partTime[1]!=0 && cnt!=0){
+        if (partTime[1] != 0 && cnt != 0) {
             partition[1]++;
             cnt--;
         }
-        if(partTime[2]!=0 && cnt!=0){
+        if (partTime[2] != 0 && cnt != 0) {
             partition[2]++;
             cnt--;
         }
-        if(partTime[0]!=0 && cnt!=0){
+        if (partTime[0] != 0 && cnt != 0) {
             partition[0]++;
             cnt--;
         }
-        if(partTime[3]!=0 && cnt!=0){
+        if (partTime[3] != 0 && cnt != 0) {
             partition[3]++;
             cnt--;
         }
-        if(cnt!=0){
-            while(cnt!=0){
-                int index=0;
-                int max=0;
+        if (cnt != 0) {
+            while (cnt != 0) {
+                int index = 0;
+                int max = 0;
                 for (int i = 0; i < partition.length; i++) {
-                    if(max<partTime[i] && partTime[i]<=0){
-                        max=partTime[i];
-                        index=i;
+                    if (max < partTime[i] && partTime[i] <= 0) {
+                        max = partTime[i];
+                        index = i;
                     }
                 }
-                partTime[index]-=3;
+                partTime[index] -= 3;
                 cnt--;
             }
         }
@@ -780,7 +787,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         List<PlaceDto> finalCourse = new ArrayList<>();
         List<PlaceDto> candidateCourse = new ArrayList<>();
 
-        double minDistance=Double.MAX_VALUE;
+        double minDistance = Double.MAX_VALUE;
         double calculateDistance = 0.0;
 
         List<List<PlaceDto>> drinkPermutations = new ArrayList<>();
@@ -801,79 +808,79 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
         // 팩토리얼과 순열을 구하는 메소드가 필요함.
         // 노가다하면 구할 수 있음(최대 144번)
-        if(drinkPlace.isEmpty()){
-            if(restaurants.isEmpty()){
+        if (drinkPlace.isEmpty()) {
+            if (restaurants.isEmpty()) {
                 // 일반형만 있는 경우
-                for(List<PlaceDto> otherPerm : otherPermutations){
+                for (List<PlaceDto> otherPerm : otherPermutations) {
                     candidateCourse.addAll(otherPerm);
                     calculateDistance = calculateDistance(candidateCourse);
-                    if(minDistance>calculateDistance){
+                    if (minDistance > calculateDistance) {
                         minDistance = calculateDistance;
-                        finalCourse=candidateCourse;
+                        finalCourse = candidateCourse;
                     }
 
                 }
-            }else{
+            } else {
                 // 일반형 + 식사체크
-                for(List<PlaceDto> otherPerm : otherPermutations){
-                    for(List<PlaceDto> restPerm : restaurantPermutations){
+                for (List<PlaceDto> otherPerm : otherPermutations) {
+                    for (List<PlaceDto> restPerm : restaurantPermutations) {
                         candidateCourse = makeCandidateCourse(otherPerm, null, restPerm, partition);
                         candidateCourse.addAll(otherPerm);
                         calculateDistance = calculateDistance(candidateCourse);
-                        if(minDistance>calculateDistance){
+                        if (minDistance > calculateDistance) {
                             minDistance = calculateDistance;
-                            finalCourse=candidateCourse;
+                            finalCourse = candidateCourse;
                         }
                     }
                 }
             }
-        }else if(otherPlace.isEmpty()){
-            if(restaurants.isEmpty()){
+        } else if (otherPlace.isEmpty()) {
+            if (restaurants.isEmpty()) {
                 // 음주형만 있는 경우
-                for(List<PlaceDto> drinkPerm : drinkPermutations){
+                for (List<PlaceDto> drinkPerm : drinkPermutations) {
                     candidateCourse.addAll(drinkPerm);
                     calculateDistance = calculateDistance(candidateCourse);
-                    if(minDistance>calculateDistance){
+                    if (minDistance > calculateDistance) {
                         minDistance = calculateDistance;
-                        finalCourse=candidateCourse;
+                        finalCourse = candidateCourse;
                     }
                 }
-            }else{
+            } else {
                 // 음주형 + 식사체크
-                for(List<PlaceDto> drinkPerm : drinkPermutations){
-                    for(List<PlaceDto> restPerm : restaurantPermutations){
+                for (List<PlaceDto> drinkPerm : drinkPermutations) {
+                    for (List<PlaceDto> restPerm : restaurantPermutations) {
                         candidateCourse = makeCandidateCourse(null, drinkPerm, restPerm, partition);
                         calculateDistance = calculateDistance(candidateCourse);
-                        if(minDistance>calculateDistance){
+                        if (minDistance > calculateDistance) {
                             minDistance = calculateDistance;
-                            finalCourse=candidateCourse;
+                            finalCourse = candidateCourse;
                         }
                     }
                 }
             }
-        }else if (restaurants.isEmpty()){
+        } else if (restaurants.isEmpty()) {
             // 일반형 + 음주형
-            for(List<PlaceDto> otherPerm : otherPermutations){
-                for(List<PlaceDto> drinkPerm : drinkPermutations){
+            for (List<PlaceDto> otherPerm : otherPermutations) {
+                for (List<PlaceDto> drinkPerm : drinkPermutations) {
                     candidateCourse.addAll(otherPerm);
                     candidateCourse.addAll(drinkPerm);
                     calculateDistance = calculateDistance(candidateCourse);
-                    if(minDistance>calculateDistance){
+                    if (minDistance > calculateDistance) {
                         minDistance = calculateDistance;
-                        finalCourse=candidateCourse;
+                        finalCourse = candidateCourse;
                     }
                 }
             }
-        }else{
+        } else {
             // 일반형 + 음주형 + 식사체크
-            for(List<PlaceDto> otherPerm : otherPermutations){
-                for(List<PlaceDto> drinkPerm : drinkPermutations){
-                    for(List<PlaceDto> restPerm : restaurantPermutations){
+            for (List<PlaceDto> otherPerm : otherPermutations) {
+                for (List<PlaceDto> drinkPerm : drinkPermutations) {
+                    for (List<PlaceDto> restPerm : restaurantPermutations) {
                         candidateCourse = makeCandidateCourse(otherPerm, drinkPerm, restPerm, partition);
                         calculateDistance = calculateDistance(candidateCourse);
-                        if(minDistance>calculateDistance){
+                        if (minDistance > calculateDistance) {
                             minDistance = calculateDistance;
-                            finalCourse=candidateCourse;
+                            finalCourse = candidateCourse;
                         }
                     }
                 }
@@ -883,21 +890,21 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     }
 
     private List<PlaceDto> makeCandidateCourse(List<PlaceDto> otherPerm, List<PlaceDto> drinkPerm, List<PlaceDto> restPerm, int[] partition) {
-        int otherIdx=0;
-        int drinkIdx=0;
-        int restIdx=0;
-        List<PlaceDto> candidateCourse= new ArrayList<>();
+        int otherIdx = 0;
+        int drinkIdx = 0;
+        int restIdx = 0;
+        List<PlaceDto> candidateCourse = new ArrayList<>();
         for (int i = 0; i < partition.length; i++) {
             for (int j = 0; j < partition[i]; j++) {
-                if(otherPerm!=null && otherIdx<otherPerm.size()){
+                if (otherPerm != null && otherIdx < otherPerm.size()) {
                     candidateCourse.add(otherPerm.get(otherIdx));
                     otherIdx++;
-                }else if(drinkPerm!=null && drinkIdx<drinkPerm.size()){
+                } else if (drinkPerm != null && drinkIdx < drinkPerm.size()) {
                     candidateCourse.add(otherPerm.get(drinkIdx));
                     drinkIdx++;
                 }
             }
-            if(restPerm!=null && restIdx<restPerm.size()){
+            if (restPerm != null && restIdx < restPerm.size()) {
                 candidateCourse.add(restPerm.get(restIdx));
                 restIdx++;
             }
@@ -906,9 +913,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     }
 
     private double calculateDistance(List<PlaceDto> candidateCourse) {
-        double totalDistance=0.0;
+        double totalDistance = 0.0;
 
-        for (int i = 0; i < candidateCourse.size()-1; i++) {
+        for (int i = 0; i < candidateCourse.size() - 1; i++) {
             PlaceDto placeA = candidateCourse.get(i);
             PlaceDto placeB = candidateCourse.get(i + 1);
 
@@ -928,5 +935,6 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         List<List<PlaceDto>> result = new ArrayList<>(CollectionUtils.permutations(places));
         return result;
     }
+
 
 }

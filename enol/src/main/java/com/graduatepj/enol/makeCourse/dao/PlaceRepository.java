@@ -9,7 +9,10 @@ import java.util.List;
 
 @Repository
 public interface PlaceRepository extends JpaRepository<Place, Long> {
-    List<Place> findAllByCategoryInOrderByRateDesc(String wantedCategory);
+    // 랜덤순서로 가져오는 쿼리문
+    List<Place> findAllByCategoryCode(String categoryCode);
+    // 별점순으로 가져오는 쿼리문
+//    List<Place> findAllByCategoryInOrderByRateDesc(String wantedCategoryCode);
 
     // 골라진 가게들 중에서 랜덤으로 하나의 가게만 가져오는 쿼리문
     @Query(value = "SELECT * FROM place WHERE place.category_code= (:categoryCode) AND ST_Distance_Sphere(POINT(:longitude, :latitude), ST_Point(x, y)) <= :radius ORDER BY RAND() DESC LIMIT 1", nativeQuery = true)
@@ -23,4 +26,8 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 //            "ST_Distance_Sphere(POINT(?1, ?2), POINT(stores.longitude, stores.latitude)) <= ?3 " +
 //            "AND stores.category = ?4", nativeQuery = true)
 //    List<Store> findStoresByLocationAndCategory(double longitude, double latitude, double range, String category);
+
+    // 프론트 테스트용
+    @Query(value = "SELECT * FROM place ORDER BY RAND() LIMIT :count", nativeQuery = true)
+    List<Place> findRandomPlaces(int count);
 }

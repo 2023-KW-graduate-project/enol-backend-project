@@ -1,7 +1,6 @@
 package com.graduatepj.enol.makeCourse.controller;
 
 import com.graduatepj.enol.makeCourse.dto.CourseRequest;
-import com.graduatepj.enol.makeCourse.dto.CourseResponse;
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
 import com.graduatepj.enol.makeCourse.service.MakeCourseService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,4 +31,9 @@ public class MakeCourseController {
         return ResponseEntity.ok(makeCourseService.MakeCourse(requestData));
     }
 
+    // 프론트 테스트용
+    @PostMapping("/test")
+    public ResponseEntity<List<PlaceDto>> createTestCourse() {
+        return ResponseEntity.ok(makeCourseService.testCourse());
+    }
 }
