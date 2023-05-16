@@ -80,7 +80,7 @@ public class MemberController {
      * @param member
      * @return
      */
-    @PostMapping("checkId")
+    @PostMapping("/checkId")
     public Member checkId(@RequestBody Member member) {
         log.info("MemberController.checkId START");
 
@@ -107,7 +107,7 @@ public class MemberController {
      * @param member
      * @return
      */
-    @PostMapping("findPW")
+    @PostMapping("/findPW")
     public Member findPW(@RequestBody Member member) {
 //    public Member findPW(@RequestBody String memberId, @RequestBody String memberName, @RequestParam String eMail, @RequestParam String BDay) {
         log.info("MemberController.findPassword START");
@@ -136,7 +136,7 @@ public class MemberController {
      * @param password
      * @return
      */
-    @PostMapping("changePW")
+    @PostMapping("/changePW")
     public Member changePW(@RequestBody Member member, @RequestParam String password) {
         log.info("MemberController.changePassword START");
 
@@ -154,11 +154,22 @@ public class MemberController {
      * 사용자가 입력했던 취향 변경
      * @return
      */
-    @PostMapping("modifyMember")
-    public Member modifyMember() {
+    @PostMapping("/modifyMember")
+    public Member modifyMember(Member modifyMember) {
         log.info("MemberController.modifyMember START");
+        log.info("memberId = {}", modifyMember.getMemberId());
+        log.info("memberPassword = {}", modifyMember.getPassword());
+        log.info("memberName = {}", modifyMember.getMemberName());
+        log.info("memberEmail = {}", modifyMember.getEmail());
+        log.info("memberBirthDay = {}", modifyMember.getBirthday());
+        log.info("memberGender = {}", modifyMember.getGender());
+        log.info("memberFatigability = {}", modifyMember.getFatigability());
+        log.info("memberSpecification = {}", modifyMember.getSpecification());
+        log.info("memberActivity = {}", modifyMember.getActivity());
 
-        Member member = new Member();
+        Member member = memberService.modifyMemberInfo(modifyMember);
+
+//        Member joinMember = memberService.joinUser(modifyMember);
         return member;
     }
 
@@ -166,7 +177,7 @@ public class MemberController {
      * 계정 삭제
      * @return
      */
-    @PostMapping("deleteMember")
+    @PostMapping("/deleteMember")
     public boolean deleteMember(@RequestBody Member member) {
         log.info("MemberController.deleteMember START");
         log.info("memberId = {}", member.getMemberId());

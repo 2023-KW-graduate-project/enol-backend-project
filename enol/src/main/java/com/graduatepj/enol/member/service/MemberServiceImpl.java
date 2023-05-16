@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service("memberService")
 @Slf4j
@@ -35,6 +36,9 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("joinMember.getMemberEmail = {}", joinMember.getEmail());
         log.info("joinMember.getMemberBirthday = {}", joinMember.getBirthday());
         log.info("joinMember.getGender = {}", joinMember.getGender());
+        log.info("joinMember.getFatigability = {}", joinMember.getFatigability());
+        log.info("joinMember.getSpecification = {}", joinMember.getSpecification());
+        log.info("joinMember.getActivity = {}", joinMember.getActivity());
 
         Member newMember = new Member();
         newMember.setMemberId(joinMember.getMemberId());
@@ -43,6 +47,9 @@ public class MemberServiceImpl implements MemberService<Member>{
         newMember.setEmail(joinMember.getEmail());
         newMember.setBirthday(joinMember.getBirthday());
         newMember.setGender(joinMember.getGender());
+        newMember.setFatigability(joinMember.getFatigability());
+        newMember.setSpecification(joinMember.getSpecification());
+        newMember.setActivity(joinMember.getActivity());
 
         memberRepository.save(newMember);
         logger.info("save memberRepository");
@@ -100,11 +107,11 @@ public class MemberServiceImpl implements MemberService<Member>{
                         log.info("checkMember.getMemberBirthDay = {}", checkMember.getBirthday());
                         log.info("member.getGender = {}", member.getGender());
                         log.info("checkMember.getGender = {}", checkMember.getGender());
-                            if(checkMember.getGender().equals(member.getGender())) {
-                                log.info("gender same");
-                                log.info("checkMember.getMemberGender = {}", checkMember.getGender());
-                                return checkMember; // 다 같으면 해당 멤버 객체 반환
-                            }
+                        if(checkMember.getGender().equals(member.getGender())) {
+                            log.info("gender same");
+                            log.info("checkMember.getMemberGender = {}", checkMember.getGender());
+                            return checkMember; // 다 같으면 해당 멤버 객체 반환
+                        }
                     }
                 }
             }
@@ -135,9 +142,9 @@ public class MemberServiceImpl implements MemberService<Member>{
                 log.info("checkMember.getMemberId = {}", checkMember.getMemberId());
                 log.info("ID same");
                 if(checkMember.getMemberName().equals(member.getMemberName()) &&
-                checkMember.getEmail().equals(member.getEmail()) &&
-                checkMember.getBirthday().equals(member.getBirthday()) &&
-                checkMember.getGender().equals(member.getGender())) { // 입력한 정보가 다 맞은 경우 해당 멤버 객체 반환
+                        checkMember.getEmail().equals(member.getEmail()) &&
+                        checkMember.getBirthday().equals(member.getBirthday()) &&
+                        checkMember.getGender().equals(member.getGender())) { // 입력한 정보가 다 맞은 경우 해당 멤버 객체 반환
                     log.info("All info same");
                     return checkMember; // ID가 같은 해당 멤버 객체 반환
                 }
@@ -165,7 +172,6 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("member.getMemberName = {}", member.getMemberName());
         log.info("member.getMemberEMail = {}", member.getEmail());
         log.info("member.getMemberBDay = {}", member.getBirthday());
-//        log.info("member.getMemberNickName = {}", member.getNickName());
         log.info("member.getMemberGender = {}", member.getGender());
 
         List<Member> memberList = memberRepository.findAll();
@@ -176,10 +182,8 @@ public class MemberServiceImpl implements MemberService<Member>{
                 changeMember.setMemberId(member.getMemberId());
                 changeMember.setMemberName(member.getMemberName());
                 changeMember.setPassword(member.getPassword());
-//                changeMember.setEnpassword(member.getEnpassword());
                 changeMember.setEmail(member.getEmail());
                 changeMember.setBirthday(member.getBirthday());
-//                changeMember.setNickName(member.getNickName());
                 changeMember.setGender(member.getGender());
 
                 memberRepository.save(changeMember);
@@ -193,9 +197,37 @@ public class MemberServiceImpl implements MemberService<Member>{
         return null;
     }
 
+    /**
+     * 사용자 취향 변경하는 메서드, 비밀번호나 취향이 아닌 사용자 정보 수정도 가능할 듯
+     * @param modifyMember
+     * @return
+     */
     @Override
-    public Member modifyMemberInfo(Member member) { // 비밀번호 변경, 취향 변경 -
-        return null;
+    public Member modifyMemberInfo(Member modifyMember) { // 비밀번호 변경, 취향 변경 -
+        log.info("joinMember.getMemberId = {}", modifyMember.getMemberId());
+        log.info("joinMember.getPassword = {}", modifyMember.getPassword());
+        log.info("joinMember.getMemberName = {}", modifyMember.getMemberName());
+        log.info("joinMember.getMemberEmail = {}", modifyMember.getEmail());
+        log.info("joinMember.getMemberBirthday = {}", modifyMember.getBirthday());
+        log.info("joinMember.getGender = {}", modifyMember.getGender());
+        log.info("joinMember.getFatigability = {}", modifyMember.getFatigability());
+        log.info("joinMember.getSpecification = {}", modifyMember.getSpecification());
+        log.info("joinMember.getActivity = {}", modifyMember.getActivity());
+
+        Member newMember = new Member();
+        newMember.setMemberId(modifyMember.getMemberId());
+        newMember.setPassword(modifyMember.getPassword());
+        newMember.setMemberName(modifyMember.getMemberName());
+        newMember.setEmail(modifyMember.getEmail());
+        newMember.setBirthday(modifyMember.getBirthday());
+        newMember.setGender(modifyMember.getGender());
+        newMember.setFatigability(modifyMember.getFatigability());
+        newMember.setSpecification(modifyMember.getSpecification());
+        newMember.setActivity(modifyMember.getActivity());
+
+        memberRepository.save(newMember);
+        logger.info("modify memberRepository");
+        return newMember;
     }
 
     @Override
@@ -207,14 +239,16 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("member.getMemberName = {}", member.getMemberName());
         log.info("member.getMemberEMail = {}", member.getEmail());
         log.info("member.getMemberBDay = {}", member.getBirthday());
-//        log.info("member.getMemberNickName = {}", member.getNickName());
         log.info("member.getMemberGender = {}", member.getGender());
+        log.info("member.getMemberFatigability = {}", member.getFatigability());
+        log.info("member.getMemberSpecification = {}", member.getSpecification());
+        log.info("member.getMemberActivity = {}", member.getActivity());
+
 
         List<Member> memberList = memberRepository.findAll();
         for (Member checkMember : memberList) {
             log.info("Before IF checkMember.getMemberId = {}", checkMember.getMemberId());
             if (checkMember.getMemberId().equals(member.getMemberId())) { // 해당 회원 정보 찾으면 계정 삭제
-                // 다른 정보들 맞는지 추가?
                 memberRepository.delete(member);
 
                 log.info("deleteMember success");

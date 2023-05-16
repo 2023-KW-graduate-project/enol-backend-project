@@ -27,10 +27,6 @@ public class Member {
     @Column(name="PASSWORD")
     private String password;
 
-//    /** 암호화 비밀번호 */
-//    @Column(name="ENPASSWORD")
-//    private String enpassword;
-
     /** 사용자 이메일 */
     @Column(name = "EMAIL")
     private String email;
@@ -39,14 +35,24 @@ public class Member {
     @Column(name = "BDAY")
     private String birthday;
 
-//    /** 사용자 닉네임 */
-//    @Column(name = "NICKNAME")
-//    private String nickName;
-
     /** 사용자 성별 */
     @Column(name = "GENDER")
     private String gender;
 
+    /**
+     * 피로도
+     */
+    private int fatigability;
+
+    /**
+     * 특이도
+     */
+    private int specification;
+
+    /**
+     * 활동도
+     */
+    private int activity;
 
 //
 //    // 실행 중 필요한 사용자의 정보
