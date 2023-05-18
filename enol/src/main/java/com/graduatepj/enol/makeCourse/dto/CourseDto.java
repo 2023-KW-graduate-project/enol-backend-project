@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-@NoArgsConstructor
+//@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class CourseDto {
