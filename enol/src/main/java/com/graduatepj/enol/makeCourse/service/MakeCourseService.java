@@ -12,8 +12,8 @@ public interface MakeCourseService {
 
     // 첫 번째 코스 생성 - C열로 이루어진 코스 생성
     public abstract CourseDto firstCourseFiltering(CourseRequest courseRequest);
-    public abstract CourseDto firstCourseFiltering1(CourseRequest courseRequest);
-    public abstract CourseDto firstCourseFiltering2(CourseRequest courseRequest);
+//    public abstract CourseDto firstCourseFiltering1(CourseRequest courseRequest);
+//    public abstract CourseDto firstCourseFiltering2(CourseRequest courseRequest);
 
     // 두 번째 코스 생성 - D열로 이루어진 코스 생성
     public abstract SecondCourse secondCourseFiltering(CourseDto firstCourse);
