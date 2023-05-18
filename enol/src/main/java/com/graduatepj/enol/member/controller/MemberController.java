@@ -20,7 +20,6 @@ public class MemberController {
 
     /**
      * 유저 리스트 보이기
-     * 성공 확인
      */
     @GetMapping("/users")
     public List<Member> showMemberList() {
@@ -31,7 +30,6 @@ public class MemberController {
 
     /**
      * 회원 가입 페이지
-     * 성공 확인
      * @return
      */
     @PostMapping("/join")
@@ -79,7 +77,6 @@ public class MemberController {
 
     /**
      * 아이디 찾기
-     * 성공 확인
      * @param member
      * @return
      */
@@ -107,7 +104,6 @@ public class MemberController {
     /**
      * 비밀 번호 찾기 페이지
      * 해당 member 객체를 리턴하면 비밀번호 변경 창에서 변경한 비밀번호대로 다시 저장
-     * 성공 확인
      * @param member
      * @return
      */
@@ -159,10 +155,21 @@ public class MemberController {
      * @return
      */
     @PostMapping("/modifyMember")
-    public Member modifyMember() {
+    public Member modifyMember(Member modifyMember) {
         log.info("MemberController.modifyMember START");
+        log.info("memberId = {}", modifyMember.getMemberId());
+        log.info("memberPassword = {}", modifyMember.getPassword());
+        log.info("memberName = {}", modifyMember.getMemberName());
+        log.info("memberEmail = {}", modifyMember.getEmail());
+        log.info("memberBirthDay = {}", modifyMember.getBirthday());
+        log.info("memberGender = {}", modifyMember.getGender());
+        log.info("memberFatigability = {}", modifyMember.getFatigability());
+        log.info("memberSpecification = {}", modifyMember.getSpecification());
+        log.info("memberActivity = {}", modifyMember.getActivity());
 
-        Member member = new Member();
+        Member member = memberService.modifyMemberInfo(modifyMember);
+
+//        Member joinMember = memberService.joinUser(modifyMember);
         return member;
     }
 
