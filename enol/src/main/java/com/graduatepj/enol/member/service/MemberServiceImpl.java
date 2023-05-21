@@ -181,7 +181,7 @@ public class MemberServiceImpl implements MemberService<Member>{
                 Member changeMember = new Member();
                 changeMember.setMemberId(member.getMemberId());
                 changeMember.setMemberName(member.getMemberName());
-                changeMember.setPassword(member.getPassword());
+                changeMember.setPassword(changePW);
                 changeMember.setEmail(member.getEmail());
                 changeMember.setBirthday(member.getBirthday());
                 changeMember.setGender(member.getGender());

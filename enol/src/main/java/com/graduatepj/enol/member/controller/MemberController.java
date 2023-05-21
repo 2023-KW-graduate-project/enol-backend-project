@@ -126,6 +126,7 @@ public class MemberController {
         changeMember.setGender(member.getGender());
 
         Member changedMember = memberService.findUserPassword(changeMember); // 비밀번호 변경할 member 객체 OR null
+        log.info("MemberController.findPassword END");
 
         return changedMember;
     }
@@ -137,7 +138,7 @@ public class MemberController {
      * @return
      */
     @PostMapping("/changePW")
-    public Member changePW(@RequestBody Member member, @RequestParam String password) {
+    public Member changePW(@RequestBody Member member, @RequestParam("password") String password) {
         log.info("MemberController.changePassword START");
 
         log.info("memberId = {}", member.getMemberId());
@@ -147,6 +148,8 @@ public class MemberController {
 
         Member changeMember = memberService.ChangeUserPassword(member, password);
 
+        log.info("MemberController.changePassword END");
+
         return changeMember;
     }
 
@@ -155,7 +158,7 @@ public class MemberController {
      * @return
      */
     @PostMapping("/modifyMember")
-    public Member modifyMember(Member modifyMember) {
+    public Member modifyMember(@RequestBody Member modifyMember) {
         log.info("MemberController.modifyMember START");
         log.info("memberId = {}", modifyMember.getMemberId());
         log.info("memberPassword = {}", modifyMember.getPassword());
