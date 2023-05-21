@@ -93,6 +93,9 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("member.getMemberEMail = {}", member.getEmail());
         log.info("member.getMemberBDay = {}", member.getBirthday());
         log.info("member.getMemberGender = {}", member.getGender());
+        log.info("member.getFatigability = {}", member.getFatigability());
+        log.info("member.getSpecification = {}", member.getSpecification());
+        log.info("member.getActivity = {}", member.getActivity());
 
         List<Member> memberList = memberRepository.findAll();
         for (Member checkMember : memberList) {
@@ -134,6 +137,9 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("member.getMemberEMail = {}", member.getEmail());
         log.info("member.getMemberBDay = {}", member.getBirthday());
         log.info("member.getMemberGender = {}", member.getGender());
+        log.info("member.geMemberFatigability = {}", member.getFatigability());
+        log.info("member.getMemberSpecification = {}", member.getSpecification());
+        log.info("member.getMemberActivity = {}", member.getActivity());
 
         List<Member> memberList = memberRepository.findAll();
         for (Member checkMember : memberList) {
@@ -173,6 +179,9 @@ public class MemberServiceImpl implements MemberService<Member>{
         log.info("member.getMemberEMail = {}", member.getEmail());
         log.info("member.getMemberBDay = {}", member.getBirthday());
         log.info("member.getMemberGender = {}", member.getGender());
+        log.info("member.getMemberFatigability = {}", member.getFatigability());
+        log.info("member.getMemberSpecification = {}", member.getSpecification());
+        log.info("member.getMemberActivity = {}", member.getActivity());
 
         List<Member> memberList = memberRepository.findAll();
         for (Member checkMember : memberList) {
@@ -181,10 +190,13 @@ public class MemberServiceImpl implements MemberService<Member>{
                 Member changeMember = new Member();
                 changeMember.setMemberId(member.getMemberId());
                 changeMember.setMemberName(member.getMemberName());
-                changeMember.setPassword(changePW);
+                changeMember.setPassword(changePW); // 바꾼 비밀번호로 비밀번호만 수정
                 changeMember.setEmail(member.getEmail());
                 changeMember.setBirthday(member.getBirthday());
                 changeMember.setGender(member.getGender());
+                changeMember.setFatigability(member.getFatigability());
+                changeMember.setSpecification(member.getSpecification());
+                changeMember.setActivity(member.getActivity());
 
                 memberRepository.save(changeMember);
 
