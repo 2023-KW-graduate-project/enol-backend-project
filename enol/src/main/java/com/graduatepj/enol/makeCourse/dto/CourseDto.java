@@ -1,24 +1,23 @@
 package com.graduatepj.enol.makeCourse.dto;
 
-import com.graduatepj.enol.makeCourse.vo.Course;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class CourseDto {
 
-//    private List<String> categories; // c열로 이루어진 리스트
+    //    private List<String> categories; // c열로 이루어진 리스트
     private boolean mealCheck;
-    
+
     private String wantedCategoryGroup; // 필수 카테고리가 속하는 categoryGroup
     // 필수 장소(미선택시 C열 기준 우선순위 선정)
     private String wantedCategory; // 필수 카테고리
@@ -51,7 +50,9 @@ public class CourseDto {
      */
     private double similarity;
 
-    /** 애도 Course 안쓸거니까 CourseV2써서 다시 만들어야 함*/
+    /**
+     * 애도 Course 안쓸거니까 CourseV2써서 다시 만들어야 함
+     */
 //    public static CourseDto fromEntity(Course course) {
 //        return CourseDto.builder()
 //                .categories(course.getCategories())
@@ -63,10 +64,9 @@ public class CourseDto {
 //                .build();
 //    }
 
-    
-    // 추가
 
-        public static CourseDto fromEntity(CourseV2 course) {
+    // 추가
+    public static CourseDto fromEntity(CourseV2 course) {
         return CourseDto.builder()
                 .categoryGroupCode1(course.getCategoryGroupCode1())
                 .categoryGroupCode2(course.getCategoryGroupCode2())
@@ -93,7 +93,8 @@ public class CourseDto {
 
     private boolean dawnDrink;
 
-    public CourseDto() {} // 기본 생성자
+    public CourseDto() {
+    } // 기본 생성자
 
     // Entity에서 가져오기 위해 만드는 생성자 - CourseV2에서 가져오려고 변수 맞추는 부분
     public CourseDto(String categoryGroupCode1, String categoryGroupCode2, String categoryGroupCode3, String categoryGroupCode4, int fatigability, int specification, int activity) {
