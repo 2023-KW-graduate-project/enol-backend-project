@@ -54,16 +54,19 @@ public class Member {
     /**
      * 피로도
      */
+    @Column(name = "피로도")
     private int fatigability;
 
     /**
      * 특이도
      */
+    @Column(name = "특이도")
     private int specification;
 
     /**
-     * 활동성
+     * 활동도
      */
+    @Column(name = "활동도")
     private int activity;
 
 
