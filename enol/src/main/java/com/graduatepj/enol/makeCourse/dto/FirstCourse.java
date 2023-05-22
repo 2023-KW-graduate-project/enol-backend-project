@@ -19,14 +19,17 @@ public class FirstCourse {
 
 //    private int peopleNumber; // 인원수
 
+    @Builder.Default // test하는데 오류나서 붙임
     private List<SelectedMemberDto> memberList = new ArrayList<>(); // 회원들 리스트
 
     private int startTime; // 약속 시작 시간
 
     private int finishTime; // 약속 끝 시간
 
+    @Builder.Default
     private boolean[] courseKeyword = new boolean[6]; // 코스 키워드, 순서대로 이색, 일상/체력높음,체력낮음/액티비티, 앉아서놀기/
 
+    @Builder.Default
     private boolean[] goal = new boolean[5]; // 모임의 목적, 순서대로 신첵, 음주, 체험, 동물, 힐링
 
     private String wantedCategory; // 가고 싶은 카테고리 입력한 것 - 없음이면 nothing
@@ -35,7 +38,9 @@ public class FirstCourse {
 
     private String mainBigCategory; // 코스의 주 장소가 될 카테고리
 
+    @Builder.Default
     private List<BigCourseOutline> bigCategoryCourses = new ArrayList<>(); // bigCategory로 이루어진 코스들을 동적 배열로 가짐
+
 
     public FirstCourse(BigCourseOutline bigCourseOutline) { bigCategoryCourses.add(bigCourseOutline);}
 
