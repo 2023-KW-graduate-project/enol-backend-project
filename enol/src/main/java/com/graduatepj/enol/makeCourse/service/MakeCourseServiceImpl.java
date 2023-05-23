@@ -118,6 +118,12 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         if(courseRequest.getStartTime()>=courseRequest.getFinishTime()){ // 새벽시간대를 고려한 시간 설정 - 이 경우는 새벽 포함
             courseRequest.setFinishTime(24+courseRequest.getFinishTime());
             dawnDrink = true; // 새벽이 포함되면 true로
+        }else if(courseRequest.getStartTime()<=5){ // startTime은 오전 6시 ~ 오전 1시까지만 가능
+            courseRequest.setFinishTime(24+courseRequest.getStartTime());
+            dawnDrink = true; // 새벽이 포함되면 true로
+        }else if(courseRequest.getFinishTime() <= 4){ // finishTime은 오전 7시 ~ 오전 4시까지만 가능
+            courseRequest.setFinishTime(24+courseRequest.getFinishTime());
+            dawnDrink = true; // 새벽이 포함되면 true로
         }
         int totalTime = courseRequest.getFinishTime() - courseRequest.getStartTime(); // 총 소요 시간
 
@@ -461,7 +467,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     @Override
     public List<PlaceDto> finalCourseFiltering(SecondCourse secondCourse) {
         int num = 0;
-        boolean[] meal;
+        boolean[] meal= new boolean[]{false, false, false, false};
         int[] partition;
         Double[] mainCoordinate = new Double[]{0.0, 0.0};
         List<PlaceDto> restaurants = new ArrayList<>();
@@ -473,6 +479,8 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         if (wantedCourse == null) {
             wantedCategoryPlaceList = getCategoryPlaceList(secondCourse.getDetailCategoryCodes().get(1));
             wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 2, mainCoordinate);
+            // TODO : 가장 가까운 wantedCategory를 코스에 포함
+
             if (wantedCourse == null)
                 throw new RuntimeException("not enough data so no recommendation!");
         }
@@ -486,7 +494,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         // 식사 앞뒤로 몇개의 가게 들어갈지 구하는 메소드
         partition = getPartition(wantedCourse, secondCourse.getStartTime(), secondCourse.getEndTime());
         // 최적화(노가다 순열)
-        return optimizeCourse(wantedCourse, restaurants, partition);
+        return optimizeCourse(wantedCourse, restaurants, partition, meal, secondCourse.getStartTime());
     }
 
     // 프론트 테스트용
@@ -501,6 +509,8 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 .collect(Collectors.toList());
         Double[] mainCoordinate = new Double[]{testCourseList.get(0).getX(), testCourseList.get(0).getY()};
         testCourseList.addAll(getRestaurantFromApi(mainCoordinate, restCount));
+        log.info(String.valueOf(placeCount));
+        log.info(String.valueOf(restCount));
         return testCourseList;
     }
 
@@ -641,74 +651,101 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     }
 
     private boolean[] getRestaurantNum(int start, int end) {
-        int cnt = 1;
         boolean[] meal = new boolean[]{false, false, false, false};
-        if (start <= 10) {
-            meal[0] = true;
-            if (end <= 14) {
-                meal[1] = true;
+        if(start<=10) { // 아침, 점심, 저녁 포함 가능
+            // 시간대 미포함
+            if(end<8){
+                meal[3]=true;
+                return meal;
             }
-            if (end <= 20) {
-                meal[2] = true;
+            // 아침만 포함
+            if(end<12) meal[0]=true;
+                // 점심까지 포함
+            else if(end<18 && end>=12) {
+                meal[0]=true;
+                meal[1]=true;
             }
-        } else if (start <= 14) {
-            meal[1] = true;
-            if (end <= 20) {
-                meal[2] = true;
+            // 다 포함
+            else if(end>=18) {
+                meal[0]=true;
+                meal[1]=true;
+                meal[2]=true;
             }
-        } else if (start <= 20) {
-            meal[2] = true;
-        } else {
-            meal[3] = true;
+        } else if(start<=14){ // 점심, 저녁 포함 가능
+            // 시간대 미포함
+            if(end<=11){
+                meal[3]=true;
+                return meal;
+            }
+            // 점심만 포함
+            if(end<18 && end>=12) meal[1]=true;
+                // 저녁도 포함
+            else if(end>=18) {
+                meal[1]=true;
+                meal[2]=true;
+            }
+        } else if(start<=20){ // 저녁 포함 가능
+            // 시간대 미포함
+            if(end<18){
+                meal[3]=true;
+                return meal;
+            }
+            // 저녁 포함
+            if(end>=18) meal[2]=true;
+        } else{
+            meal[3]=true;
         }
 
         return meal;
     }
 
     private int[] getPartition(List<PlaceDto> wantedCourse, int start, int end) {
-        int[] partTime = new int[4];
+        int[] partTime;
         int[] partition = new int[4];
+        boolean[] partitionCheck = new boolean[]{false, false, false, false};
         int cnt = wantedCourse.size();
-        for (int i = start; i <= end; i++) {
-            if (i < 9) partTime[0]++;
-            else if (i < 13) partTime[1]++;
-            else if (i < 20) partTime[2]++;
-            else partTime[3]++;
+        int maxIndex=0;
+        int maxValue=Integer.MIN_VALUE;
+        partTime=getPartTime(start, end);
+        for (int i = 0; i < partTime.length; i++) {
+            if(partTime[i]!=0) partitionCheck[i]=true;
         }
-        if (partTime[1] != 0 && cnt != 0) {
-            partition[1]++;
-            cnt--;
-        }
-        if (partTime[2] != 0 && cnt != 0) {
-            partition[2]++;
-            cnt--;
-        }
-        if (partTime[0] != 0 && cnt != 0) {
-            partition[0]++;
-            cnt--;
-        }
-        if (partTime[3] != 0 && cnt != 0) {
-            partition[3]++;
-            cnt--;
-        }
-        if (cnt != 0) {
-            while (cnt != 0) {
-                int index = 0;
-                int max = 0;
-                for (int i = 0; i < partition.length; i++) {
-                    if (max < partTime[i] && partTime[i] <= 0) {
-                        max = partTime[i];
-                        index = i;
-                    }
+        System.out.println("시간 : 아침 전 = "+ partTime[0] +" | 아침/점심 사이 = "+ partTime[1] +" | 점심/저녁 사이 = "+ partTime[2] + " | 저녁 이후 = " + partTime[3]);
+        while(cnt>0) {
+            for (int i = 0; i < partTime.length; i++) {
+                if (partTime[i] > maxValue && partitionCheck[i]) {
+                    maxValue = partTime[i];
+                    maxIndex = i;
                 }
-                partTime[index] -= 3;
-                cnt--;
             }
+            partition[maxIndex]++;
+            cnt--;
+            partTime[maxIndex] -= 3;
+            maxValue = partTime[maxIndex];
         }
         return partition;
     }
 
-    private List<PlaceDto> optimizeCourse(List<PlaceDto> wantedCourse, List<PlaceDto> restaurants, int[] partition) {
+    private int[] getPartTime(int start, int end){
+        int[] partTime = new int[4];
+        for (int i = start; i < end; i++) {
+            if (i < 9 && i>=6) {
+                partTime[0]++;
+            }
+            else if (i < 13 && i>=9) {
+                partTime[1]++;
+            }
+            else if (i < 20 && i>=13) {
+                partTime[2]++;
+            }
+            else {
+                partTime[3]++;
+            }
+        }
+        return partTime;
+    }
+
+    private List<PlaceDto> optimizeCourse(List<PlaceDto> wantedCourse, List<PlaceDto> restaurants, int[] partition, boolean[] mealCheck, int startTime) {
         List<PlaceDto> drinkPlace = new ArrayList<>();
         List<PlaceDto> otherPlace = new ArrayList<>();
         List<PlaceDto> finalCourse = new ArrayList<>();
@@ -745,13 +782,12 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                         minDistance = calculateDistance;
                         finalCourse = candidateCourse;
                     }
-
                 }
             } else {
                 // 일반형 + 식사체크
                 for (List<PlaceDto> otherPerm : otherPermutations) {
                     for (List<PlaceDto> restPerm : restaurantPermutations) {
-                        candidateCourse = makeCandidateCourse(otherPerm, null, restPerm, partition);
+                        candidateCourse = makeCandidateCourse(otherPerm, null, restPerm, partition, mealCheck, startTime);
                         candidateCourse.addAll(otherPerm);
                         calculateDistance = calculateDistance(candidateCourse);
                         if (minDistance > calculateDistance) {
@@ -776,7 +812,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 // 음주형 + 식사체크
                 for (List<PlaceDto> drinkPerm : drinkPermutations) {
                     for (List<PlaceDto> restPerm : restaurantPermutations) {
-                        candidateCourse = makeCandidateCourse(null, drinkPerm, restPerm, partition);
+                        candidateCourse = makeCandidateCourse(null, drinkPerm, restPerm, partition, mealCheck, startTime);
                         calculateDistance = calculateDistance(candidateCourse);
                         if (minDistance > calculateDistance) {
                             minDistance = calculateDistance;
@@ -803,7 +839,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             for (List<PlaceDto> otherPerm : otherPermutations) {
                 for (List<PlaceDto> drinkPerm : drinkPermutations) {
                     for (List<PlaceDto> restPerm : restaurantPermutations) {
-                        candidateCourse = makeCandidateCourse(otherPerm, drinkPerm, restPerm, partition);
+                        candidateCourse = makeCandidateCourse(otherPerm, drinkPerm, restPerm, partition, mealCheck, startTime);
                         calculateDistance = calculateDistance(candidateCourse);
                         if (minDistance > calculateDistance) {
                             minDistance = calculateDistance;
@@ -816,7 +852,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         return finalCourse;
     }
 
-    private List<PlaceDto> makeCandidateCourse(List<PlaceDto> otherPerm, List<PlaceDto> drinkPerm, List<PlaceDto> restPerm, int[] partition) {
+    private List<PlaceDto> makeCandidateCourse(List<PlaceDto> otherPerm, List<PlaceDto> drinkPerm, List<PlaceDto> restPerm, int[] partition, boolean[] mealCheck, int startTime) {
         int otherIdx = 0;
         int drinkIdx = 0;
         int restIdx = 0;
@@ -827,13 +863,20 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                     candidateCourse.add(otherPerm.get(otherIdx));
                     otherIdx++;
                 } else if (drinkPerm != null && drinkIdx < drinkPerm.size()) {
-                    candidateCourse.add(otherPerm.get(drinkIdx));
+                    candidateCourse.add(drinkPerm.get(drinkIdx));
                     drinkIdx++;
                 }
             }
-            if (restPerm != null && restIdx < restPerm.size()) {
+            if (restPerm != null && restIdx < restPerm.size() && mealCheck[i] && i<partition.length-1) {
                 candidateCourse.add(restPerm.get(restIdx));
                 restIdx++;
+            }
+        }
+        if(restPerm!=null && mealCheck[3]){
+            if(startTime<=20){
+                candidateCourse.add(restPerm.get(restIdx));
+            }else{
+                candidateCourse.add(0, restPerm.get(restIdx));
             }
         }
         return candidateCourse;
@@ -863,5 +906,14 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         return result;
     }
 
-
+    // 최소 음주형 수 구하는 메소드(참고)
+    private int getDrinkNum(int start, int end){
+        int drinkTime=end-22;
+        if(drinkTime>=0){
+            if(drinkTime/3==0) return 1;
+            else return drinkTime/3;
+        }else{
+            return 0;
+        }
+    }
 }
