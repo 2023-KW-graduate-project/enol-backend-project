@@ -54,41 +54,19 @@ public class Member {
     /**
      * 피로도
      */
+    @Column(name = "피로도")
     private int fatigability;
 
     /**
      * 특이도
      */
+    @Column(name = "특이도")
     private int specification;
 
     /**
-     * 활동성
+     * 활동도
      */
+    @Column(name = "활동도")
     private int activity;
-
-
-//
-//    // 실행 중 필요한 사용자의 정보
-//    /** 현 위치 */
-//    private String address;
-//
-//    /** 출발 위치 */
-//    private String startAddress;
-//
-//    /** 종료 위치 */
-//    private String endAddress;
-
-//    // 가고싶다고 미리 체크한 경우 체크한
-////    /** 음식점 리스트 */
-////    private List<FoodDVO> foodList;
-////
-////    /** 카페 리스트 */
-////    private List<CafeDVO> cafeList;
-////
-////    /** 노래방 리스트 */
-////    private List<SingDVO> singList;
-////
-////    /** 놀거리 리스트 */
-////    private List<PlayDVO> playList;
 
 }
