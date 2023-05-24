@@ -1,11 +1,17 @@
 package com.graduatepj.enol.makeCourse.service;
 
-import com.graduatepj.enol.makeCourse.dao.CourseMemberRepository;
-import com.graduatepj.enol.makeCourse.dao.CourseRepository;
-import com.graduatepj.enol.makeCourse.dao.PlaceRepository;
+import com.graduatepj.enol.makeCourse.dao.*;
+import com.graduatepj.enol.makeCourse.dto.CourseDto;
+import com.graduatepj.enol.makeCourse.dto.CourseRequest;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootTest
 class MakeCourseServiceImplTest {
@@ -22,18 +28,14 @@ class MakeCourseServiceImplTest {
     @Autowired
     private MakeCourseService makeCourseService;
 
-//    @Autowired
-//    private CategoryRepository categoryRepository;
-//    @Autowired
-//    private Course1Repository course1Repository;
-//    @Autowired
-//    private Course2Repository course2Repository;
-//    @Autowired
-//    private Course3Repository course3Repository;
-//    @Autowired
-//    private Course4Repository course4Repository;
-//    @Autowired
-//    private CourseV2Repository courseV2Repository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private CourseV2Repository courseV2Repository;
+
+    @Autowired
+    private CategoryPurposeRepository categoryPurposeRepository;
 
 
     // makeCourse 통합 테스트
@@ -50,6 +52,73 @@ class MakeCourseServiceImplTest {
         //given(어떤 데이터가 있을때)
         //when(어떤 동작을 하게되면)
         //then(어떤 결과가 나와야한다)
+
+        // given
+
+
+        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseRepository, courseMemberRepository, placeRepository, categoryRepository, courseV2Repository, categoryPurposeRepository);
+
+        List<String> memberList = new ArrayList<>();
+        memberList.add("kim1");
+
+        List<Integer> keywordList = new ArrayList<>();
+        keywordList.add(0);
+        keywordList.add(0);
+        keywordList.add(0);
+        keywordList.add(1);
+        keywordList.add(0);
+        keywordList.add(0);
+
+        List<Integer> goalList = new ArrayList<>();
+        goalList.add(0);
+        goalList.add(0);
+        goalList.add(0);
+        goalList.add(0);
+        goalList.add(1);
+        goalList.add(0);
+        goalList.add(0);
+        goalList.add(1);
+        goalList.add(1);
+        goalList.add(0);
+
+        CourseRequest courseRequest = new CourseRequest();
+        courseRequest.setNumPeople(1);
+        courseRequest.setMemberIdList(memberList);
+        courseRequest.setMealCheck(true);
+        courseRequest.setStartTime(21);
+        courseRequest.setFinishTime(4);
+        courseRequest.setWantedCategoryGroup(null);
+        courseRequest.setWantedCategory(null);
+//        courseRequest.setWantedCategoryGroup("RS2");
+//        courseRequest.setWantedCategory("DJB");
+        courseRequest.setCourseKeywords(keywordList);
+        courseRequest.setGoals(goalList);
+
+
+        // when
+        CourseDto courseDto = makeCourseServiceImpl.firstCourseFiltering(courseRequest);
+
+        //then
+        System.out.println("--- firstCourseFiltering START ---");
+        System.out.println("courseDto.getWantedCategoryGroup() = " + courseDto.getWantedCategoryGroup());
+        System.out.println("courseDto.getWantedCategory() = " + courseDto.getWantedCategory());
+        System.out.println("courseDto.getCategoryGroupCode1() = " + courseDto.getCategoryGroupCode1());
+        System.out.println("courseDto.getCategoryGroupCode2() = " + courseDto.getCategoryGroupCode2());
+        System.out.println("courseDto.getCategoryGroupCode3() = " + courseDto.getCategoryGroupCode3());
+        System.out.println("courseDto.getCategoryGroupCode4() = " + courseDto.getCategoryGroupCode4());
+        System.out.println("courseDto.getTime() = " + courseDto.getTime());
+        System.out.println("courseDto.getFatigability() = " + courseDto.getFatigability());
+        System.out.println("courseDto.getSpecification() = " + courseDto.getSpecification());
+        System.out.println("courseDto.getActivity() = " + courseDto.getActivity());
+
+        System.out.println("courseDto.getGoalMatch()1 = " + courseDto.getGoalMatch().get(courseDto.getCategoryGroupCode1()));
+        System.out.println("courseDto.getGoalMatch()2 = " + courseDto.getGoalMatch().get(courseDto.getCategoryGroupCode2()));
+        System.out.println("courseDto.getGoalMatch()3 = " + courseDto.getGoalMatch().get(courseDto.getCategoryGroupCode3()));
+        System.out.println("courseDto.getGoalMatch()4 = " + courseDto.getGoalMatch().get(courseDto.getCategoryGroupCode4()));
+
+        Assertions.assertThat(courseDto).isNull();
+
+        System.out.println("--- firstCourseFiltering END ---");
     }
 
     // secondCourse 통합 테스트

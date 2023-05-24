@@ -45,7 +45,7 @@ public class CourseV2 {
     private int specification;
 
     /** 활동성 */
-    @Column(name = "total_활동성")
+    @Column(name = "total_활동도")
     private int activity;
 
     /** 평점 */

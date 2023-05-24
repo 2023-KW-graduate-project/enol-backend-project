@@ -125,6 +125,12 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             courseRequest.setFinishTime(24+courseRequest.getFinishTime());
             dawnDrink = true; // 새벽이 포함되면 true로
         }
+
+        if(courseRequest.getStartTime() < 22 && courseRequest.getFinishTime() > 22) {
+            log.info("getStartTime = {}, getFinishTime = {}", courseRequest.getStartTime(), courseRequest.getFinishTime());
+            dawnDrink = true;
+        }
+
         int totalTime = courseRequest.getFinishTime() - courseRequest.getStartTime(); // 총 소요 시간
 
         // 총 소요시간, 사용자가 입력한 키워드, 목적에 대해서 필터링된 코스 - filteringCourse
@@ -138,41 +144,121 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         keywordBelow.add(100);
         keywordBelow.add(100);
 
-        if(courseRequest.getCourseKeywords().get(0) == 1) { // 키워드가 이색
-            keywordAbove.set(0, avgMember.getSpecification());
+        if(courseRequest.getCourseKeywords().get(4) == 1) { // 키워드가 체력높음 - 피로도
+            keywordAbove.set(0, avgMember.getFatigability());
         }
-        if (courseRequest.getCourseKeywords().get(1) == 1) { // 키워드가 일상
-            keywordBelow.set(0, avgMember.getSpecification());
+        if (courseRequest.getCourseKeywords().get(5) == 1) { // 키워드가 체력낮음 - 피로도
+            keywordBelow.set(0, avgMember.getFatigability());
         }
-        if(courseRequest.getCourseKeywords().get(2) == 1) { // 키워드가 액티비티
-            keywordAbove.set(1, avgMember.getActivity());
+        if(courseRequest.getCourseKeywords().get(0) == 1) { // 키워드가 이색 - 특이도
+            keywordAbove.set(1, avgMember.getSpecification());
         }
-        if (courseRequest.getCourseKeywords().get(3) == 1) { // 키워드가 앉아서놀기
-            keywordBelow.set(1, avgMember.getActivity());
+        if (courseRequest.getCourseKeywords().get(1) == 1) { // 키워드가 일상 - 특이도
+            keywordBelow.set(1, avgMember.getSpecification());
         }
-        if(courseRequest.getCourseKeywords().get(4) == 1) { // 키워드가 체력높음
-            keywordAbove.set(2, avgMember.getFatigability());
+        if(courseRequest.getCourseKeywords().get(2) == 1) { // 키워드가 액티비티 - 활동도
+            keywordAbove.set(2, avgMember.getActivity());
         }
-        if (courseRequest.getCourseKeywords().get(5) == 1) { // 키워드가 체력낮음
-            keywordBelow.set(2, avgMember.getFatigability());
+        if (courseRequest.getCourseKeywords().get(3) == 1) { // 키워드가 앉아서놀기 - 활동도
+            keywordBelow.set(2, avgMember.getActivity());
         }
 
-        List<CourseV2> filteringCourse = courseV2Repository.findCourseByTimeAndGoalsAndKeywords(totalTime, keywordAbove.get(0), keywordBelow.get(0), keywordAbove.get(1), keywordBelow.get(1), keywordAbove.get(2), keywordBelow.get(2),
+
+        List<CourseV2> filteringCourse = new ArrayList<>(); // filtering된 코스들을 모아놓을 CourseV2 리스트
+        List<Integer> timeRemoveIdx = new ArrayList<>(); // 시간에 해당하지 않는 코스 제거하기 위한 인덱스 리스트
+
+        // 키워드와 목적으로 먼저 필터링하고
+        // 그 다음에 시간 오차범위 1시간으로 해서 필터링 추가하는 식으로 변경하기
+        filteringCourse = courseV2Repository.findCourseByGoalsAndKeywords(keywordAbove.get(0), keywordBelow.get(0), keywordAbove.get(1), keywordBelow.get(1), keywordAbove.get(2), keywordBelow.get(2),
                 courseRequest.getGoals().get(0), courseRequest.getGoals().get(1), courseRequest.getGoals().get(2), courseRequest.getGoals().get(3), courseRequest.getGoals().get(4), courseRequest.getGoals().get(5), courseRequest.getGoals().get(6),
                 courseRequest.getGoals().get(7), courseRequest.getGoals().get(8), courseRequest.getGoals().get(9));
 
-        log.info("filteringCourse.size = {}", filteringCourse.size());
+        log.info("--- Before time filtering filteringCourse.size = {} --- ", filteringCourse.size());
         for(int i=0; i<filteringCourse.size(); i++) {
             log.info("filteringCourse.get({}).getCategoryGroupCode1() = {}", i, filteringCourse.get(i).getCategoryGroupCode1());
             log.info("filteringCourse.get({}).getCategoryGroupCode2() = {}", i, filteringCourse.get(i).getCategoryGroupCode2());
             log.info("filteringCourse.get({}).getCategoryGroupCode3() = {}", i, filteringCourse.get(i).getCategoryGroupCode3());
             log.info("filteringCourse.get({}).getCategoryGroupCode4() = {}", i, filteringCourse.get(i).getCategoryGroupCode4());
+            log.info("filteringCourse.get({}).getTime() = {}", i, filteringCourse.get(i).getTime());
             log.info("filteringCourse.get({}).getFatigability() = {}", i, filteringCourse.get(i).getFatigability());
             log.info("filteringCourse.get({}).getSpecification() = {}", i, filteringCourse.get(i).getSpecification());
             log.info("filteringCourse.get({}).getActivity() = {}", i, filteringCourse.get(i).getActivity());
         }
+        log.info("-----");
 
+        for(int i = 0; i < filteringCourse.size(); i++) {
+            log.info("totalTime-1 = {}", totalTime-1);
+            log.info("totalTime+1 = {}", totalTime+1);
+            log.info("filteringCourse.get({}).getTime() = {}",i , filteringCourse.get(i).getTime());
+            log.info("(totalTime - 1) <= filteringCourse.get({}).getTime() = {}",i , ( (totalTime - 1) <= filteringCourse.get(i).getTime() ));
+            log.info("filteringCourse.get({}).getTime() <= (totalTime + 1) = {}",i , ( filteringCourse.get(i).getTime() <= (totalTime + 1) ));
+            if( ( (totalTime - 1) <= filteringCourse.get(i).getTime() ) && ( filteringCourse.get(i).getTime() <= (totalTime + 1) ) ) { // 시간 오차 범위 1시간 안에 들면
+                log.info("continue index = {}", i);
+                continue; // 패스
+            }
+            else { // 시간 오차 범위를 벗어나면 제거
+                log.info("remove index = {}", i);
+                timeRemoveIdx.add(i);
+            }
+        }
+
+        log.info("timeRemoveIndex.size() = {}", timeRemoveIdx.size());
+        for(int i = timeRemoveIdx.size() - 1; i >= 0; i--) {
+            if(timeRemoveIdx.size()>0) {
+                log.info("In timeRemoveIdx remove index = {}", timeRemoveIdx.get(i));
+                filteringCourse.remove((int)timeRemoveIdx.get(i)); // 뒤에서부터 제거
+
+            }
+        }
+
+
+        // 시간으로 필터링 후에 다시 확인
+        log.info("--- After Time Filtering filteringCourse.size = {} ---", filteringCourse.size());
+        for(int i=0; i<filteringCourse.size(); i++) {
+            log.info("filteringCourse.get({}).getCategoryGroupCode1() = {}", i, filteringCourse.get(i).getCategoryGroupCode1());
+            log.info("filteringCourse.get({}).getCategoryGroupCode2() = {}", i, filteringCourse.get(i).getCategoryGroupCode2());
+            log.info("filteringCourse.get({}).getCategoryGroupCode3() = {}", i, filteringCourse.get(i).getCategoryGroupCode3());
+            log.info("filteringCourse.get({}).getCategoryGroupCode4() = {}", i, filteringCourse.get(i).getCategoryGroupCode4());
+            log.info("filteringCourse.get({}).getTime() = {}", i, filteringCourse.get(i).getTime());
+            log.info("filteringCourse.get({}).getFatigability() = {}", i, filteringCourse.get(i).getFatigability());
+            log.info("filteringCourse.get({}).getSpecification() = {}", i, filteringCourse.get(i).getSpecification());
+            log.info("filteringCourse.get({}).getActivity() = {}", i, filteringCourse.get(i).getActivity());
+        }
+        log.info("-----");
+
+        /** 음주의 개수에 따라 코스 구성 다르게 하기 */
+        int drinkNum = getDrinkNum(courseRequest.getStartTime(), courseRequest.getFinishTime()); // 음주의 개수
+
+        /** 음주의 개수가 0이면 기존 필터링대로  */
+        if(drinkNum <= 0) {
+            drinkFiltering(filteringCourse, drinkNum);
+        }
+        /** 음주 개수가 N개인 경우 */ // 최소 N개의 음주를 포함해야 함
+        else if (drinkNum == 1) {
+            drinkFiltering(filteringCourse, drinkNum);
+        } else if (drinkNum == 2) {
+            drinkFiltering(filteringCourse, drinkNum);
+        } else if (drinkNum == 3) {
+            drinkFiltering(filteringCourse, drinkNum);
+        } else { // DrinkNum==4
+            drinkFiltering(filteringCourse, drinkNum);
+        }
+
+        log.info("--- After Drink Filtering filteringCourse.size = {} ---", filteringCourse.size());
+        for(int i=0; i<filteringCourse.size(); i++) {
+            log.info("filteringCourse.get({}).getCategoryGroupCode1() = {}", i, filteringCourse.get(i).getCategoryGroupCode1());
+            log.info("filteringCourse.get({}).getCategoryGroupCode2() = {}", i, filteringCourse.get(i).getCategoryGroupCode2());
+            log.info("filteringCourse.get({}).getCategoryGroupCode3() = {}", i, filteringCourse.get(i).getCategoryGroupCode3());
+            log.info("filteringCourse.get({}).getCategoryGroupCode4() = {}", i, filteringCourse.get(i).getCategoryGroupCode4());
+            log.info("filteringCourse.get({}).getTime() = {}", i, filteringCourse.get(i).getTime());
+            log.info("filteringCourse.get({}).getFatigability() = {}", i, filteringCourse.get(i).getFatigability());
+            log.info("filteringCourse.get({}).getSpecification() = {}", i, filteringCourse.get(i).getSpecification());
+            log.info("filteringCourse.get({}).getActivity() = {}", i, filteringCourse.get(i).getActivity());
+        }
+        log.info("-----");
         /** DB에서 CourseV2 가져오기 끝 */
+
+        Map<String, List<Integer>> goalMap = new HashMap<>(); // selectedCourse에 set하기 위해 만든 맵
 
         /** 필수 장소가 코스에 포함되게 필터링 */
         List<Integer> removeFilteringIdx = new ArrayList<>(); // 필수 장소가 포함되지 않는 CourseV2는 지우기 위한 index list
@@ -197,10 +283,10 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 }
         }
 
-        for(int i = removeFilteringIdx.size(); i >= 0; i--) { // 뒤에서부터 removeIdx로 넣어놓은 제거할 것들을 제거
+        for(int i = removeFilteringIdx.size() - 1; i >= 0; i--) { // 뒤에서부터 removeIdx로 넣어놓은 제거할 것들을 제거
             if(removeFilteringIdx.size()>0) {
                 log.info("removeIdx2 = {}", removeFilteringIdx.get(i));
-                filteringCourse.remove(removeFilteringIdx.get(i));
+                filteringCourse.remove((int)removeFilteringIdx.get(i));
             }
         }
         /** 필수 장소가 코스에 포함되게 필터링 끝 */
@@ -300,11 +386,12 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             selectedCourseGroups.add(selectedCourse.getCategoryGroupCode3()); // null이 아닌 경우에만 추가
         if(selectedCourse.getCategoryGroupCode4() != null)
             selectedCourseGroups.add(selectedCourse.getCategoryGroupCode4()); // null이 아닌 경우에만 추가
+
         // 하나로 정해진 selectedCourse의 목적에 따른 CategoryGroup 맵핑시켜주기
         boolean haveGoal; // goal을 가지는 categoryGroup이 있는 경우
+
         for(int i=0; i<selectedCourseGroups.size(); i++) {
             log.info("selectedCourseGroups.get({}) = {}", i, selectedCourseGroups.get(i));
-
         }
 
         // 여기 다시 보기
@@ -312,9 +399,10 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         for(String courseCategoryGroup : selectedCourseGroups) {
             log.info("courseCategoryGroup = {}", courseCategoryGroup);
 //            List<Integer> goalList = categoryPurposeRepository.findWalkDrinkExperienceHealingWatchIntellectualViewNormalSportsSoloByCategoryGroupCode(courseCategoryGroup);
-            // 사용자가 입력한 목적 중 하나라도 1이고 카테고리 그룹 코드가 해당하는 것을 골라야 하는것 아닌가? - 다시 보고 해야할듯
+            // 사용자가 입력한 목적 중 하나라도 1이고 카테고리 그룹 코드가 해당하는 것을 골라야 하
             List<CategoryPurpose> goalCategoryList = categoryPurposeRepository.findByCategoryGroupCode(courseCategoryGroup, courseRequest.getGoals().get(0), courseRequest.getGoals().get(1),courseRequest.getGoals().get(2),courseRequest.getGoals().get(3),courseRequest.getGoals().get(4),courseRequest.getGoals().get(5),courseRequest.getGoals().get(6),courseRequest.getGoals().get(7),courseRequest.getGoals().get(8),courseRequest.getGoals().get(9)); // 목적이 하나라도 1이고 Course_Category_Group이 courseCategoryGroup인 categoryPurposeList
 
+            log.info("courseCategoryGroup = {}, goalCategoryList.size() = {}", courseCategoryGroup, goalCategoryList.size());
             for(int i=0; i< goalCategoryList.size(); i++) {
                 log.info("goalCategoryList.get({}).getCategoryGroupCode = {}", i, goalCategoryList.get(i).getCategoryGroupCode());
                 log.info("goalCategoryList.get({}).getCategoryCode = {}", i, goalCategoryList.get(i).getCategoryCode());
@@ -332,7 +420,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
             List<List<Integer>> goalList = new ArrayList<>(); // goalCategoryList로 나온 것들에서 목적만 뽑아낼 것
             List<Integer> goalListI = new ArrayList<>(); // i번째에 해당하는 goalList들을 저장할 리스트
-            for(int i=0; i< goalCategoryList.size(); i++) { // 해당하는 카테고리그룹 에 해당하는 목적들을 저장
+            for(int i=0; i< goalCategoryList.size(); i++) { // 해당하는 카테고리그룹 에 해당하는 목적들을 저장 - categoryPurpose
                 goalListI.clear(); // 반복 될 때마다 다 지우기
 
                 goalListI.add(goalCategoryList.get(i).getWalk());
@@ -349,37 +437,105 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 goalList.add(goalListI); // 목적들 리스트를 갖는 리스트를 만드는 것
             }
 
-            Map<String, List<Integer>> goalMap = new HashMap<>();
-            List<Integer> matching = new ArrayList<>(); // 목적 리스트 0,1로 구성
+//            Map<String, List<Integer>> goalMap = new HashMap<>();
+            int[] matching = new int[10]; // 목적 리스트 0,1로 구성
+            List<Integer> matched = new ArrayList<>();
+            haveGoal = false;
+            for(int i=0; i<10; i++)
+                matching[i] = 0; // 반복될 때마다 초기화
+            matched.clear();
+            for(int i=0; i<goalCategoryList.size(); i++) { // categoryGroupCode에 모든 category에 해당하는 categoryPurpose
 
-            for(int i=0; i<goalCategoryList.size(); i++) {
-                haveGoal = false;
-                matching.clear(); // 반복될 때마다 초기화
-                for(int j=0; j<goalList.get(i).size(); j++) {
+                for(int j=0; j<goalList.get(i).size(); j++) { // goalCategoryList에 속하는 10개 목적 값 리스트
                     System.out.println("courseRequest.getGoals().get(" + j + ") = " + courseRequest.getGoals().get(j));
                     System.out.println("goalList.get(" + i + ").get(" + j + ") = " + goalList.get(i).get(j));
                     if( (courseRequest.getGoals().get(j) == 1) && (goalList.get(i).get(j) == 1) ) { // request로 받은 목적 리스트에서 목적이 참이고 해당 courseCategoryGroup의 목적도 1인 경우 추가
-                        matching.add(1);
+                        matching[j]=1;
                         haveGoal = true;
                     }
-                    else matching.add(0);
+//                    else matching[j]=0; // categoryGroupCode에서 목적이 1인 모든 것을 모으기 위해 0은 더 안쓰도록
                 }
-                if(haveGoal) {
-                    goalMap.put(courseCategoryGroup, matching); // 목적이 하나라도 있으면 맵에 저장하고
-//                    selectedCourse.setGoalMatch(goalMap); // goalMatch에 저장
-                }
-            }
-            selectedCourse.setGoalMatch(goalMap); // goalMatch에 저장 - 1개 이상의 목적이 있기 때문에 무조건 1개 이상의 goalMap의 원소가 존재할 것
+                log.info("--- 1 - matching = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]", matching[0], matching[1], matching[2], matching[3], matching[4], matching[5], matching[6], matching[7], matching[8], matching[9]);
+//                if(haveGoal) {
+//                    log.info("--- 2 - matching = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]", matching[0], matching[1], matching[2], matching[3], matching[4], matching[5], matching[6], matching[7], matching[8], matching[9]);
+//                    for(int k=0; k<10; k++) {
+//                        matched.add(matching[k]);
+//                    }
+//                    goalMap.put(courseCategoryGroup, matched); // 목적이 하나라도 있으면 맵에 저장하고
+////                    selectedCourse.setGoalMatch(goalMap); // goalMatch에 저장
+//                }
+//                log.info("--- 1 - goalMap.keySet = {} ---", goalMap.keySet());
+//                log.info("--- 1 - goalMap.values = {} ---", goalMap.values());
 
+            }
+            if(haveGoal) {
+                log.info("--- 2 - matching = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]", matching[0], matching[1], matching[2], matching[3], matching[4], matching[5], matching[6], matching[7], matching[8], matching[9]);
+                for(int k=0; k<10; k++) {
+                    matched.add(matching[k]);
+                }
+                goalMap.put(courseCategoryGroup, matched); // 목적이 하나라도 있으면 맵에 저장하고
+//                    selectedCourse.setGoalMatch(goalMap); // goalMatch에 저장
+            }
+            log.info("--- goalMap.keySet = {} ---", goalMap.keySet());
+            log.info("--- goalMap.values = {} ---", goalMap.values());
+//            selectedCourse.setGoalMatch(goalMap); // goalMatch에 저장 - 1개 이상의 목적이 있기 때문에 무조건 1개 이상의 goalMap의 원소가 존재할 것
+//            log.info("--- 1 - selectedCourse.getGoalMatch.size = {} ---", selectedCourse.getGoalMatch().size());
+//            log.info("--- 1 - selectedCourse.getGoalMatch = {} ---", selectedCourse.getGoalMatch());
         }
-        log.info("selectedCourse.getGoalMatch.size = {}", selectedCourse.getGoalMatch().size());
-        log.info("selectedCourse.getGoalMatch = {}", selectedCourse.getGoalMatch());
+        selectedCourse.setGoalMatch(goalMap); // goalMatch에 저장 - 1개 이상의 목적이 있기 때문에 무조건 1개 이상의 goalMap의 원소가 존재할 것
+        log.info("--- 2 - selectedCourse.getGoalMatch.size = {} ---", selectedCourse.getGoalMatch().size());
+        log.info("--- 2 - selectedCourse.getGoalMatch = {} ---", selectedCourse.getGoalMatch());
         if(dawnDrink) selectedCourse.setDawnDrink(true); // 새벽 음주 courseDto에 체크하도록
         log.info("selectedCourse.isDawnDrink = {}", selectedCourse.isDawnDrink());
         return selectedCourse; // 다 거르고 최종 필터링된 selectedCourse 하나만 반환
+    }
 
-        // 가고싶은 카테고리 체크 안했으면 우선순위에 따라 처리하는 부분 추가해야 함
-        // 사용자가 체크한 목적이 어떤게 어떤 C열 카테고리와 매핑되는지 알 수 있는 변수도 추가해야 함
+    private static void drinkFiltering(List<CourseV2> filteringCourse, int drinkNum) {
+
+        log.info("drinkNum = {}", drinkNum);
+        // drinkNum이 0이면 할 필요 없으므로 바로 리턴
+        if(drinkNum == 0) return;
+
+        int drinkCount = 0;
+        List<Integer> removeNDrinkIdx = new ArrayList<>();
+
+        List<String> courseV2List = new ArrayList<>(); // i번 인덱스에 해당하는 categoryGroupCode들을 리스트로 가져오기 - ex) 놀기Main 스포츠, 관게Main 휴식, ..
+        for(int i = 0; i< filteringCourse.size(); i++) {
+            drinkCount=0;
+            courseV2List.add(filteringCourse.get(i).getCategoryGroupCode1()); // 1번은 무조건 값이 있으므로 그냥 넣음
+            if(filteringCourse.get(i).getCategoryGroupCode2() != null)
+                courseV2List.add(filteringCourse.get(i).getCategoryGroupCode2()); // null이 아닌 경우에만 추가
+            if(filteringCourse.get(i).getCategoryGroupCode3() != null)
+                courseV2List.add(filteringCourse.get(i).getCategoryGroupCode3()); // null이 아닌 경우에만 추가
+            if(filteringCourse.get(i).getCategoryGroupCode4() != null)
+                courseV2List.add(filteringCourse.get(i).getCategoryGroupCode4()); // null이 아닌 경우에만 추가
+
+            if(filteringCourse.get(i).getCategoryGroupCode1().equals("RS2")) {
+                drinkCount++;
+            }
+            if( ( filteringCourse.get(i).getCategoryGroupCode2() != null ) && ( filteringCourse.get(i).getCategoryGroupCode2().equals("RS2") ) ) {
+                drinkCount++;
+            }
+            if( ( filteringCourse.get(i).getCategoryGroupCode3() != null ) && ( filteringCourse.get(i).getCategoryGroupCode3().equals("RS2") ) ) {
+                drinkCount++;
+            }
+            if( ( filteringCourse.get(i).getCategoryGroupCode4() != null ) && ( filteringCourse.get(i).getCategoryGroupCode4().equals("RS2") ) ) {
+                drinkCount++;
+            }
+
+            // drink의 개수가 drinkNum보다 작으면 제거 리스트에 추가
+            if(drinkCount < drinkNum) {
+                removeNDrinkIdx.add(i);
+            }
+
+        }
+        for(int i = removeNDrinkIdx.size() - 1; i >= 0; i--) {
+            if(removeNDrinkIdx.size()>0) {
+                log.info("In drinkRemoveIdx remove index = {}", i);
+                filteringCourse.remove((int)removeNDrinkIdx.get(i)); // 뒤에서부터 제거
+
+            }
+        }
 
     }
 

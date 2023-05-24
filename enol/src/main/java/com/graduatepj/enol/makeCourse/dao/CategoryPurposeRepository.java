@@ -1,10 +1,14 @@
 package com.graduatepj.enol.makeCourse.dao;
 
+import com.graduatepj.enol.makeCourse.dto.CourseDto;
 import com.graduatepj.enol.makeCourse.vo.CategoryPurpose;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 public interface CategoryPurposeRepository extends JpaRepository<CategoryPurpose, String> {

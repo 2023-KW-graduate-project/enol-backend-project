@@ -16,7 +16,7 @@ public class CourseRequest {
     // ArrayList<Member> memberList 이건 vo에 있는 Member를 쓴거같은데 이거 쓰면 안됨.
     // vo는 DB랑만 소통하는 전용임. 코스를 만드는데 member의 모든 요소가 필요한것도 아니거니와 가져와서도 안됨.
     // 일단 id로 냅두겠음.
-    private List<Long> memberIdList;
+    private List<String> memberIdList;
 
     private int startTime;
 

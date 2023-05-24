@@ -35,7 +35,7 @@ public class Category {
     /**
      * 활동성
      */
-    @Column(name = "활동성")
+    @Column(name = "활동도")
     private int activity;
 
 

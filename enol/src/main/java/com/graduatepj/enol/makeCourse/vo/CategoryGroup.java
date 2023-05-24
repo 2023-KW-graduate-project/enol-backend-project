@@ -42,7 +42,7 @@ public class CategoryGroup {
     /**
      * 활동성
      */
-    @Column(name = "avg_활동성")
+    @Column(name = "avg_활동도")
     private int avgActivity;
 
 }
