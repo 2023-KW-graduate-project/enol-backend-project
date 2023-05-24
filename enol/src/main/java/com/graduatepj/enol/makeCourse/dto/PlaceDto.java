@@ -3,6 +3,9 @@ package com.graduatepj.enol.makeCourse.dto;
 import com.graduatepj.enol.makeCourse.vo.Place;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,5 +38,19 @@ public class PlaceDto {
                 .imgUrl(place.getImgUrl())
                 .phoneNumber(place.getPhoneNumber())
                 .build();
+    }
+
+    public static List<PlaceDto> fromEntityList(List<Place> places) {
+        List<PlaceDto> placeDtos=new ArrayList<>();
+
+        if (places == null) {
+            return null;
+        }
+
+        for(Place place : places){
+            placeDtos.add(PlaceDto.fromEntity(place));
+        }
+
+        return placeDtos;
     }
 }
