@@ -45,4 +45,23 @@ public interface CourseV2Repository extends JpaRepository<CourseV2, String> {
             , nativeQuery = true)
     List<CourseV2> findCourseByGoalsAndKeywords(@Param("fatigability1") Integer fatigability1, @Param("fatigability2") Integer fatigability2, @Param("specification1") Integer specification1, @Param("specification2") Integer specification2, @Param("activity1") Integer activity1, @Param("activity2") Integer activity2,
                                                 @Param("walk") Integer walk, @Param("drink") Integer drink, @Param("experience") Integer experience, @Param("healing") Integer healing, @Param("watch") Integer watch, @Param("intellectual") Integer intellectual, @Param("view") Integer view, @Param("normal") Integer normal, @Param("sports") Integer sports, @Param("solo") Integer solo);
+
+
+    // 키워드를 없애고 목적을 재정의한 테이블을 쓰는 쿼리문
+    @Query(value = "SELECT * FROM course_v2 cv WHERE " +
+            "( ( :walk=1 AND ( ( SELECT SUM(cp.walk) FROM category_purpose1 cp WHERE cp.category_group_code IN ( cv.category_group_code_1, cv.category_group_code_2, cv.category_group_code_3, cv.category_group_code_4 ) ) > 0 ) )" +
+            "OR ( :drink=1 AND ( ( SELECT SUM(cp.drink) FROM category_purpose1 cp WHERE cp.category_group_code IN ( cv.category_group_code_1, cv.category_group_code_2, cv.category_group_code_3, cv.category_group_code_4 ) ) > 0 ) )" +
+            "OR ( :healing=1 AND ( ( SELECT SUM(cp.healing) FROM category_purpose1 cp WHERE cp.category_group_code IN (cv.category_group_code_1, cv.category_group_code_2, cv.category_group_code_3, cv.category_group_code_4 ) ) > 0 ) )" +
+            "OR ( :socializing=1 AND ( ( SELECT SUM(cp.socializing) FROM category_purpose1 cp WHERE cp.category_group_code IN (cv.category_group_code_1, cv.category_group_code_2, cv.category_group_code_3, cv.category_group_code_4 ) ) > 0 ) )" +
+            "OR ( :mood=1 AND ( ( SELECT SUM(cp.mood) FROM category_purpose1 cp WHERE cp.category_group_code IN (cv.category_group_code_1, cv.category_group_code_2, cv.category_group_code_3, cv.category_group_code_4 ) ) > 0 ) )" +
+            "OR ( :novelty=1 AND ( ( SELECT SUM(cp.novelty) FROM category_purpose1 cp WHERE cp.category_group_code IN (cv.category_group_code_1, cv.category_group_code_2, cv.category_group_code_3, cv.category_group_code_4 ) ) > 0 ) )" +
+            "OR ( :daily=1 AND ( ( SELECT SUM(cp.daily) FROM category_purpose1 cp WHERE cp.category_group_code IN (cv.category_group_code_1, cv.category_group_code_2, cv.category_group_code_3, cv.category_group_code_4 ) ) > 0 ) )" +
+            "OR ( :quick=1 AND ( ( SELECT SUM(cp.quick) FROM category_purpose1 cp WHERE cp.category_group_code IN (cv.category_group_code_1, cv.category_group_code_2, cv.category_group_code_3, cv.category_group_code_4 ) ) > 0 ) )" +
+            "OR ( :summer=1 AND ( ( SELECT SUM(cp.summer) FROM category_purpose1 cp WHERE cp.category_group_code IN (cv.category_group_code_1, cv.category_group_code_2, cv.category_group_code_3, cv.category_group_code_4 ) ) > 0 ) )" +
+            "OR ( :cultural=1 AND ( ( SELECT SUM(cp.cultural) FROM category_purpose1 cp WHERE cp.category_group_code IN (cv.category_group_code_1, cv.category_group_code_2, cv.category_group_code_3, cv.category_group_code_4 ) ) > 0 ) ) )"
+            , nativeQuery = true)
+    List<CourseV2> findCourseByGoalsAndKeywords2(@Param("walk") Integer walk, @Param("drink") Integer drink, @Param("healing") Integer healing, @Param("socializing") Integer socializing, @Param("mood") Integer mood, @Param("novelty") Integer novelty, @Param("daily") Integer daily, @Param("quick") Integer quick, @Param("summer") Integer summer, @Param("cultural") Integer cultural);
+
+
+
 }
