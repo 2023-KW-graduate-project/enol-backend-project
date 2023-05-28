@@ -53,6 +53,7 @@ class MakeCourseServiceImplTest {
 
         List<String> memberList = new ArrayList<>();
         memberList.add("kim1");
+        memberList.add("kim2");
 
         List<Integer> keywordList = new ArrayList<>();
         keywordList.add(0);
@@ -63,27 +64,27 @@ class MakeCourseServiceImplTest {
         keywordList.add(0);
 
         List<Integer> goalList = new ArrayList<>();
-        goalList.add(0);
-        goalList.add(0);
-        goalList.add(0);
         goalList.add(1);
         goalList.add(0);
         goalList.add(0);
         goalList.add(1);
         goalList.add(0);
         goalList.add(0);
-        goalList.add(1);
+        goalList.add(0);
+        goalList.add(0);
+        goalList.add(0);
+        goalList.add(0);
 
         CourseRequest courseRequest = new CourseRequest();
-        courseRequest.setNumPeople(1);
+        courseRequest.setNumPeople(2);
         courseRequest.setMemberIdList(memberList);
         courseRequest.setMealCheck(true);
-        courseRequest.setStartTime(11);
+        courseRequest.setStartTime(21);
         courseRequest.setFinishTime(24);
-//        courseRequest.setWantedCategoryGroup(null);
-//        courseRequest.setWantedCategory(null);
-        courseRequest.setWantedCategoryGroup("RM2");
-        courseRequest.setWantedCategory("TP");
+        courseRequest.setWantedCategoryGroup(null);
+        courseRequest.setWantedCategory(null);
+        courseRequest.setWantedCategoryGroup("EM1");
+        courseRequest.setWantedCategory("CB");
         courseRequest.setCourseKeywords(keywordList);
         courseRequest.setGoals(goalList);
 
@@ -100,6 +101,8 @@ class MakeCourseServiceImplTest {
         System.out.println("courseDto.getCategoryGroupCode3() = " + courseDto.getCategoryGroupCode3());
         System.out.println("courseDto.getCategoryGroupCode4() = " + courseDto.getCategoryGroupCode4());
         System.out.println("courseDto.getTime() = " + courseDto.getTime());
+        System.out.println("courseDto.isMealCheck() = " + courseDto.isMealCheck());
+        System.out.println("courseDto.isDawnDrink() = " + courseDto.isDawnDrink());
         System.out.println("courseDto.getFatigability() = " + courseDto.getFatigability());
         System.out.println("courseDto.getSpecification() = " + courseDto.getSpecification());
         System.out.println("courseDto.getActivity() = " + courseDto.getActivity());
@@ -113,6 +116,7 @@ class MakeCourseServiceImplTest {
 
         System.out.println("--- firstCourseFiltering END ---");
     }
+
     // secondCourse 통합 테스트
     @Test
     void secondCourseTest() {
