@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor
-@Entity(name = "course_v2")
+@Entity(name = "course")
 public class CourseV2 {
     @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,15 +37,15 @@ public class CourseV2 {
     private int time;
 
     /** 피로도 */
-    @Column(name = "total_피로도")
+    @Column(name = "total_fatigue")
     private int fatigability;
 
     /** 특이도 */
-    @Column(name = "total_특이도")
+    @Column(name = "total_unique")
     private int specification;
 
     /** 활동성 */
-    @Column(name = "total_활동도")
+    @Column(name = "total_activity")
     private int activity;
 
     /** 평점 */

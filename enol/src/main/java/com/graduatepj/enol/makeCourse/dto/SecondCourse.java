@@ -11,9 +11,9 @@ import java.util.List;
 @Builder
 public class SecondCourse {
     private CourseDto selectedCourse;
-    private String wantedCategoryCode;
-    private List<String> detailCategoryCodes;
-    private List<String> CategoryGroupCodes;
+    private String wantedCategoryName;
+    private List<String> detailCategoryNames;
+//    private List<String> CategoryGroupCodes;
     private Boolean mealCheck;
     private int startTime;
     private int endTime;

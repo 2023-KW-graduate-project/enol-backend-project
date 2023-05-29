@@ -11,21 +11,21 @@ import java.util.List;
 @Repository
 public interface PlaceRepository extends JpaRepository<Place, Long> {
     // 랜덤순서로 가져오는 쿼리문
-    List<Place> findAllByCategoryCode(String categoryCode);
+    List<Place> findAllByCategoryName(String categoryCode);
     // 별점순으로 가져오는 쿼리문
-    List<Place> findAllByCategoryInOrderByRateDesc(String wantedCategoryCode);
+    List<Place> findAllByCategoryNameOrderByRatingDesc(String wantedCategoryName);
 
-    // 좌표를 기준으로 가장 가까운 categoryCode의 가게 가져오기
-    @Query(value = "SELECT * FROM place WHERE place.category_code = :categoryCode ORDER BY ST_Distance(POINT(:longitude, :latitude), POINT(place.x, place.y)) LIMIT 1", nativeQuery = true)
-    Place findNearestPlaceByCategoryAndLocation(@Param("categoryCode") String categoryCode, @Param("longitude") double longitude, @Param("latitude") double latitude);
+    // 좌표를 기준으로 가장 가까운 categoryName의 가게 가져오기
+    @Query(value = "SELECT * FROM place WHERE place.category_name = :categoryName ORDER BY ST_Distance(POINT(:longitude, :latitude), POINT(place.x, place.y)) LIMIT 1", nativeQuery = true)
+    Place findNearestPlaceByCategoryNameAndLocation(@Param("categoryName") String categoryName, @Param("longitude") double longitude, @Param("latitude") double latitude);
 
     // 골라진 가게들 중에서 랜덤으로 limit개의 가게를 가져오는 쿼리문
-    @Query(value = "SELECT * FROM place WHERE place.category_code = :categoryCode AND ST_Distance(POINT(:longitude, :latitude), POINT(place.x, place.y)) <= :radius ORDER BY RAND() LIMIT 1", nativeQuery = true)
-    Place findRandomPlaceByCategoryAndLocationAndRadius(@Param("categoryCode") String categoryCode, @Param("longitude") double longitude, @Param("latitude") double latitude, @Param("radius") double radius);
+    @Query(value = "SELECT * FROM place WHERE place.category_name = :categoryName AND ST_Distance(POINT(:longitude, :latitude), POINT(place.x, place.y)) <= :radius ORDER BY RAND() LIMIT 1", nativeQuery = true)
+    Place findRandomPlaceByCategoryNameAndLocationAndRadius(@Param("categoryName") String categoryName, @Param("longitude") double longitude, @Param("latitude") double latitude, @Param("radius") double radius);
 
     // 가게 평점 데이터가 없으므로 일단 보류, 평점 기준으로 하나만 가져오는 쿼리문
-    @Query(value = "SELECT * FROM place WHERE place.category_code = :categoryCode AND ST_Distance(POINT(:longitude, :latitude), POINT(place.x, place.y)) <= :radius ORDER BY rating DESC LIMIT :limit", nativeQuery = true)
-    List<Place> findHighestRatedPlaceByCategoryAndLocationAndRadius(@Param("categoryCode") String categoryCode, @Param("longitude") double longitude, @Param("latitude") double latitude, @Param("radius") double radius, @Param("limit") int limit);
+    @Query(value = "SELECT * FROM place WHERE place.category_name = :categoryName AND ST_Distance(POINT(:longitude, :latitude), POINT(place.x, place.y)) <= :radius ORDER BY place.avg_rating DESC LIMIT :limit", nativeQuery = true)
+    List<Place> findHighestRatedPlaceByCategoryAndLocationAndRadius(@Param("categoryName") String categoryName, @Param("longitude") double longitude, @Param("latitude") double latitude, @Param("radius") double radius, @Param("limit") int limit);
 
 //    // 골라진 가게들 중에서 랜덤으로 하나의 가게만 가져오는 쿼리문
 //    @Query(value = "SELECT * FROM place WHERE place.category_code= (:categoryCode) AND ST_Distance_Sphere(POINT(:longitude, :latitude), ST_Point(x, y)) <= :radius ORDER BY RAND() DESC LIMIT 1", nativeQuery = true)

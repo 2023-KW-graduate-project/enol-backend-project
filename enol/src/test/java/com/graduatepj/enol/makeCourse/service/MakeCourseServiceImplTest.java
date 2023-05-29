@@ -7,9 +7,9 @@ import com.graduatepj.enol.makeCourse.vo.CourseV2;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 @SpringBootTest
@@ -131,7 +131,12 @@ class MakeCourseServiceImplTest {
         //when(어떤 동작을 하게되면)
         //then(어떤 결과가 나와야한다)
         // 모든 카테고리 그룹 코스 가져오기
+        int failCnt=0;
+        int successCnt=0;
+        int groupCourseCnt=0;
+        int total = 0;
         List<CourseV2> groupCourseList = courseV2Repository.findAll();
+        System.out.println("groupCourseList 개수 : " + groupCourseList.size());
         for(CourseV2 groupCourse : groupCourseList){
             List<String> detailCategories1 = new ArrayList<>();
             List<String> detailCategories2 = new ArrayList<>();
@@ -140,23 +145,36 @@ class MakeCourseServiceImplTest {
             List<String> detailCategorieCodes = new ArrayList<>();
             SecondCourse secondCourse = new SecondCourse();
 
+            System.out.print(groupCourseCnt++ + "번째 코스그룹 : ");
             // 카테고리 그룹 코드에 해당하는 세부 카테고리 코드 리스트를 가져오기
             if(groupCourse.getCategoryGroupCode1()!=null){
-                detailCategories1=categoryRepository.findCategoryCodeByCategoryGroupCode(groupCourse.getCategoryGroupCode1());
+                detailCategories1=categoryRepository.findCategoryNameByCategoryGroupCode(groupCourse.getCategoryGroupCode1());
+                System.out.print(groupCourse.getCategoryGroupCode1() + " ");
+                total=detailCategories1.size();
             }
             if(groupCourse.getCategoryGroupCode2()!=null){
-                detailCategories2=categoryRepository.findCategoryCodeByCategoryGroupCode(groupCourse.getCategoryGroupCode2());
+                detailCategories2=categoryRepository.findCategoryNameByCategoryGroupCode(groupCourse.getCategoryGroupCode2());
+                System.out.print(groupCourse.getCategoryGroupCode2() + " ");
+                total*=detailCategories2.size();
             }
             if(groupCourse.getCategoryGroupCode3()!=null){
-                detailCategories3=categoryRepository.findCategoryCodeByCategoryGroupCode(groupCourse.getCategoryGroupCode3());
+                detailCategories3=categoryRepository.findCategoryNameByCategoryGroupCode(groupCourse.getCategoryGroupCode3());
+                System.out.print(groupCourse.getCategoryGroupCode3() + " ");
+                total*=detailCategories3.size();
             }
             if(groupCourse.getCategoryGroupCode4()!=null){
-                detailCategories4=categoryRepository.findCategoryCodeByCategoryGroupCode(groupCourse.getCategoryGroupCode4());
+                detailCategories4=categoryRepository.findCategoryNameByCategoryGroupCode(groupCourse.getCategoryGroupCode4());
+                System.out.print(groupCourse.getCategoryGroupCode4());
+                total*=detailCategories4.size();
             }
+            total*=(20*12);
+            System.out.println(" | 현재시간 : "+ LocalDateTime.now() + " | 총 경우의 수 : " + total);
 
             for (int s = 6; s <= 25; s++) {
-                for (int e = 7; e <= 28; e++) {
-                    System.out.println("startTime = " + s + "endTime = " + e);
+                for (int e = s+1; e <= s+12; e++) {
+//                for (int e = s+1; e <= s+1; e++) {
+                    if(e==29) break;
+//                    System.out.println("startTime = " + s + " endTime = " + e);
                     if(groupCourse.getCategoryGroupCode1()!=null){
                         for (int i = 0; i < detailCategories1.size(); i++) {
                             detailCategorieCodes.add(detailCategories1.get(i));
@@ -171,110 +189,207 @@ class MakeCourseServiceImplTest {
                                                     // 4개 코스
                                                     detailCategorieCodes.add(detailCategories4.get(l));
                                                     secondCourse = SecondCourse.builder()
-                                                            .wantedCategoryCode(detailCategories1.get(i))
-                                                            .detailCategoryCodes(detailCategorieCodes)
+                                                            .wantedCategoryName(detailCategories1.get(i))
+                                                            .detailCategoryNames(detailCategorieCodes)
                                                             .startTime(s)
                                                             .endTime(e)
                                                             .mealCheck(true)
                                                             .build();
                                                     // 식사포함
-                                                    System.out.println("4개 코스 | 1번 : " + secondCourse.getDetailCategoryCodes().get(0) +
-                                                            " | 2번 : " + secondCourse.getDetailCategoryCodes().get(1) +
-                                                            " | 3번 : " + secondCourse.getDetailCategoryCodes().get(2) +
-                                                            " | 4번 : " + secondCourse.getDetailCategoryCodes().get(3) +
-                                                            " | 식사여부 : " + secondCourse.getMealCheck() +
-                                                            " | 필수 카테고리 : " + secondCourse.getWantedCategoryCode());
-                                                    makeCourseService.finalCourseFiltering(secondCourse);
+//                                                    System.out.println("4개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                                            " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+//                                                            " | 3번 : " + secondCourse.getDetailCategoryNames().get(2) +
+//                                                            " | 4번 : " + secondCourse.getDetailCategoryNames().get(3) +
+//                                                            " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                                            " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+//                                                    if(makeCourseService.finalCourseFiltering(secondCourse)==null){
+//                                                        failCnt++;
+//                                                        printThing(groupCourse, s, e);
+//                                                        System.out.println("4개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                                                " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+//                                                                " | 3번 : " + secondCourse.getDetailCategoryNames().get(2) +
+//                                                                " | 4번 : " + secondCourse.getDetailCategoryNames().get(3) +
+//                                                                " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                                                " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+//                                                    }else{
+//                                                        successCnt++;
+//                                                    }
                                                     // 식사미포함
                                                     secondCourse.setMealCheck(false);
-                                                    System.out.println("4개 코스 | 1번 : " + secondCourse.getDetailCategoryCodes().get(0) +
-                                                            " | 2번 : " + secondCourse.getDetailCategoryCodes().get(1) +
-                                                            " | 3번 : " + secondCourse.getDetailCategoryCodes().get(2) +
-                                                            " | 4번 : " + secondCourse.getDetailCategoryCodes().get(3) +
-                                                            " | 식사여부 : " + secondCourse.getMealCheck() +
-                                                            " | 필수 카테고리 : " + secondCourse.getWantedCategoryCode());
-                                                    makeCourseService.finalCourseFiltering(secondCourse);
+//                                                    System.out.println("4개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                                            " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+//                                                            " | 3번 : " + secondCourse.getDetailCategoryNames().get(2) +
+//                                                            " | 4번 : " + secondCourse.getDetailCategoryNames().get(3) +
+//                                                            " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                                            " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+                                                    if(makeCourseService.finalCourseFiltering(secondCourse)==null){
+                                                        failCnt++;
+                                                        printThing(groupCourse, s, e);
+                                                        System.out.println("4개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+                                                                " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+                                                                " | 3번 : " + secondCourse.getDetailCategoryNames().get(2) +
+                                                                " | 4번 : " + secondCourse.getDetailCategoryNames().get(3) +
+                                                                " | 식사여부 : " + secondCourse.getMealCheck() +
+                                                                " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+                                                    }else{
+                                                        successCnt++;
+                                                    }
+                                                    detailCategorieCodes.remove(detailCategorieCodes.size()-1);
                                                 }
+                                                detailCategorieCodes.remove(detailCategorieCodes.size()-1);
                                             }else{ // 3개 코스
                                                 secondCourse = SecondCourse.builder()
-                                                        .wantedCategoryCode(detailCategories1.get(i))
-                                                        .detailCategoryCodes(detailCategorieCodes)
+                                                        .wantedCategoryName(detailCategories1.get(i))
+                                                        .detailCategoryNames(detailCategorieCodes)
                                                         .startTime(s)
                                                         .endTime(e)
                                                         .mealCheck(true)
                                                         .build();
                                                 // 식사포함
-                                                System.out.println("3개 코스 | 1번 : " + secondCourse.getDetailCategoryCodes().get(0) +
-                                                        " | 2번 : " + secondCourse.getDetailCategoryCodes().get(1) +
-                                                        " | 3번 : " + secondCourse.getDetailCategoryCodes().get(2) +
-                                                        " | 식사여부 : " + secondCourse.getMealCheck() +
-                                                        " | 필수 카테고리 : " + secondCourse.getWantedCategoryCode());
-                                                makeCourseService.finalCourseFiltering(secondCourse);
+//                                                System.out.println("3개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                                        " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+//                                                        " | 3번 : " + secondCourse.getDetailCategoryNames().get(2) +
+//                                                        " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                                        " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+//                                                if(makeCourseService.finalCourseFiltering(secondCourse)==null){
+//                                                    failCnt++;
+//                                                    printThing(groupCourse, s, e);
+//                                                    System.out.println("3개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                                            " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+//                                                            " | 3번 : " + secondCourse.getDetailCategoryNames().get(2) +
+//                                                            " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                                            " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+//                                                }else{
+//                                                    successCnt++;
+//                                                }
                                                 // 식사미포함
                                                 secondCourse.setMealCheck(false);
-                                                System.out.println("3개 코스 | 1번 : " + secondCourse.getDetailCategoryCodes().get(0) +
-                                                        " | 2번 : " + secondCourse.getDetailCategoryCodes().get(1) +
-                                                        " | 3번 : " + secondCourse.getDetailCategoryCodes().get(2) +
-                                                        " | 식사여부 : " + secondCourse.getMealCheck() +
-                                                        " | 필수 카테고리 : " + secondCourse.getWantedCategoryCode());
-                                                makeCourseService.finalCourseFiltering(secondCourse);
+//                                                System.out.println("3개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                                        " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+//                                                        " | 3번 : " + secondCourse.getDetailCategoryNames().get(2) +
+//                                                        " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                                        " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+                                                if(makeCourseService.finalCourseFiltering(secondCourse)==null){
+                                                    failCnt++;
+                                                    printThing(groupCourse, s, e);
+                                                    System.out.println("3개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+                                                            " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+                                                            " | 3번 : " + secondCourse.getDetailCategoryNames().get(2) +
+                                                            " | 식사여부 : " + secondCourse.getMealCheck() +
+                                                            " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+                                                }else{
+                                                    successCnt++;
+                                                }
+                                                detailCategorieCodes.remove(detailCategorieCodes.size()-1);
                                             }
                                         }
+                                        detailCategorieCodes.remove(detailCategorieCodes.size()-1);
                                     }else{ // 2개 코스
                                         secondCourse = SecondCourse.builder()
-                                                .wantedCategoryCode(detailCategories1.get(i))
-                                                .detailCategoryCodes(detailCategorieCodes)
+                                                .wantedCategoryName(detailCategories1.get(i))
+                                                .detailCategoryNames(detailCategorieCodes)
                                                 .startTime(s)
                                                 .endTime(e)
                                                 .mealCheck(true)
                                                 .build();
                                         // 식사포함
-                                        System.out.println("2개 코스 | 1번 : " + secondCourse.getDetailCategoryCodes().get(0) +
-                                                " | 2번 : " + secondCourse.getDetailCategoryCodes().get(1) +
-                                                " | 식사여부 : " + secondCourse.getMealCheck() +
-                                                " | 필수 카테고리 : " + secondCourse.getWantedCategoryCode());
-                                        makeCourseService.finalCourseFiltering(secondCourse);
+//                                        System.out.println("2개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                                " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+//                                                " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                                " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+//                                        if(makeCourseService.finalCourseFiltering(secondCourse)==null){
+//                                            failCnt++;
+//                                            printThing(groupCourse, s, e);
+//                                            System.out.println("2개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                                    " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+//                                                    " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                                    " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+//                                        }else{
+//                                            successCnt++;
+//                                        }
                                         // 식사미포함
                                         secondCourse.setMealCheck(false);
-                                        System.out.println("2개 코스 | 1번 : " + secondCourse.getDetailCategoryCodes().get(0) +
-                                                " | 2번 : " + secondCourse.getDetailCategoryCodes().get(1) +
-                                                " | 식사여부 : " + secondCourse.getMealCheck() +
-                                                " | 필수 카테고리 : " + secondCourse.getWantedCategoryCode());
-                                        makeCourseService.finalCourseFiltering(secondCourse);
+//                                        System.out.println("2개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                                " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+//                                                " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                                " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+                                        if(makeCourseService.finalCourseFiltering(secondCourse)==null){
+                                            failCnt++;
+                                            printThing(groupCourse, s, e);
+                                            System.out.println("2개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+                                                    " | 2번 : " + secondCourse.getDetailCategoryNames().get(1) +
+                                                    " | 식사여부 : " + secondCourse.getMealCheck() +
+                                                    " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+                                        }else{
+                                            successCnt++;
+                                        }
+                                        detailCategorieCodes.remove(detailCategorieCodes.size()-1);
                                     }
                                 }
+                                detailCategorieCodes.remove(detailCategorieCodes.size()-1);
                             }else{ // 1개 코스
                                 secondCourse = SecondCourse.builder()
-                                        .wantedCategoryCode(detailCategories1.get(i))
-                                        .detailCategoryCodes(detailCategorieCodes)
+                                        .wantedCategoryName(detailCategories1.get(i))
+                                        .detailCategoryNames(detailCategorieCodes)
                                         .startTime(s)
                                         .endTime(e)
                                         .mealCheck(true)
                                         .build();
                                 // 식사포함
-                                System.out.println("1개 코스 | 1번 : " + secondCourse.getDetailCategoryCodes().get(0) +
-                                        " | 식사여부 : " + secondCourse.getMealCheck() +
-                                        " | 필수 카테고리 : " + secondCourse.getWantedCategoryCode());
-                                makeCourseService.finalCourseFiltering(secondCourse);
+//                                System.out.println("1개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                        " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                        " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+//                                if(makeCourseService.finalCourseFiltering(secondCourse)==null){
+//                                    failCnt++;
+//                                    printThing(groupCourse, s, e);
+//                                    System.out.println("1개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                            " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                            " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+//                                }else{
+//                                    successCnt++;
+//                                }
                                 // 식사미포함
                                 secondCourse.setMealCheck(false);
-                                System.out.println("1개 코스 | 1번 : " + secondCourse.getDetailCategoryCodes().get(0) +
-                                        " | 식사여부 : " + secondCourse.getMealCheck() +
-                                        " | 필수 카테고리 : " + secondCourse.getWantedCategoryCode());
-                                makeCourseService.finalCourseFiltering(secondCourse);
+//                                System.out.println("1개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+//                                        " | 식사여부 : " + secondCourse.getMealCheck() +
+//                                        " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+                                if(makeCourseService.finalCourseFiltering(secondCourse)==null){
+                                    failCnt++;
+                                    printThing(groupCourse, s, e);
+                                    System.out.println("1개 코스 | 1번 : " + secondCourse.getDetailCategoryNames().get(0) +
+                                            " | 식사여부 : " + secondCourse.getMealCheck() +
+                                            " | 필수 카테고리 : " + secondCourse.getWantedCategoryName());
+                                }else{
+                                    successCnt++;
+                                }
+                                detailCategorieCodes.remove(detailCategorieCodes.size()-1);
                             }
                         }
                     }
                 }
             }
-
-
-
         }
+        System.out.println("failCnt = " + failCnt);
+        System.out.println("successCnt = " + successCnt);
+    }
 
-
-
-
+    private void printThing(CourseV2 groupCourse, int start, int end){
+        System.out.println("startTime = " + start + " endTime = " + end);
+        System.out.print("코스그룹 : ");
+        // 카테고리 그룹 코드에 해당하는 세부 카테고리 코드 리스트를 출력
+        if(groupCourse.getCategoryGroupCode1()!=null){
+            System.out.print(groupCourse.getCategoryGroupCode1() + " ");
+        }
+        if(groupCourse.getCategoryGroupCode2()!=null){
+            System.out.print(groupCourse.getCategoryGroupCode2() + " ");
+        }
+        if(groupCourse.getCategoryGroupCode3()!=null){
+            System.out.print(groupCourse.getCategoryGroupCode3() + " ");
+        }
+        if(groupCourse.getCategoryGroupCode4()!=null){
+            System.out.print(groupCourse.getCategoryGroupCode4());
+        }
+        System.out.println();
     }
 
     // wantedCategory 데이터를 전부 별점순으로 가져오기(내림차순) 테스트(SQL)

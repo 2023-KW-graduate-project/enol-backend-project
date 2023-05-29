@@ -3,6 +3,7 @@ package com.graduatepj.enol.makeCourse.dto;
 import com.graduatepj.enol.makeCourse.vo.Place;
 import lombok.*;
 
+import javax.persistence.Column;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,14 +14,20 @@ import java.util.List;
 @Builder
 public class PlaceDto {
     private int id;
-    private String name;
-    private String categoryCode;
+    private String categoryName;
+    private String placeName;
+    private double rating;
+    private int ratingNum;
+    private int reviewNum;
     private String addressName;
     private double x;
     private double y;
-    private String cost;
-    private String imgUrl;
     private String phoneNumber;
+    private String intro;
+    private String time;
+    private String menu;
+    private String imgUrl;
+    private String tag;
 
     public static PlaceDto fromEntity(Place place) {
         if (place == null) {
@@ -29,14 +36,20 @@ public class PlaceDto {
 
         return PlaceDto.builder()
                 .id(place.getId())
-                .name(place.getName())
-                .categoryCode(place.getCategoryCode())
+                .placeName(place.getPlaceName())
+                .categoryName(place.getCategoryName())
                 .addressName(place.getAddressName())
+                .rating(place.getRating())
+                .ratingNum(place.getRatingNum())
+                .reviewNum(place.getReviewNum())
                 .x(place.getX())
                 .y(place.getY())
-                .cost(place.getCost())
                 .imgUrl(place.getImgUrl())
                 .phoneNumber(place.getPhoneNumber())
+                .intro(place.getIntro())
+                .time(place.getTime())
+                .menu(place.getMenu())
+                .tag(place.getTag())
                 .build();
     }
 

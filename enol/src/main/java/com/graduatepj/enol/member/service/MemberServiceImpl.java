@@ -2,6 +2,7 @@ package com.graduatepj.enol.member.service;
 
 import com.graduatepj.enol.member.dao.MemberRepository;
 import com.graduatepj.enol.member.vo.Member;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,14 +13,14 @@ import java.util.List;
 
 @Service("memberService")
 @Slf4j
+@RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService<Member>{
 //    @Autowired
 //    private PasswordEncoder passwordEncoder;
 
     private static final Logger logger = LoggerFactory.getLogger(MemberServiceImpl.class); // 로거 띄우기 위해
 
-    @Autowired
-    private MemberRepository memberRepository; // jpa 사용할 repository
+    private final MemberRepository memberRepository; // jpa 사용할 repository
 
     /**
      * 회원가입 메서드
