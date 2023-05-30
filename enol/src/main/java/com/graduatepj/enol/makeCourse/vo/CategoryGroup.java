@@ -30,19 +30,19 @@ public class CategoryGroup {
     /**
      * 피로도
      */
-    @Column(name = "avg_피로도")
+    @Column(name = "avg_fatigue")
     private int avgFatigability;
 
     /**
      * 특이도
      */
-    @Column(name = "avg_특이도")
+    @Column(name = "avg_unique")
     private int avgSpecification;
 
     /**
      * 활동성
      */
-    @Column(name = "avg_활동도")
+    @Column(name = "avg_activity")
     private int avgActivity;
 
 }

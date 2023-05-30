@@ -28,6 +28,7 @@ dependencies {
 	runtimeOnly 'com.h2database:h2:1.4.200' // h2 추가
 //	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.0' // DB 관련
 	implementation 'mysql:mysql-connector-java:8.0.32' // MySQL
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb' // mongoDB
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'

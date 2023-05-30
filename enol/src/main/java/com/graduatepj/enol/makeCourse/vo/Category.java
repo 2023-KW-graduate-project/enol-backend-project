@@ -23,19 +23,19 @@ public class Category {
     /**
      * 피로도
      */
-    @Column(name = "피로도")
+    @Column(name = "fatigue")
     private int fatigability;
 
     /**
      * 특이도
      */
-    @Column(name = "특이도")
+    @Column(name = "unique")
     private int specification;
 
     /**
      * 활동성
      */
-    @Column(name = "활동도")
+    @Column(name = "activity")
     private int activity;
 
 
