@@ -15,7 +15,7 @@ import java.util.List;
 public class UserPreference {
     @Id
     private String userCode;
-    private List<String> preferFatigue;
-    private List<String> preferSpecificity;
-    private List<String> preferActivity;
+    private double preferFatigue;
+    private double preferSpecificity;
+    private double preferActivity;
 }

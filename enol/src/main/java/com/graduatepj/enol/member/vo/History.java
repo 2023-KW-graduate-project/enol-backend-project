@@ -16,8 +16,7 @@ public class History {
     @Id
     private String userCode;
     private int number;
-    private String course;
-    private String courseId;
-    private List<String> categoryCode;
-    private double rating;
+
+    // 안에는 courseId, categoryCode, rating 순으로 있음
+    private List<String> course;
 }

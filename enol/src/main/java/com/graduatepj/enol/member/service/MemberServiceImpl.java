@@ -1,14 +1,22 @@
 package com.graduatepj.enol.member.service;
 
-import com.graduatepj.enol.member.dao.MemberRepository;
+import com.graduatepj.enol.makeCourse.dao.CourseV2Repository;
+import com.graduatepj.enol.makeCourse.dao.PlaceRepository;
+import com.graduatepj.enol.makeCourse.dto.CourseDto;
+import com.graduatepj.enol.makeCourse.dto.PlaceDto;
+import com.graduatepj.enol.makeCourse.vo.CourseV2;
+import com.graduatepj.enol.member.dao.*;
+import com.graduatepj.enol.member.dto.HistoryDto;
+import com.graduatepj.enol.member.dto.UserDto;
+import com.graduatepj.enol.member.dto.UserPreferenceDto;
 import com.graduatepj.enol.member.vo.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service("memberService")
@@ -21,6 +29,18 @@ public class MemberServiceImpl implements MemberService<Member>{
     private static final Logger logger = LoggerFactory.getLogger(MemberServiceImpl.class); // 로거 띄우기 위해
 
     private final MemberRepository memberRepository; // jpa 사용할 repository
+
+    private final HistoryRepository historyRepository;
+
+    private final UserMarkRepository userMarkRepository;
+
+    private final UserPreferenceRepository userPreferenceRepository;
+
+    private final UserRepository userRepository;
+
+    private final CourseV2Repository courseV2Repository;
+
+    private final PlaceRepository placeRepository;
 
     /**
      * 회원가입 메서드
@@ -277,5 +297,59 @@ public class MemberServiceImpl implements MemberService<Member>{
         List<Member> members = memberRepository.findAll();
         log.info("members = {}", members);
         return members;
+    }
+
+    @Override
+    public List<List<PlaceDto>> getBookmarkCourseById(String userCode){
+        // 뭘 저장하려는건지는 모르겠다마는 여기 수정해야할듯?
+        List<Long> courseIds = userMarkRepository.findCoursesById(userCode);
+        for(Long id : courseIds){
+
+        }
+        return null;
+    }
+
+    // 여기도 어떤식으로 저장되어있는지를 잘 모르겠음
+    @Override
+    public List<PlaceDto> getBookmarkPlaceById(String userCode){
+        List<Long> placeIds = userMarkRepository.findplacesById(userCode);
+        List<PlaceDto> places=new ArrayList<>();
+        for(Long id:placeIds){
+            places.add(PlaceDto.fromEntity(
+                    placeRepository.findById(id)
+                            .orElseThrow(() -> new RuntimeException("findById failed"))));
+        }
+        return places;
+    }
+
+    @Override
+    public UserPreferenceDto getPreferencesById(String userCode){
+        return UserPreferenceDto.from(userPreferenceRepository.findById(userCode)
+                .orElseThrow(() -> new RuntimeException("getPreferencesById method failed")));
+    }
+
+    @Override
+    public HistoryDto getHistoryById(String userCode){
+        return HistoryDto.from(historyRepository.findById(userCode)
+                .orElseThrow(() -> new RuntimeException("getHistoryById method failed")));
+    }
+
+    @Override
+    public List<UserDto> getFriendsList(String userCode){
+        List<String> friendsCode = getFriendsById(userCode);
+        List<UserDto> friendList=new ArrayList<>();
+        for(String code:friendsCode){
+            friendList.add(getUserInfo(code));
+        }
+        return friendList;
+    }
+
+    private UserDto getUserInfo(String userCode){
+        return UserDto.from(userRepository.findById(userCode)
+                .orElseThrow(() -> new RuntimeException("getUserInfo method failed")));
+    }
+
+    private List<String> getFriendsById(String userCode){
+        return userMarkRepository.findFriendCodesById(userCode);
     }
 }
