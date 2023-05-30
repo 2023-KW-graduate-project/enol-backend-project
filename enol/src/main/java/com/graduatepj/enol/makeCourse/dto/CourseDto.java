@@ -93,6 +93,9 @@ public class CourseDto {
 
     private boolean dawnDrink;
 
+    private int startTime;
+    private int FinishTime;
+
     public CourseDto() {
     } // 기본 생성자
 

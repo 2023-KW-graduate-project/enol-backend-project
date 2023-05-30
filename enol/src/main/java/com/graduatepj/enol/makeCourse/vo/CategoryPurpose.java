@@ -3,7 +3,9 @@ package com.graduatepj.enol.makeCourse.vo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Getter
 @NoArgsConstructor
@@ -11,40 +13,39 @@ import javax.persistence.*;
 public class CategoryPurpose {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_code")
-    private String categoryCode;
+    @Column(name = "category_name")
+    private String categoryName;
 
     @Column(name = "category_group_code")
     private String categoryGroupCode;
 
-    @Column(name = "산책")
+    @Column(name = "walk")
     private int walk;
 
-    @Column(name = "음주")
-    private int drink;
+    @Column(name = "socializing")
+    private int socializing;
 
-    @Column(name = "체험")
-    private int experience;
+    @Column(name = "NICE_ATMOSPHERE")
+    private int niceAtmosphere;
 
-    @Column(name = "힐링")
+    @Column(name = "healing")
     private int healing;
 
-    @Column(name = "관람")
-    private int watch;
+    @Column(name = "drinking")
+    private int drinking;
 
-    @Column(name = "지적활동")
-    private int intellectual;
+    @Column(name = "unusual")
+    private int unusual;
 
-    @Column(name = "경치")
-    private int view;
+    @Column(name = "active")
+    private int active;
 
-    @Column(name = "일반")
-    private int normal;
+    @Column(name = "daily")
+    private int daily;
 
-    @Column(name = "스포츠")
-    private int sports;
+    @Column(name = "summer")
+    private int summer;
 
-    @Column(name = "솔로")
-    private int solo;
+    @Column(name = "cultural_life")
+    private int culturalLife;
 }

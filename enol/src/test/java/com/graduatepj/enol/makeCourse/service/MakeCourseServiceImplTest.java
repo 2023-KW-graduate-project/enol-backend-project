@@ -15,8 +15,6 @@ import java.util.List;
 @SpringBootTest
 class MakeCourseServiceImplTest {
     @Autowired
-    private CourseRepository courseRepository;
-    @Autowired
     private CourseMemberRepository courseMemberRepository;
     @Autowired
     private PlaceRepository placeRepository;
@@ -30,8 +28,10 @@ class MakeCourseServiceImplTest {
     private CourseV2Repository courseV2Repository;
     @Autowired
     private CategoryPurposeRepository categoryPurposeRepository;
+
     @Autowired
-    private CategoryPurpose1Repository categoryPurpose1Repository;
+    private RestaurantRepository restaurantRepository;
+
     // makeCourse 통합 테스트
     @Test
     void makeCourseTest() {
@@ -39,6 +39,7 @@ class MakeCourseServiceImplTest {
         //when(어떤 동작을 하게되면)
         //then(어떤 결과가 나와야한다)
     }
+
     // firstCourse 통합 테스트
     @Test
     void firstCourseTest() {
@@ -49,7 +50,7 @@ class MakeCourseServiceImplTest {
         // given
 
 
-        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseRepository, courseMemberRepository, placeRepository, categoryRepository, courseV2Repository, categoryPurposeRepository, categoryPurpose1Repository);
+        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository);
 
         List<String> memberList = new ArrayList<>();
         memberList.add("kim1");
@@ -79,12 +80,12 @@ class MakeCourseServiceImplTest {
         courseRequest.setNumPeople(2);
         courseRequest.setMemberIdList(memberList);
         courseRequest.setMealCheck(true);
-        courseRequest.setStartTime(21);
+        courseRequest.setStartTime(18);
         courseRequest.setFinishTime(24);
         courseRequest.setWantedCategoryGroup(null);
         courseRequest.setWantedCategory(null);
-        courseRequest.setWantedCategoryGroup("EM1");
-        courseRequest.setWantedCategory("CB");
+//        courseRequest.setWantedCategoryGroup("EM1");
+//        courseRequest.setWantedCategory("CB");
         courseRequest.setCourseKeywords(keywordList);
         courseRequest.setGoals(goalList);
 
@@ -106,6 +107,8 @@ class MakeCourseServiceImplTest {
         System.out.println("courseDto.getFatigability() = " + courseDto.getFatigability());
         System.out.println("courseDto.getSpecification() = " + courseDto.getSpecification());
         System.out.println("courseDto.getActivity() = " + courseDto.getActivity());
+        System.out.println("courseDto.getStartTime() = " + courseDto.getStartTime());
+        System.out.println("courseDto.getFinishTime() = " + courseDto.getFinishTime());
 
         System.out.println("courseDto.getGoalMatch()1 = " + courseDto.getGoalMatch().get(courseDto.getCategoryGroupCode1()));
         System.out.println("courseDto.getGoalMatch()2 = " + courseDto.getGoalMatch().get(courseDto.getCategoryGroupCode2()));
@@ -121,9 +124,77 @@ class MakeCourseServiceImplTest {
     @Test
     void secondCourseTest() {
         //given(어떤 데이터가 있을때)
+        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository);
+
+        List<String> memberList = new ArrayList<>();
+        memberList.add("kim1");
+        memberList.add("kim2");
+
+        List<Integer> keywordList = new ArrayList<>();
+        keywordList.add(0);
+        keywordList.add(0);
+        keywordList.add(0);
+        keywordList.add(1);
+        keywordList.add(0);
+        keywordList.add(0);
+
+        List<Integer> goalList = new ArrayList<>();
+        goalList.add(1);
+        goalList.add(0);
+        goalList.add(1);
+        goalList.add(0);
+        goalList.add(0);
+        goalList.add(0);
+        goalList.add(0);
+        goalList.add(0);
+        goalList.add(1);
+        goalList.add(0);
+
+        CourseRequest courseRequest = new CourseRequest();
+        courseRequest.setNumPeople(2);
+        courseRequest.setMemberIdList(memberList);
+        courseRequest.setMealCheck(true);
+        courseRequest.setStartTime(17);
+        courseRequest.setFinishTime(24);
+        courseRequest.setWantedCategoryGroup(null);
+        courseRequest.setWantedCategory(null);
+//        courseRequest.setWantedCategoryGroup("EM1");
+//        courseRequest.setWantedCategory("CB");
+        courseRequest.setCourseKeywords(keywordList);
+        courseRequest.setGoals(goalList);
+
+
+        CourseDto courseDto = makeCourseServiceImpl.firstCourseFiltering(courseRequest);
+
         //when(어떤 동작을 하게되면)
+        SecondCourse secondCourse = makeCourseServiceImpl.secondCourseFiltering(courseDto);
+
         //then(어떤 결과가 나와야한다)
+        System.out.println("secondCourse.getSelectedCourse().getCategoryGroupCode1 = " + secondCourse.getSelectedCourse().getCategoryGroupCode1());
+        System.out.println("secondCourse.getSelectedCourse().getCategoryGroupCode2 = " + secondCourse.getSelectedCourse().getCategoryGroupCode2());
+        System.out.println("secondCourse.getSelectedCourse().getCategoryGroupCode3 = " + secondCourse.getSelectedCourse().getCategoryGroupCode3());
+        System.out.println("secondCourse.getSelectedCourse().getCategoryGroupCode4 = " + secondCourse.getSelectedCourse().getCategoryGroupCode4());
+        System.out.println("secondCourse.getSelectedCourse().getWantedCategoryGroup = " + secondCourse.getSelectedCourse().getWantedCategoryGroup());
+        System.out.println("secondCourse.getSelectedCourse().getWantedCategory = " + secondCourse.getSelectedCourse().getWantedCategory());
+        System.out.println("secondCourse.getSelectedCourse().getGoalMatch = " + secondCourse.getSelectedCourse().getGoalMatch());
+        System.out.println("secondCourse.getSelectedCourse().getFatigability = " + secondCourse.getSelectedCourse().getFatigability());
+        System.out.println("secondCourse.getSelectedCourse().getSpecification = " + secondCourse.getSelectedCourse().getSpecification());
+        System.out.println("secondCourse.getSelectedCourse().getActivity = " + secondCourse.getSelectedCourse().getActivity());
+        System.out.println("secondCourse.getSelectedCourse().getTime = " + secondCourse.getSelectedCourse().getTime());
+        System.out.println("secondCourse.getSelectedCourse().getRate = " + secondCourse.getSelectedCourse().getRate());
+        System.out.println();
+        System.out.println("secondCourse.getCategoryGroupCode = " + secondCourse.getCategoryGroupCodes());
+        System.out.println("secondCourse.getDetailCategoryCodes = " + secondCourse.getDetailCategoryNames());
+        System.out.println("secondCourse.getWantedCategoryGroupCode = " + secondCourse.getWantedCategoryGroupCode());
+        System.out.println("secondCourse.getWantedCategoryCode = " + secondCourse.getWantedCategoryName());
+        System.out.println("secondCourse.getDawnDrink = " + secondCourse.getDawnDrink());
+        System.out.println("secondCourse.getMealCheck = " + secondCourse.getMealCheck());
+        System.out.println("secondCourse.getCategoryGroupCode = " + secondCourse.getCategoryGroupCodes());
+        System.out.println("secondCourse.getStartTime = " + secondCourse.getStartTime());
+        System.out.println("secondCourse.getStartTime = " + secondCourse.getEndTime());
+
     }
+
     // finalCourse 통합 테스트
     @Test
     void finalCourseTest() {
