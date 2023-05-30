@@ -1,6 +1,10 @@
 package com.graduatepj.enol.member.service;
 
-import com.graduatepj.enol.member.vo.Member;
+import com.graduatepj.enol.makeCourse.dto.CourseDto;
+import com.graduatepj.enol.makeCourse.dto.PlaceDto;
+import com.graduatepj.enol.member.dto.HistoryDto;
+import com.graduatepj.enol.member.dto.UserDto;
+import com.graduatepj.enol.member.dto.UserPreferenceDto;
 
 import java.util.List;
 
@@ -61,6 +65,11 @@ public interface MemberService<Member> {
      * @return
      */
     public abstract List<com.graduatepj.enol.member.vo.Member> showMembers();
+    public abstract List<List<PlaceDto>> getBookmarkCourseById(String userCode);
+    public abstract List<PlaceDto> getBookmarkPlaceById(String userCode);
+    public abstract UserPreferenceDto getPreferencesById(String userCode);
+    public abstract HistoryDto getHistoryById(String userCode);
+    public abstract List<UserDto> getFriendsList(String userCode);
 
 }
 

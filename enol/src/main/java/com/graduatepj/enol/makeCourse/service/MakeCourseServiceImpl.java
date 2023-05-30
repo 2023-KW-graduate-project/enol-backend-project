@@ -7,6 +7,7 @@ import com.graduatepj.enol.makeCourse.dao.*;
 import com.graduatepj.enol.makeCourse.dto.*;
 import com.graduatepj.enol.makeCourse.vo.CategoryPurpose1;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
+import com.graduatepj.enol.makeCourse.vo.Place;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -35,6 +36,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     private final CourseRepository courseRepository;
     private final CourseMemberRepository courseMemberRepository;
     private final PlaceRepository placeRepository;
+    private final RestaurantRepository restaurantRepository;
     private static final int CATEGORY_NUM = 62;
     private static final int FILTER_RADIUS = 200;
 
@@ -297,7 +299,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         /** 코사인 유사도 평가로 1개만 고르기 */
         // 코사인 유사도 평가로 뽑는 방법(1)
         log.info("--- computeSimilarity Start! ---");
-        List<CourseDto> courseAfterSimilarity = computeSimilarity(filteredCourse, avgMember); // 평균 멤버로 코사인유사도 평가
+        List<CourseDto> courseAfterSimilarity = computeSimilarity(filteredCourse, avgMember, totalTime); // 평균 멤버로 코사인유사도 평가
         // 랜덤으로 뽑는 방법(2)
         // 랜덤 객체 생성
         //Random rand = new Random();
@@ -653,15 +655,64 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         return testCourseList;
     }
 
-
-    public List<CourseDto> computeSimilarity(List<CourseDto> filteredCourse, MemberDto avgMember) {
+    public List<CourseDto> computeSimilarity(List<CourseDto> filteredCourse, MemberDto avgMember, int time) {
         List<CourseDto> similarCourses = new ArrayList<>();
 
         // 평균 값을 이용해 RealVector 생성
         RealVector avgVector = new ArrayRealVector(new double[]{
                 avgMember.getFatigability(),
                 avgMember.getSpecification(),
-                avgMember.getActivity()
+                avgMember.getActivity(),
+                (double)time
+        });
+
+        // L1-norm 가중치 계산
+        for (CourseDto course : filteredCourse) { // 1차로 필터링된 코스들
+            RealVector vector = new ArrayRealVector(new double[]{
+                    course.getFatigability(),
+                    course.getSpecification(),
+                    course.getActivity(),
+                    (double)course.getTime()
+            });
+
+            // L1-norm 값이 클수록 유사도가 낮은 것을 의미
+            double l1Norm = vector.getL1Distance(avgVector);
+
+            // 가중치를 곱해 L1-norm에 반영
+            double weight;
+            if (course.getRate() >= 5.0) {
+                weight = 0.5;
+            } else if (course.getRate() >= 4.0) {
+                weight = 0.7;
+            } else if (course.getRate() >= 3.0) {
+                weight = 0.9;
+            } else if (course.getRate() >= 2.5) {
+                weight = 1.0;
+            } else if (course.getRate() >= 2.0) {
+                weight = 1.1;
+            } else {
+                weight = 1.3;
+            }
+            l1Norm *= weight;
+
+            course.setSimilarity(l1Norm);
+            similarCourses.add(course);
+        }
+
+        // L1-norm에 따라 정렬(오름차순)
+        similarCourses.sort(Comparator.comparing(CourseDto::getSimilarity));
+
+        return similarCourses;
+    }
+
+    public List<CourseDto> computeSimilarity2(List<CourseDto> filteredCourse, MemberDto avgMember) {
+        List<CourseDto> similarCourses = new ArrayList<>();
+
+        // 평균 값을 이용해 RealVector 생성
+        RealVector avgVector = new ArrayRealVector(new double[]{
+                avgMember.getFatigability(),
+                avgMember.getSpecification(),
+                avgMember.getActivity(),
         });
 
         // 코사인 유사도 계산
@@ -780,6 +831,32 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             }
         }
         return null;
+    }
+
+    private List<PlaceDto> getRestaurantFromDB(Double[] mainCoordinate, int num) {
+        int cnt = 0;
+        List<PlaceDto> places = new ArrayList<>();
+        List<Place> restaurants = restaurantRepository.findRandomRestaurantByLocationAndRadius(mainCoordinate[0], mainCoordinate[1], 300);
+        for(Place restaurant : restaurants){
+            PlaceDto place = PlaceDto.builder()
+                    .placeName(restaurant.getPlaceName())
+                    .categoryName(restaurant.getCategoryName())
+                    .addressName(restaurant.getAddressName())
+                    .x(restaurant.getX())
+                    .y(restaurant.getY())
+                    .phoneNumber(restaurant.getPhoneNumber())
+                    .build();
+//            if (places.stream().anyMatch(p -> p.getCategoryName().equals(String.valueOf(restaurant.getCategoryName()))))
+//                continue;
+            places.add(place);
+            cnt++;
+            if (cnt >= num) {
+                for (PlaceDto rest : places)
+                    rest.setCategoryName("음식점");
+                return places;
+            }
+        }
+        return places;
     }
 
     private List<PlaceDto> getRestaurantFromApi(Double[] mainCoordinate, int num) {

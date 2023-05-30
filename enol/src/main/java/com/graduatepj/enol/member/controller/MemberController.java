@@ -1,10 +1,13 @@
 package com.graduatepj.enol.member.controller;
 
+import com.graduatepj.enol.member.dto.HistoryDto;
+import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.service.MemberService;
 import com.graduatepj.enol.member.vo.Member;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -193,5 +196,30 @@ public class MemberController {
 
         return deleteMemberSuccess;
     }
+
+    // 히스토리 보여주기
+    @PostMapping("/history")
+    public ResponseEntity<HistoryDto> showHistory(@RequestBody String userCode) {
+        return ResponseEntity.ok(memberService.getHistoryById(userCode));
+    }
+
+    // 친구목록 보여주기
+    @PostMapping("/friendlist")
+    public ResponseEntity<List<UserDto>> showFriendList(@RequestBody String userCode) {
+        return ResponseEntity.ok(memberService.getFriendsList(userCode));
+    }
+
+    // 즐겨찾기 장소 보여주기
+    @PostMapping("/bookmark/place")
+    public ResponseEntity<List<UserDto>> showBookmarkPlace(@RequestBody String userCode) {
+        return ResponseEntity.ok(memberService.getBookmarkPlaceById(userCode));
+    }
+
+    // 즐겨찾기 코스 보여주기
+    @PostMapping("/bookmark/course")
+    public ResponseEntity<List<UserDto>> showBookmarkCourse(@RequestBody String userCode) {
+        return ResponseEntity.ok(memberService.getBookmarkCourseById(userCode));
+    }
+
 
 }

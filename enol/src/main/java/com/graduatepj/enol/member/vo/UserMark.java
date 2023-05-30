@@ -16,6 +16,6 @@ public class UserMark {
     @Id
     private String userCode;
     private List<String> friendCodes;
-    private List<String> placeIds;
-    private List<String> courseIds;
+    private List<Long> placeIds;
+    private List<Long> courseIds;
 }
