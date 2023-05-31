@@ -324,7 +324,7 @@ public class MemberServiceImpl implements MemberService<Member>{
 
     @Override
     public UserPreferenceDto getPreferencesById(String userCode){
-        return UserPreferenceDto.from(userPreferenceRepository.findById(userCode)
+        return UserPreferenceDto.from(userRepository.findById(userCode)
                 .orElseThrow(() -> new RuntimeException("getPreferencesById method failed")));
     }
 
@@ -349,7 +349,8 @@ public class MemberServiceImpl implements MemberService<Member>{
                 .orElseThrow(() -> new RuntimeException("getUserInfo method failed")));
     }
 
-    private List<String> getFriendsById(String userCode){
+    @Override
+    public List<String> getFriendsById(String userCode){
         return userMarkRepository.findFriendCodesById(userCode);
     }
 }

@@ -4,11 +4,15 @@ import com.graduatepj.enol.makeCourse.dto.CourseDto;
 import com.graduatepj.enol.makeCourse.dto.CourseRequest;
 import com.graduatepj.enol.makeCourse.dto.SecondCourse;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
+import com.graduatepj.enol.member.dao.UserRepository;
+import com.graduatepj.enol.member.service.MemberService;
+import com.graduatepj.enol.member.vo.User;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +36,12 @@ class MakeCourseServiceImplTest {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Resource(name = "memberService")
+    private MemberService memberService;
+
     // makeCourse 통합 테스트
     @Test
     void makeCourseTest() {
@@ -50,7 +60,7 @@ class MakeCourseServiceImplTest {
         // given
 
 
-        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository);
+        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository, memberService);
 
         List<String> memberList = new ArrayList<>();
         memberList.add("kim1");
@@ -124,7 +134,7 @@ class MakeCourseServiceImplTest {
     @Test
     void secondCourseTest() {
         //given(어떤 데이터가 있을때)
-        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository);
+        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository, memberService);
 
         List<String> memberList = new ArrayList<>();
         memberList.add("kim1");
@@ -465,14 +475,19 @@ class MakeCourseServiceImplTest {
 
     // wantedCategory 데이터를 전부 별점순으로 가져오기(내림차순) 테스트(SQL)
     @Test
-    void getCategoryPlaceListTest() {
+    void getCategoryPlaceListTest() { // mySql
+        System.out.println(categoryPurposeRepository.findAll());
         //given(어떤 데이터가 있을때)
         //when(어떤 동작을 하게되면)
         //then(어떤 결과가 나와야한다)
     }
     // 카테고리를 돌려보면서 하나하나 반경 기준으로 가져오기 테스트(SQL)
     @Test
-    void getFinalCourseTest() {
+    void getFinalCourseTest() { //- 몽고디비
+        List<User> userList = userRepository.findAll();
+        for(User user: userList){
+            System.out.println(user.toString());
+        }
         //given(어떤 데이터가 있을때)
         //when(어떤 동작을 하게되면)
         //then(어떤 결과가 나와야한다)

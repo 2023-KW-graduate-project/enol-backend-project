@@ -73,7 +73,7 @@ public class LoginServiceImpl implements LoginService<Member>{
      * @return
      */
     @Override
-    public Member Login(Member member) {
+    public Member Login(Member member) { // userCode만 넘기기
         log.info("login serviceImpl START");
 
         log.info("input memberId={}", member.getMemberId());

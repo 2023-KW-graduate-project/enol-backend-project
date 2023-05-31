@@ -71,5 +71,6 @@ public interface MemberService<Member> {
     public abstract HistoryDto getHistoryById(String userCode);
     public abstract List<UserDto> getFriendsList(String userCode);
 
+    public abstract List<String> getFriendsById(String userCode);
 }
 

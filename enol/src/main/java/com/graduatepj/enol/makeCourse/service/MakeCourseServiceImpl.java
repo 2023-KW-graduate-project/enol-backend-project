@@ -8,6 +8,8 @@ import com.graduatepj.enol.makeCourse.dto.*;
 import com.graduatepj.enol.makeCourse.vo.CategoryPurpose;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
 import com.graduatepj.enol.makeCourse.vo.Place;
+import com.graduatepj.enol.member.dto.UserPreferenceDto;
+import com.graduatepj.enol.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,6 +45,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     private final CategoryRepository categoryRepository;
     private final CourseV2Repository courseV2Repository;
     private final CategoryPurposeRepository categoryPurposeRepository;
+
+    @Resource(name = "memberService")
+    private final MemberService memberService;
 
     // 실제로 해야할 것
     @Override
@@ -74,42 +80,81 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         // 멤버 데이터 가져오기 - 약속에 함께하는 멤버 리스트 생성
         // member DB 나오는대로 수정해야 할수도 - ID가 아니라 코드가 pk이면 pk로 find해야 하므로 - 일단 놔둠
         /** 이 부분 user로 맞춰서 수정하기 */
-        List<MemberDto> memberList = courseMemberRepository
-                .findAllByIdIn(courseRequest.getMemberIdList())
-                .stream()
-                .map(member -> (MemberDto.fromEntity(member)))
-                .collect(Collectors.toList());
+        /** 이 부분 user로 맞춰서 수정하기 */
+
+        // userPreferenceDto에서 속성 값 가져오기
+        List<UserPreferenceDto> userPreferenceList = new ArrayList<>();
+
+        userPreferenceList.add(memberService.getPreferencesById(courseRequest.getUserCode()));
+        for(int i=0; i<courseRequest.getMemberIdList().size(); i++) {
+            userPreferenceList.add(memberService.getPreferencesById(courseRequest.getMemberIdList().get(i)));
+        }
 
         // 로그로 멤버 리스트 확인
-        log.info("--- memberList Start! --- ");
-        for(MemberDto memberDto : memberList) {
-            log.info("Member List = ");
-            log.info("memberDto.getMemberId = {}", memberDto.getMemberId());
-            log.info("memberDto.getMemberName = {}", memberDto.getMemberName());
-            log.info("memberDto.getBirthday = {}", memberDto.getBirthday());
-            log.info("memberDto.getGender = {}", memberDto.getGender());
-            log.info("memberDto.getFatigability = {}", memberDto.getFatigability());
-            log.info("memberDto.getSpecification = {}", memberDto.getSpecification());
-            log.info("memberDto.getActivity = {}", memberDto.getActivity());
+        log.info("--- userPreferenceList Start! --- ");
+        log.info("userPreferenceList.size = {}", userPreferenceList.size());
+        for(UserPreferenceDto userPreferenceDto : userPreferenceList) {
+            log.info(" --- userPreferenceDto List =  --- ");
+            log.info("userPreferenceDto.getPreferFatigue = {}", userPreferenceDto.getPrefFatigue());
+            log.info("userPreferenceDto.getPreferSpecificity = {}", userPreferenceDto.getPrefSpecificity());
+            log.info("userPreferenceDto.getPreferActivity = {}", userPreferenceDto.getPrefActivity());
+            log.info(" --------------------------------- ");
         }
-        log.info("--- memberList END! --- ");
+        log.info("--- userPreferenceList END! --- ");
 
-
-        // 멤버들의 특성치 평균 구하기 - 약속에 함께하는 멤버 전체의 피로도, 특이도, 활동성의 평균 값 구하기
-        MemberDto avgMember = new MemberDto();
-        if (!memberList.isEmpty()) {
-            avgMember.setFatigability(memberList.stream().mapToInt(MemberDto::getFatigability).sum() / memberList.size());
-            avgMember.setSpecification(memberList.stream().mapToInt(MemberDto::getSpecification).sum() / memberList.size());
-            avgMember.setActivity(memberList.stream().mapToInt(MemberDto::getActivity).sum() / memberList.size());
+        UserPreferenceDto avgUserPreference = new UserPreferenceDto();
+        if (!userPreferenceList.isEmpty()) {
+            avgUserPreference.setPrefFatigue(userPreferenceList.stream().mapToDouble(UserPreferenceDto::getPrefFatigue).sum() / userPreferenceList.size());
+            avgUserPreference.setPrefSpecificity(userPreferenceList.stream().mapToDouble(UserPreferenceDto::getPrefSpecificity).sum() / userPreferenceList.size());
+            avgUserPreference.setPrefActivity(userPreferenceList.stream().mapToDouble(UserPreferenceDto::getPrefActivity).sum() / userPreferenceList.size());
         }
 
         // 로그로 멤버들의 특성치 평균 확인
-        log.info("--- Show avgMember feature Start!!! --- ");
-        log.info("avgMember.getFatigability() = {}", avgMember.getFatigability());
-        log.info("avgMember.getActivity() = {}", avgMember.getActivity());
-        log.info("avgMember.getSpecification() = {}", avgMember.getSpecification());
-        log.info("--- Show avgMember feature END!!! --- ");
-        /** Member List 가져와서 평균 내기 끝 */
+        log.info("--- Show avgUserPreference feature Start!!! --- ");
+        log.info("avgUserPreference.getPreferFatigue() = {}", avgUserPreference.getPrefFatigue());
+        log.info("avgUserPreference.getPreferSpecificity() = {}", avgUserPreference.getPrefSpecificity());
+        log.info("avgUserPreference.getPreferActivity() = {}", avgUserPreference.getPrefActivity());
+        log.info("--- Show avgUserPreference feature END!!! --- ");
+        /** avgUserPreference List 가져와서 평균 내기 끝 */
+        /** 이 부분 user로 맞춰서 수정하기 끝 */
+
+
+//        List<MemberDto> memberList = courseMemberRepository
+//                .findAllByIdIn(courseRequest.getMemberIdList())
+//                .stream()
+//                .map(member -> (MemberDto.fromEntity(member)))
+//                .collect(Collectors.toList());
+//
+//        // 로그로 멤버 리스트 확인
+//        log.info("--- memberList Start! --- ");
+//        for(MemberDto memberDto : memberList) {
+//            log.info("Member List = ");
+//            log.info("memberDto.getMemberId = {}", memberDto.getMemberId());
+//            log.info("memberDto.getMemberName = {}", memberDto.getMemberName());
+//            log.info("memberDto.getBirthday = {}", memberDto.getBirthday());
+//            log.info("memberDto.getGender = {}", memberDto.getGender());
+//            log.info("memberDto.getFatigability = {}", memberDto.getFatigability());
+//            log.info("memberDto.getSpecification = {}", memberDto.getSpecification());
+//            log.info("memberDto.getActivity = {}", memberDto.getActivity());
+//        }
+//        log.info("--- memberList END! --- ");
+//
+//
+//        // 멤버들의 특성치 평균 구하기 - 약속에 함께하는 멤버 전체의 피로도, 특이도, 활동성의 평균 값 구하기
+//        MemberDto avgMember = new MemberDto();
+//        if (!memberList.isEmpty()) {
+//            avgMember.setFatigability(memberList.stream().mapToInt(MemberDto::getFatigability).sum() / memberList.size());
+//            avgMember.setSpecification(memberList.stream().mapToInt(MemberDto::getSpecification).sum() / memberList.size());
+//            avgMember.setActivity(memberList.stream().mapToInt(MemberDto::getActivity).sum() / memberList.size());
+//        }
+//
+//        // 로그로 멤버들의 특성치 평균 확인
+//        log.info("--- Show avgMember feature Start!!! --- ");
+//        log.info("avgMember.getFatigability() = {}", avgMember.getFatigability());
+//        log.info("avgMember.getActivity() = {}", avgMember.getActivity());
+//        log.info("avgMember.getSpecification() = {}", avgMember.getSpecification());
+//        log.info("--- Show avgMember feature END!!! --- ");
+//        /** Member List 가져와서 평균 내기 끝 */
 
 
         /** 시간, 목적, 키워드로 필터링한 CourseV2를 DB에서 가져오기 */
@@ -301,7 +346,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         /** 코사인 유사도 평가로 1개만 고르기 */
         // 코사인 유사도 평가로 뽑는 방법(1)
         log.info("--- computeSimilarity Start! ---");
-        List<CourseDto> courseAfterSimilarity = computeSimilarity(filteredCourse, avgMember, totalTime); // 평균 멤버로 코사인유사도 평가
+        List<CourseDto> courseAfterSimilarity = computeSimilarity(filteredCourse, avgUserPreference, totalTime); // 평균 멤버로 코사인유사도 평가
         // 랜덤으로 뽑는 방법(2)
         // 랜덤 객체 생성
         //Random rand = new Random();
@@ -662,14 +707,15 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         return testCourseList;
     }
 
-    public List<CourseDto> computeSimilarity(List<CourseDto> filteredCourse, MemberDto avgMember, int time) {
+    /** user 버전 */
+    public List<CourseDto> computeSimilarity(List<CourseDto> filteredCourse, UserPreferenceDto avgUserPreference, int time) {
         List<CourseDto> similarCourses = new ArrayList<>();
 
         // 평균 값을 이용해 RealVector 생성
         RealVector avgVector = new ArrayRealVector(new double[]{
-                avgMember.getFatigability(),
-                avgMember.getSpecification(),
-                avgMember.getActivity(),
+                avgUserPreference.getPrefFatigue(),
+                avgUserPreference.getPrefSpecificity(),
+                avgUserPreference.getPrefActivity(),
                 (double)time
         });
 
@@ -711,6 +757,57 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
         return similarCourses;
     }
+
+
+//    public List<CourseDto> computeSimilarity(List<CourseDto> filteredCourse, MemberDto avgMember, int time) {
+//        List<CourseDto> similarCourses = new ArrayList<>();
+//
+//        // 평균 값을 이용해 RealVector 생성
+//        RealVector avgVector = new ArrayRealVector(new double[]{
+//                avgMember.getFatigability(),
+//                avgMember.getSpecification(),
+//                avgMember.getActivity(),
+//                (double)time
+//        });
+//
+//        // L1-norm 가중치 계산
+//        for (CourseDto course : filteredCourse) { // 1차로 필터링된 코스들
+//            RealVector vector = new ArrayRealVector(new double[]{
+//                    course.getFatigability(),
+//                    course.getSpecification(),
+//                    course.getActivity(),
+//                    (double)course.getTime()
+//            });
+//
+//            // L1-norm 값이 클수록 유사도가 낮은 것을 의미
+//            double l1Norm = vector.getL1Distance(avgVector);
+//
+//            // 가중치를 곱해 L1-norm에 반영
+//            double weight;
+//            if (course.getRate() >= 5.0) {
+//                weight = 0.5;
+//            } else if (course.getRate() >= 4.0) {
+//                weight = 0.7;
+//            } else if (course.getRate() >= 3.0) {
+//                weight = 0.9;
+//            } else if (course.getRate() >= 2.5) {
+//                weight = 1.0;
+//            } else if (course.getRate() >= 2.0) {
+//                weight = 1.1;
+//            } else {
+//                weight = 1.3;
+//            }
+//            l1Norm *= weight;
+//
+//            course.setSimilarity(l1Norm);
+//            similarCourses.add(course);
+//        }
+//
+//        // L1-norm에 따라 정렬(오름차순)
+//        similarCourses.sort(Comparator.comparing(CourseDto::getSimilarity));
+//
+//        return similarCourses;
+//    }
 
     public List<CourseDto> computeSimilarity2(List<CourseDto> filteredCourse, MemberDto avgMember) {
         List<CourseDto> similarCourses = new ArrayList<>();
