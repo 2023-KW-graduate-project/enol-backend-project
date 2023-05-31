@@ -42,9 +42,8 @@ public class User {
     private double prefFatigue;
 //    @Column(name = "pref_activity")
     private double prefUnique;
-//    @Column(name = "gender")
-    private String gender;
-
 //    @Column(name = "pref_activity")
     private double prefActivity;
+//    @Column(name = "gender")
+    private String gender;
 }
