@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -17,33 +18,32 @@ import javax.persistence.Id;
 @Document(collection = "user")
 public class User {
     @Id
-    private ObjectId mongoId;
-//    @Column(name = "user_code")
+    private String _id;
+    @Field("user_code")
     private String userCode;
-//    @Column(name = "id")
-    private String Id;
-//    @Column(name = "pw")
+    @Field("id")
+    private String id;
+    @Field("pw")
     private String pw;
-//    @Column(name = "name")
-    @Column(name = "name")
+    @Field("name")
     private String name;
-//    @Column(name = "address_name")
+    @Field("address_name")
     private String addressName;
-//    @Column(name = "email")
+    @Field("email")
     private String email;
-//    @Column(name = "birth_Date")
+    @Field("birth_date")
     private String birthDate;
-//    @Column(name = "join_date")
+    @Field("join_date")
     private String joinDate;
-//    @Column(name = "last_date")
+    @Field("last_date")
     private String lastDate;
 
-//    @Column(name = "pref_fatigue")
+    @Field("pref_fatigue")
     private double prefFatigue;
-//    @Column(name = "pref_activity")
+    @Field("pref_unique")
     private double prefUnique;
-//    @Column(name = "pref_activity")
+    @Field("pref_activity")
     private double prefActivity;
-//    @Column(name = "gender")
+    @Field("gender")
     private String gender;
 }

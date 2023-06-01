@@ -6,7 +6,7 @@ import com.graduatepj.enol.makeCourse.dto.CourseDto;
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
 import com.graduatepj.enol.member.dao.*;
-import com.graduatepj.enol.member.dto.HistoryDto;
+//import com.graduatepj.enol.member.dto.HistoryDto;
 import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.dto.UserPreferenceDto;
 import com.graduatepj.enol.member.vo.Member;
@@ -328,11 +328,11 @@ public class MemberServiceImpl implements MemberService<Member>{
                 .orElseThrow(() -> new RuntimeException("getPreferencesById method failed")));
     }
 
-    @Override
-    public HistoryDto getHistoryById(String userCode){
-        return HistoryDto.from(historyRepository.findById(userCode)
-                .orElseThrow(() -> new RuntimeException("getHistoryById method failed")));
-    }
+//    @Override
+//    public HistoryDto getHistoryById(String userCode){
+//        return HistoryDto.from(historyRepository.findById(userCode)
+//                .orElseThrow(() -> new RuntimeException("getHistoryById method failed")));
+//    }
 
     @Override
     public List<UserDto> getFriendsList(String userCode){

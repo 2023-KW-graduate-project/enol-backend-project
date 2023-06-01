@@ -1,6 +1,6 @@
 package com.graduatepj.enol.member.controller;
 
-import com.graduatepj.enol.member.dto.HistoryDto;
+//import com.graduatepj.enol.member.dto.HistoryDto;
 import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.service.MemberService;
 import com.graduatepj.enol.member.vo.Member;
@@ -197,11 +197,11 @@ public class MemberController {
         return deleteMemberSuccess;
     }
 
-    // 히스토리 보여주기
-    @PostMapping("/history")
-    public ResponseEntity<HistoryDto> showHistory(@RequestBody String userCode) {
-        return ResponseEntity.ok(memberService.getHistoryById(userCode));
-    }
+//    // 히스토리 보여주기
+//    @PostMapping("/history")
+//    public ResponseEntity<HistoryDto> showHistory(@RequestBody String userCode) {
+//        return ResponseEntity.ok(memberService.getHistoryById(userCode));
+//    }
 
     // 친구목록 보여주기
     @PostMapping("/friendlist")

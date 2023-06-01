@@ -4,9 +4,13 @@ import com.graduatepj.enol.makeCourse.dto.CourseDto;
 import com.graduatepj.enol.makeCourse.dto.CourseRequest;
 import com.graduatepj.enol.makeCourse.dto.SecondCourse;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
+import com.graduatepj.enol.member.dao.HistoryRepository;
+import com.graduatepj.enol.member.dao.UserMarkRepository;
 import com.graduatepj.enol.member.dao.UserRepository;
 import com.graduatepj.enol.member.service.MemberService;
+import com.graduatepj.enol.member.vo.History;
 import com.graduatepj.enol.member.vo.User;
+import com.graduatepj.enol.member.vo.UserMark;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +42,11 @@ class MakeCourseServiceImplTest {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserMarkRepository userMarkRepository;
+    @Autowired
+    private HistoryRepository historyRepository;
+
 
     @Resource(name = "memberService")
     private MemberService memberService;
@@ -476,7 +485,8 @@ class MakeCourseServiceImplTest {
     // wantedCategory 데이터를 전부 별점순으로 가져오기(내림차순) 테스트(SQL)
     @Test
     void getCategoryPlaceListTest() { // mySql
-        System.out.println(categoryPurposeRepository.findAll());
+//        System.out.println(categoryPurposeRepository.findAll());
+        System.out.println(categoryPurposeRepository.findById("수영장"));
         //given(어떤 데이터가 있을때)
         //when(어떤 동작을 하게되면)
         //then(어떤 결과가 나와야한다)
@@ -487,6 +497,25 @@ class MakeCourseServiceImplTest {
         List<User> userList = userRepository.findAll();
         for(User user: userList){
             System.out.println(user.toString());
+        }
+        System.out.println();
+
+        List<UserMark> userMarkList = userMarkRepository.findAll();
+
+        for(UserMark userMark : userMarkList) {
+            System.out.println(userMark.toString());
+        }
+        System.out.println();
+
+        List<History> historyList = historyRepository.findAll();
+        for(History history : historyList) {
+            System.out.println(history.toString());
+            System.out.println(history.getCourse().size());
+            for (int i=0; i<history.getCourse().size(); i++) {
+                System.out.println("history_getCourse().get("+i+").getCourseId() = " + history.getCourse().get(i).getCourseId());
+                System.out.println("history_getCourse().get("+i+").getPlaceIds() = " + history.getCourse().get(i).getPlaceIds());
+                System.out.println("history_getCourse().get("+i+").getRating() = " + history.getCourse().get(i).getRating());
+            }
         }
         //given(어떤 데이터가 있을때)
         //when(어떤 동작을 하게되면)

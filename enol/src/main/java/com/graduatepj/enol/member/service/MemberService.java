@@ -2,7 +2,7 @@ package com.graduatepj.enol.member.service;
 
 import com.graduatepj.enol.makeCourse.dto.CourseDto;
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
-import com.graduatepj.enol.member.dto.HistoryDto;
+//import com.graduatepj.enol.member.dto.HistoryDto;
 import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.dto.UserPreferenceDto;
 
@@ -68,7 +68,7 @@ public interface MemberService<Member> {
     public abstract List<List<PlaceDto>> getBookmarkCourseById(String userCode);
     public abstract List<PlaceDto> getBookmarkPlaceById(String userCode);
     public abstract UserPreferenceDto getPreferencesById(String userCode);
-    public abstract HistoryDto getHistoryById(String userCode);
+//    public abstract HistoryDto getHistoryById(String userCode);
     public abstract List<UserDto> getFriendsList(String userCode);
 
     public abstract List<String> getFriendsById(String userCode);
