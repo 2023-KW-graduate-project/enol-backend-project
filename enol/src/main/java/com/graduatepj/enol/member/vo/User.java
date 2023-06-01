@@ -1,9 +1,6 @@
 package com.graduatepj.enol.member.vo;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -11,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
-@Getter
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString

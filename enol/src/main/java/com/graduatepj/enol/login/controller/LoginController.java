@@ -1,6 +1,7 @@
 package com.graduatepj.enol.login.controller;
 
 import com.graduatepj.enol.login.service.LoginService;
+import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.vo.Member;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -22,18 +23,18 @@ public class LoginController {
     /**
      * 로그인 페이지
      * 성공 확인
-     * @param member
+     * @param userDto
      * @return
      */
         @PostMapping("/login")
-        public Member login(@RequestBody Member member) {
-        log.info("LoginController.login START");
-        log.info("memberId = {}", member.getMemberId());
-        log.info("memberPassword = {}", member.getPassword());
+        public String login(@RequestBody UserDto userDto) {
+        log.info("--- LoginController.login START ---");
+        log.info("memberId = {}", userDto.getId());
+        log.info("memberPassword = {}", userDto.getPw());
 
-        Member loginMember = loginService.Login(member);
+        String loginUserCode = loginService.Login(userDto);
 
-        return loginMember;
+        return loginUserCode;
     }
 
     /**

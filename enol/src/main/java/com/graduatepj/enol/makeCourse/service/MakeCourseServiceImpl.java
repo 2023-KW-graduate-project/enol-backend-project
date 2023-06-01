@@ -82,6 +82,8 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         // member DB 나오는대로 수정해야 할수도 - ID가 아니라 코드가 pk이면 pk로 find해야 하므로 - 일단 놔둠
         /** 이 부분 user로 맞춰서 수정하기 */
         /** 이 부분 user로 맞춰서 수정하기 */
+        
+        // user 바뀐 테이블대로 속성값 가져와서 평균 객체 만드는 부분 만들어야함
 
         // userPreferenceDto에서 속성 값 가져오기
         List<UserPreferenceDto> userPreferenceList = new ArrayList<>();

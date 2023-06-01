@@ -2,31 +2,26 @@ package com.graduatepj.enol.member.service;
 
 import com.graduatepj.enol.makeCourse.dao.CourseV2Repository;
 import com.graduatepj.enol.makeCourse.dao.PlaceRepository;
-import com.graduatepj.enol.makeCourse.dto.CourseDto;
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
-import com.graduatepj.enol.makeCourse.vo.CourseV2;
 import com.graduatepj.enol.member.dao.*;
-//import com.graduatepj.enol.member.dto.HistoryDto;
+import com.graduatepj.enol.member.dto.HistoryDto;
 import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.dto.UserPreferenceDto;
 import com.graduatepj.enol.member.vo.Member;
+import com.graduatepj.enol.member.vo.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Service("memberService")
+@Service
 @Slf4j
 @RequiredArgsConstructor
-public class MemberServiceImpl implements MemberService<Member>{
-//    @Autowired
-//    private PasswordEncoder passwordEncoder;
+public class MemberServiceImpl implements MemberService{
 
-    private static final Logger logger = LoggerFactory.getLogger(MemberServiceImpl.class); // 로거 띄우기 위해
+//    private static final Logger logger = LoggerFactory.getLogger(MemberServiceImpl1.class); // 로거 띄우기 위해
 
     private final MemberRepository memberRepository; // jpa 사용할 repository
 
@@ -42,261 +37,292 @@ public class MemberServiceImpl implements MemberService<Member>{
 
     private final PlaceRepository placeRepository;
 
-    /**
-     * 회원가입 메서드
-     * @param joinMember
-     */
-    @Override
-    public Member joinUser(Member joinMember) {
-        log.info("joinUser Serviceimpl START");
-
-        log.info("joinMember.getMemberId = {}", joinMember.getMemberId());
-        log.info("joinMember.getPassword = {}", joinMember.getPassword());
-        log.info("joinMember.getMemberName = {}", joinMember.getMemberName());
-        log.info("joinMember.getMemberEmail = {}", joinMember.getEmail());
-        log.info("joinMember.getMemberBirthday = {}", joinMember.getBirthday());
-        log.info("joinMember.getGender = {}", joinMember.getGender());
-        log.info("joinMember.getFatigability = {}", joinMember.getFatigability());
-        log.info("joinMember.getSpecification = {}", joinMember.getSpecification());
-        log.info("joinMember.getActivity = {}", joinMember.getActivity());
-
-        Member newMember = new Member();
-        newMember.setMemberId(joinMember.getMemberId());
-        newMember.setPassword(joinMember.getPassword());
-        newMember.setMemberName(joinMember.getMemberName());
-        newMember.setEmail(joinMember.getEmail());
-        newMember.setBirthday(joinMember.getBirthday());
-        newMember.setGender(joinMember.getGender());
-        newMember.setFatigability(joinMember.getFatigability());
-        newMember.setSpecification(joinMember.getSpecification());
-        newMember.setActivity(joinMember.getActivity());
-
-        memberRepository.save(newMember);
-        logger.info("save memberRepository");
-        return newMember;
-
-    }
-
-//    /**
-//     * ID 중복 확인 메서드
-//     * @param memberId
-//     * @return
-//     */
-//    @Override
-//    public boolean checkDupUser(String memberId) {
-//        log.info("checkDupUser Serviceimpl START");
-//
-//        log.info("MemberId = {}", memberId);
-//
-//        log.info("memberRepository.existsById(memberId) = {}", memberRepository.existsById(memberId));
-//        //회원 ID 중복 확인
-//        if(memberRepository.existsById(memberId)){ // 중복인 경우
-//            log.info("this is duplicated id - ERROR");
-//            return false;
-//        }
-//        else {
-//            log.info("No duplicated id");
-//            return true;
-//        }
-//    }
 
     /**
-     * 아이디 찾기
-     * @param member
+     * 회원가입 메서드 - 아이디 중복 확인은 프론트에서 진행해서 중복 없을 것이라 생각
+     * @param userDto
      * @return
      */
     @Override
-    public Member checkUserId(Member member) {
-        log.info("checkUserId memberServiceImpl START");
+    public User joinUser(UserDto userDto) {
+        log.info("--- joinUser Serviceimpl START ---");
 
-        log.info("member.getMemberName = {}", member.getMemberName());
-        log.info("member.getMemberEMail = {}", member.getEmail());
-        log.info("member.getMemberBDay = {}", member.getBirthday());
-        log.info("member.getMemberGender = {}", member.getGender());
-        log.info("member.getFatigability = {}", member.getFatigability());
-        log.info("member.getSpecification = {}", member.getSpecification());
-        log.info("member.getActivity = {}", member.getActivity());
+        // 입력된 정보 확인
+        log.info("--- Show userRequest START ---");
+        log.info("userDto.getMemberId = {}", userDto.getId());
+        log.info("userDto.getpw = {}", userDto.getPw());
+        log.info("userDto.getName = {}", userDto.getName());
+        log.info("userDto.getEmail = {}", userDto.getEmail());
+        log.info("userDto.getAddressName = {}", userDto.getAddressName());
+        log.info("userDto.getBirthDate = {}", userDto.getBirthDate());
+        log.info("userDto.getGender = {}", userDto.getGender());
+        log.info("userDto.getPrefFatigue = {}", userDto.getPrefFatigue());
+        log.info("userDto.getPrefUnique = {}", userDto.getPrefUnique());
+        log.info("userDto.getPrefActivity = {}", userDto.getPrefActivity());
+        log.info("--- Show userRequest END ---");
 
-        List<Member> memberList = memberRepository.findAll();
-        for (Member checkMember : memberList) {
-            log.info("Before IF checkMember.getMemberName = {}", checkMember.getMemberName());
-            if(checkMember.getMemberName().equals(member.getMemberName())) { // 이름 같으면 다음거 다 같은지 보기
-                log.info("checkMember.getMemberName = {}", checkMember.getMemberName());
-                if(checkMember.getEmail().equals(member.getEmail())) { // email같으면 생일까지 같은지 확인
-                    log.info("Name same");
-                    log.info("checkMember.getMemberEmail = {}", checkMember.getEmail());
-                    if(checkMember.getBirthday().equals(member.getBirthday())) {
-                        log.info("Email same");
-                        log.info("checkMember.getMemberBirthDay = {}", checkMember.getBirthday());
-                        log.info("member.getGender = {}", member.getGender());
-                        log.info("checkMember.getGender = {}", checkMember.getGender());
-                        if(checkMember.getGender().equals(member.getGender())) {
-                            log.info("gender same");
-                            log.info("checkMember.getMemberGender = {}", checkMember.getGender());
-                            return checkMember; // 다 같으면 해당 멤버 객체 반환
-                        }
-                    }
-                }
-            }
+        User newUser = new User();
+        newUser.setId(userDto.getId());
+        newUser.setPw(userDto.getPw());
+        newUser.setName(userDto.getName());
+        newUser.setAddressName(userDto.getAddressName());
+        newUser.setEmail(userDto.getEmail());
+        newUser.setGender(userDto.getGender());
+        newUser.setBirthDate(userDto.getBirthDate());
+        newUser.setPrefFatigue(userDto.getPrefFatigue());
+        newUser.setPrefUnique(userDto.getPrefUnique());
+        newUser.setPrefActivity(userDto.getPrefActivity());
+
+        String userCode = makeUserCode(userDto.getName()); // userCode 중복되지 않게 만드는 메서드
+        newUser.setUserCode(userCode);
+
+        // save 할 정보 확인
+        log.info("--- Show newUser START ---");
+        log.info("newUser.getUserCode = {}", newUser.getUserCode());
+        log.info("newUser.getMemberId = {}", newUser.getId());
+        log.info("newUser.getPw = {}", newUser.getPw());
+        log.info("newUser.getName = {}", newUser.getName());
+        log.info("newUser.getEmail = {}", newUser.getEmail());
+        log.info("newUser.getAddressName = {}", newUser.getAddressName());
+        log.info("newUser.getBirthDate = {}", newUser.getBirthDate());
+        log.info("newUser.getGender = {}", newUser.getGender());
+        log.info("newUser.getPrefFatigue = {}", newUser.getPrefFatigue());
+        log.info("newUser.getPrefUnique = {}", newUser.getPrefUnique());
+        log.info("newUser.getPrefActivity = {}", newUser.getPrefActivity());
+        log.info("--- Show newUser END ---");
+
+        userRepository.save(newUser);
+        log.info("--- Save New User Success ---");
+        return newUser;
+    }
+
+    /**
+     * 중복되지 않는 userCode를 만드는 메서드
+     * @param userName
+     * @return
+     */
+    private String makeUserCode(String userName) {
+        int idx = 1;
+        String userCode = userName+"#0"+idx;
+        List<String> sameUserCode = userRepository.findUserCode(userCode);
+        if(sameUserCode.size()==0) {
+            log.info("In makeUserCode 1 - userCode = {}", userCode);
         }
-        log.info("checkUserId memberServiceImpl END - ERROR");
-        return null; // 같은게 없으면 null 반환
+        else {
+            idx = 2;
+            while(sameUserCode.size()!=0) {
+                userCode = userName+"#0"+idx;
+                sameUserCode = userRepository.findUserCode(userCode);
+                idx++;
+            }
+            log.info("In makeUserCode 2 - userCode = {}", userCode);
+        }
+        return userCode;
+    }
+
+
+    /**
+     * 아이디 찾기
+     * @param userDto
+     * @return
+     */
+    @Override
+    public User checkUserId(UserDto userDto) {
+        log.info("--- checkUserId memberServiceImpl START ---");
+
+        // 입력된 정보 확인
+        log.info("--- Show userRequest START ---");
+        log.info("userRequest.getMemberId = {}", userDto.getId());
+        log.info("userRequest.getpw = {}", userDto.getPw());
+        log.info("userRequest.getName = {}", userDto.getName());
+        log.info("userRequest.getEmail = {}", userDto.getEmail());
+        log.info("userRequest.getAddressName = {}", userDto.getAddressName());
+        log.info("userRequest.getBirthDate = {}", userDto.getBirthDate());
+        log.info("userRequest.getGender = {}", userDto.getGender());
+        log.info("userRequest.getPrefFatigue = {}", userDto.getPrefFatigue());
+        log.info("userRequest.getPrefUnique = {}", userDto.getPrefUnique());
+        log.info("userRequest.getPrefActivity = {}", userDto.getPrefActivity());
+        log.info("--- Show userRequest END ---");
+
+        List<User> userList = userRepository.findId(userDto.getEmail(), userDto.getName(), userDto.getBirthDate(), userDto.getGender());
+        log.info("userList.size = {}", userList.size());
+        if(userList.size()==0) { // 1개만 있는 경우 해당 id 반환
+            log.info("find User Id = {}", userList.get(0).getId());
+            return userList.get(0);
+        }
+        log.info("No Same ID - error");
+        return null; // 같은 아이디가 없거나 그럼에도 2개 이상인 경우
     }
 
     /**
      * 비밀번호 찾기
-     * @param member
+     * @param userDto
      * @return
      */
     @Override
-    public Member findUserPassword(Member member) {
-        log.info("findUserPassword memberServiceImpl START");
+    public User findUserPassword(UserDto userDto) {
+        log.info("--- findUserPassword memberServiceImpl START ---");
 
-        log.info("member.getMemberId() = {}", member.getMemberId());
-        log.info("member.getMemberName = {}", member.getMemberName());
-        log.info("member.getMemberEMail = {}", member.getEmail());
-        log.info("member.getMemberBDay = {}", member.getBirthday());
-        log.info("member.getMemberGender = {}", member.getGender());
-        log.info("member.geMemberFatigability = {}", member.getFatigability());
-        log.info("member.getMemberSpecification = {}", member.getSpecification());
-        log.info("member.getMemberActivity = {}", member.getActivity());
+        // 입력된 정보 확인
+        log.info("--- Show userRequest START ---");
+        log.info("userRequest.getMemberId = {}", userDto.getId());
+        log.info("userRequest.getpw = {}", userDto.getPw());
+        log.info("userRequest.getName = {}", userDto.getName());
+        log.info("userRequest.getEmail = {}", userDto.getEmail());
+        log.info("userRequest.getAddressName = {}", userDto.getAddressName());
+        log.info("userRequest.getBirthDate = {}", userDto.getBirthDate());
+        log.info("userRequest.getGender = {}", userDto.getGender());
+        log.info("userRequest.getPrefFatigue = {}", userDto.getPrefFatigue());
+        log.info("userRequest.getPrefUnique = {}", userDto.getPrefUnique());
+        log.info("userRequest.getPrefActivity = {}", userDto.getPrefActivity());
+        log.info("--- Show userRequest END ---");
 
-        List<Member> memberList = memberRepository.findAll();
-        for (Member checkMember : memberList) {
-            log.info("Before IF checkMember.getMemberId = {}", checkMember.getMemberId());
-            if(checkMember.getMemberId().equals(member.getMemberId())) {
-                log.info("checkMember.getMemberId = {}", checkMember.getMemberId());
-                log.info("ID same");
-                if(checkMember.getMemberName().equals(member.getMemberName()) &&
-                        checkMember.getEmail().equals(member.getEmail()) &&
-                        checkMember.getBirthday().equals(member.getBirthday()) &&
-                        checkMember.getGender().equals(member.getGender())) { // 입력한 정보가 다 맞은 경우 해당 멤버 객체 반환
-                    log.info("All info same");
-                    return checkMember; // ID가 같은 해당 멤버 객체 반환
-                }
-                else {
-                    log.info("Wrong info");
-                    return null; // 입력 정보가 다 맞지 않으면 null 반환
-                }
-            }
+        List<User> userList = userRepository.findPw(userDto.getId(), userDto.getEmail(), userDto.getName(), userDto.getBirthDate(), userDto.getGender());
+
+        log.info("userList.size = {}", userList.size());
+        if(userList.size()==1) { // 1개 딱 찾으면 해당 객체 반환
+            return userList.get(0);
         }
-        log.info("findPassword memberServiceImpl END - ERROR");
-        return null; // 같은게 없으면 null 반환
+
+        log.info("No Same Id - ERROR");
+        return null;
+
     }
 
     /**
      * 비밀번호 바꾸기
-     * @param member
+     * @param userDto
      * @param changePW
      * @return
      */
     @Override
-    public Member ChangeUserPassword(Member member, String changePW) {
-        log.info("changeUserPassword memberServiceImpl START");
+    public User ChangeUserPassword(UserDto userDto, String changePW) {
+        log.info("--- changeUserPassword memberServiceImpl START ---");
 
-        log.info("member.getMemberId() = {}", member.getMemberId());
-        log.info("member.getMemberName = {}", member.getMemberName());
-        log.info("member.getMemberEMail = {}", member.getEmail());
-        log.info("member.getMemberBDay = {}", member.getBirthday());
-        log.info("member.getMemberGender = {}", member.getGender());
-        log.info("member.getMemberFatigability = {}", member.getFatigability());
-        log.info("member.getMemberSpecification = {}", member.getSpecification());
-        log.info("member.getMemberActivity = {}", member.getActivity());
+        // 입력된 정보 확인
+        log.info("--- Show userRequest START ---");
+        log.info("userRequest.getMemberId = {}", userDto.getId());
+        log.info("userRequest.getpw = {}", userDto.getPw());
+        log.info("userRequest.getName = {}", userDto.getName());
+        log.info("userRequest.getEmail = {}", userDto.getEmail());
+        log.info("userRequest.getAddressName = {}", userDto.getAddressName());
+        log.info("userRequest.getBirthDate = {}", userDto.getBirthDate());
+        log.info("userRequest.getGender = {}", userDto.getGender());
+        log.info("userRequest.getPrefFatigue = {}", userDto.getPrefFatigue());
+        log.info("userRequest.getPrefUnique = {}", userDto.getPrefUnique());
+        log.info("userRequest.getPrefActivity = {}", userDto.getPrefActivity());
+        log.info("--- Show userRequest END ---");
 
-        List<Member> memberList = memberRepository.findAll();
-        for (Member checkMember : memberList) {
-            log.info("Before IF checkMember.getMemberId = {}", checkMember.getMemberId());
-            if (checkMember.getMemberId().equals(member.getMemberId())) { // 해당 회원 정보 찾으면 비밀 번호 변경
-                Member changeMember = new Member();
-                changeMember.setMemberId(member.getMemberId());
-                changeMember.setMemberName(member.getMemberName());
-                changeMember.setPassword(changePW); // 바꾼 비밀번호로 비밀번호만 수정
-                changeMember.setEmail(member.getEmail());
-                changeMember.setBirthday(member.getBirthday());
-                changeMember.setGender(member.getGender());
-                changeMember.setFatigability(member.getFatigability());
-                changeMember.setSpecification(member.getSpecification());
-                changeMember.setActivity(member.getActivity());
+        List<User> userList = userRepository.findByUserId(userDto.getId());
+        log.info("userList.size = {}", userList.size());
+        if(userList.size()==1) { // id에 해당하는 User가 한개이면 거기 비밀번호만 수정해주면 됨
+            User changeUser = new User();
+            changeUser.setId(userDto.getId());
+            changeUser.setPw(changePW);
+            changeUser.setName(userDto.getName());
+            changeUser.setAddressName(userDto.getAddressName());
+            changeUser.setEmail(userDto.getEmail());
+            changeUser.setBirthDate(userDto.getBirthDate());
+            changeUser.setGender(userDto.getGender());
+            changeUser.setPrefFatigue(userDto.getPrefFatigue());
+            changeUser.setPrefUnique(userDto.getPrefUnique());
+            changeUser.setPrefActivity(userDto.getPrefActivity());
 
-                memberRepository.save(changeMember);
-
-                log.info("changePassword success");
-                return changeMember;
-            }
-
+            userRepository.save(changeUser);
+            log.info("changePassword success");
+            return changeUser;
         }
+
         log.info("changePassword memberServiceImpl END - ERROR");
         return null;
     }
 
     /**
-     * 사용자 취향 변경하는 메서드, 비밀번호나 취향이 아닌 사용자 정보 수정도 가능할 듯
-     * @param modifyMember
+     * 사용자 취향 변경하는 메서드, 비밀번호나 취향같은 사용자 정보 수정도 가능할 듯
+     * @param userDto
      * @return
      */
     @Override
-    public Member modifyMemberInfo(Member modifyMember) { // 비밀번호 변경, 취향 변경 -
-        log.info("joinMember.getMemberId = {}", modifyMember.getMemberId());
-        log.info("joinMember.getPassword = {}", modifyMember.getPassword());
-        log.info("joinMember.getMemberName = {}", modifyMember.getMemberName());
-        log.info("joinMember.getMemberEmail = {}", modifyMember.getEmail());
-        log.info("joinMember.getMemberBirthday = {}", modifyMember.getBirthday());
-        log.info("joinMember.getGender = {}", modifyMember.getGender());
-        log.info("joinMember.getFatigability = {}", modifyMember.getFatigability());
-        log.info("joinMember.getSpecification = {}", modifyMember.getSpecification());
-        log.info("joinMember.getActivity = {}", modifyMember.getActivity());
+    public User modifyMemberInfo(UserDto userDto) { // 비밀번호 변경, 취향 변경 -
 
-        Member newMember = new Member();
-        newMember.setMemberId(modifyMember.getMemberId());
-        newMember.setPassword(modifyMember.getPassword());
-        newMember.setMemberName(modifyMember.getMemberName());
-        newMember.setEmail(modifyMember.getEmail());
-        newMember.setBirthday(modifyMember.getBirthday());
-        newMember.setGender(modifyMember.getGender());
-        newMember.setFatigability(modifyMember.getFatigability());
-        newMember.setSpecification(modifyMember.getSpecification());
-        newMember.setActivity(modifyMember.getActivity());
+        log.info("--- modifyMemberInfo memberServiceImpl START ---");
+        // 입력된 정보 확인
+        log.info("--- Show userRequest START ---");
+        log.info("userRequest.getMemberId = {}", userDto.getId());
+        log.info("userRequest.getpw = {}", userDto.getPw());
+        log.info("userRequest.getName = {}", userDto.getName());
+        log.info("userRequest.getEmail = {}", userDto.getEmail());
+        log.info("userRequest.getAddressName = {}", userDto.getAddressName());
+        log.info("userRequest.getBirthDate = {}", userDto.getBirthDate());
+        log.info("userRequest.getGender = {}", userDto.getGender());
+        log.info("userRequest.getPrefFatigue = {}", userDto.getPrefFatigue());
+        log.info("userRequest.getPrefUnique = {}", userDto.getPrefUnique());
+        log.info("userRequest.getPrefActivity = {}", userDto.getPrefActivity());
+        log.info("--- Show userRequest END ---");
 
-        memberRepository.save(newMember);
-        logger.info("modify memberRepository");
-        return newMember;
-    }
-
-    @Override
-    public boolean deleteMember(Member member) { // 계정 삭제
-        log.info("changeUserPassword memberServiceImpl START");
-
-        log.info("member.getMemberId() = {}", member.getMemberId());
-        log.info("member.getPassword() = {}", member.getPassword());
-        log.info("member.getMemberName = {}", member.getMemberName());
-        log.info("member.getMemberEMail = {}", member.getEmail());
-        log.info("member.getMemberBDay = {}", member.getBirthday());
-        log.info("member.getMemberGender = {}", member.getGender());
-        log.info("member.getMemberFatigability = {}", member.getFatigability());
-        log.info("member.getMemberSpecification = {}", member.getSpecification());
-        log.info("member.getMemberActivity = {}", member.getActivity());
-
-
-        List<Member> memberList = memberRepository.findAll();
-        for (Member checkMember : memberList) {
-            log.info("Before IF checkMember.getMemberId = {}", checkMember.getMemberId());
-            if (checkMember.getMemberId().equals(member.getMemberId())) { // 해당 회원 정보 찾으면 계정 삭제
-                memberRepository.delete(member);
-
-                log.info("deleteMember success");
-                return true;
-            }
-
+        List<User> userList = userRepository.findByUserId(userDto.getId()); // id로 회원 정보 가져오기
+        log.info("userList.size = {}", userList.size());
+        if(userList.size()==1) {
+            User modifyUser = new User();
+            modifyUser.setId(userDto.getId());
+            modifyUser.setPw(userDto.getPw());
+            modifyUser.setName(userDto.getName());
+            modifyUser.setEmail(userDto.getEmail());
+            modifyUser.setGender(userDto.getGender());
+            modifyUser.setBirthDate(userDto.getBirthDate());
+            modifyUser.setAddressName(userDto.getAddressName());
+            modifyUser.setPrefFatigue(userDto.getPrefFatigue());
+            modifyUser.setPrefUnique(userDto.getPrefUnique());
+            modifyUser.setPrefActivity(userDto.getPrefActivity());
+            userRepository.save(modifyUser);
+            log.info("modify user {}", modifyUser.getId());
+            return modifyUser;
         }
-        return false;
+
+        log.info("--- modifyMemberInfo memberServiceImpl END - ERROR ---");
+        return null;
     }
 
     @Override
-    public List<Member> showMembers() {
-        log.info("showMembers memberServiceImpl start");
-        List<Member> members = memberRepository.findAll();
-        log.info("members = {}", members);
-        return members;
+    public boolean deleteMember(UserDto userDto) { // 계정 삭제
+        log.info("--- deleteMember memberServiceImpl START ---");
+
+        // 입력된 정보 확인
+        log.info("--- Show userRequest START ---");
+        log.info("userRequest.getMemberId = {}", userDto.getId());
+        log.info("userRequest.getpw = {}", userDto.getPw());
+        log.info("userRequest.getName = {}", userDto.getName());
+        log.info("userRequest.getEmail = {}", userDto.getEmail());
+        log.info("userRequest.getAddressName = {}", userDto.getAddressName());
+        log.info("userRequest.getBirthDate = {}", userDto.getBirthDate());
+        log.info("userRequest.getGender = {}", userDto.getGender());
+        log.info("userRequest.getPrefFatigue = {}", userDto.getPrefFatigue());
+        log.info("userRequest.getPrefUnique = {}", userDto.getPrefUnique());
+        log.info("userRequest.getPrefActivity = {}", userDto.getPrefActivity());
+        log.info("--- Show userRequest END ---");
+
+        List<User> userList = userRepository.findByUserId(userDto.getId());
+        log.info("userList.size = {}", userList.size());
+        if(userList.size()==1) {
+            log.info("--- DELETE USER {} ---", userDto.getId());
+            userRepository.delete(userList.get(0));
+            return true;
+        }
+
+        log.info("--- deleteMember memberServiceImpl END - ERROR ---");
+        return false;
+
+    }
+
+    @Override
+    public List<User> showMembers() {
+        log.info("--- showMembers memberServiceImpl start ---");
+        List<User> userList = userRepository.findAll(); // 전체 user 정보 다 불러오기
+        for(User user : userList) {
+            log.info("user = {}", user.toString());
+        }
+        return userList;
+
     }
 
     @Override
@@ -328,11 +354,11 @@ public class MemberServiceImpl implements MemberService<Member>{
                 .orElseThrow(() -> new RuntimeException("getPreferencesById method failed")));
     }
 
-//    @Override
-//    public HistoryDto getHistoryById(String userCode){
-//        return HistoryDto.from(historyRepository.findById(userCode)
-//                .orElseThrow(() -> new RuntimeException("getHistoryById method failed")));
-//    }
+    @Override
+    public HistoryDto getHistoryById(String userCode){
+        return HistoryDto.from(historyRepository.findById(userCode)
+                .orElseThrow(() -> new RuntimeException("getHistoryById method failed")));
+    }
 
     @Override
     public List<UserDto> getFriendsList(String userCode){

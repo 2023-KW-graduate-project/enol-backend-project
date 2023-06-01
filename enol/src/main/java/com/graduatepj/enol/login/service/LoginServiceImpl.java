@@ -1,119 +1,64 @@
 package com.graduatepj.enol.login.service;
 
+import com.graduatepj.enol.member.dao.UserRepository;
+import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.vo.Member;
 import com.graduatepj.enol.member.dao.MemberRepository;
+import com.graduatepj.enol.member.vo.User;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service("loginService")
 @Slf4j
 public class LoginServiceImpl implements LoginService<Member>{
 
-//    private static final Logger logger = LoggerFactory.getLogger(LoginServiceImpl.class);
-
     @Autowired
     private MemberRepository memberRepository; // jpa 사용할 repository
 
-    /**
-     * 로그인 서비스 메서드
-     * @param inputMember
-     * @return
-     */
-//    @Override
-//    public boolean Login(Member inputMember) {
-//        log.info("login serviceImpl START");
-//
-//        String memberId = inputMember.getMemberId();
-//        String password = inputMember.getPassword();
-//        String memberName = inputMember.getMemberName();
-//
-//        log.info("inputMember.getMemberId={}", memberId);
-//        log.info("inputMember.getPassword={}", password);
-//        log.info("inputMember.getMemberName={}", memberName);
-//
-//        log.info("memberRepository.existsById(memberId) = {}", memberRepository.existsById(memberId));
-//        if(memberRepository.existsById(memberId)) { // 해당 id가 존재하면 password 맞춰봐야 함
-//            log.info("inputMember id exist");
-//            Optional<Member> checkMember = memberRepository.findById(memberId);
-//            log.info("checkMember.isPresent() = {}", checkMember.isPresent());
-//
-//            if(checkMember.isPresent()) {
-//                Member member = checkMember.get();
-//
-//                log.info("memberId={}", inputMember.getMemberId());
-//                log.info("Password={}", inputMember.getPassword());
-//                log.info("memberName={}", inputMember.getMemberName());
-//
-//                if(member.getPassword().equals(password)) {
-//                    log.info("login success in LoginServiceimpl");
-//                    return true;
-//                }
-//                else {
-//                    log.info("login fail in LoginServiceimpl");
-//                    return false;
-//                }
-//
-//
-//            }
-//        }
-//        log.info("login serviceImpl CLOSE");
-//        return false;
-//
-//    }
+    @Autowired
+    private UserRepository userRepository;
+
 
     /**
      * 로그인 메서드
-     * 성공 확인
-     * @param member
+     * @param userDto
      * @return
      */
     @Override
-    public Member Login(Member member) { // userCode만 넘기기
-        log.info("login serviceImpl START");
+    public String Login(UserDto userDto) { // 로그인 성공한 유저의 userCode만 넘기기
+        log.info("--- login serviceImpl START ---");
 
-        log.info("input memberId={}", member.getMemberId());
-        log.info("input password={}", member.getPassword());
+        log.info("userCode = {}", userDto.getUserCode());
+        log.info("input memberId={}", userDto.getId());
+        log.info("input password={}", userDto.getPw());
 
-        log.info("memberRepository.existsById(memberId) = {}", memberRepository.existsById(member.getMemberId()));
-        if(memberRepository.existsById(member.getMemberId())) { // 해당 id가 존재하면 password 맞춰봐야 함
-            log.info("inputMember id exist");
-            Optional<Member> checkMember = memberRepository.findById(member.getMemberId());
-            log.info("checkMember.isPresent() = {}", checkMember.isPresent());
-
-            if(checkMember.isPresent()) {
-                Member loginMember = checkMember.get();
-
-                log.info("memberId={}", loginMember.getMemberId());
-                log.info("Password={}", loginMember.getPassword());
-                log.info("memberName={}", loginMember.getMemberName());
-                log.info("Email={}", loginMember.getEmail());
-                log.info("BirthDay={}", loginMember.getBirthday());
-                log.info("gender={}", loginMember.getGender());
-
-                if(loginMember.getPassword().equals(member.getPassword())) { // password까지 맞는 경우 로그인 성공 - json으로 객체 던져줌
-                    log.info("login success in LoginServiceimpl");
-                    return checkMember.get();
-                }
-                else { // password 틀린 경우 로그인 실패 - null값 던지기
-                    log.info("login password fail in LoginServiceimpl");
-                    return null;
-                }
-
-
+        List<User> userList = userRepository.findByUserId(userDto.getId()); // id가 같은 모든 리스트 가져오기 - 있으면 1개만 나올 것
+        log.info("userList.size = {}", userList.size());
+        if (userList.size() == 1) { // 1개만 발견했으면 정상 작동
+            if (userList.get(0).getPw().equals(userDto.getPw())) { // 비밀번호까지 맞으면 로그인
+                log.info("--- login User ---");
+                log.info("userCode = {}", userList.get(0).getUserCode());
+                log.info("userID = {}", userList.get(0).getId());
+                log.info("userPW = {}", userList.get(0).getPw());
+                log.info("user Fatigue = {}", userList.get(0).getPrefFatigue());
+                log.info("user Unique = {}", userList.get(0).getPrefUnique());
+                log.info("user Activity = {}", userList.get(0).getPrefActivity());
+                log.info("-------------------");
+                log.info("--- login success in LoginServiceimpl ---");
+                return userList.get(0).getUserCode();
+            } else { // 비밀번호 틀렸어도 null 반환
+                log.info("--- login password fail in LoginServiceimpl ---");
+                return null;
             }
         }
-        else {
-            log.info("ID fail in loginServiceImpl");
-            return null;
-
-        }
-
-        log.info("loginServiceImpl Close - ERROR");
+        // 아이디가 1개 이상인 경우 - 이런 경우는 프론트에서 회원가입시 중복 확인 하기 때문에 없을 것
+        log.info("--- loginServiceImpl END - ERROR ---");
         return null;
     }
 }
