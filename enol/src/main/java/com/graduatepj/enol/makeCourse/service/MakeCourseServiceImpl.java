@@ -8,6 +8,7 @@ import com.graduatepj.enol.makeCourse.dto.*;
 import com.graduatepj.enol.makeCourse.vo.CategoryPurpose;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
 import com.graduatepj.enol.makeCourse.vo.Place;
+import com.graduatepj.enol.makeCourse.vo.Restaurant;
 import com.graduatepj.enol.member.dto.UserPreferenceDto;
 import com.graduatepj.enol.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -662,7 +663,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                                         mainCoordinate[1])));
 //                log.info("선정된 wantedCourse 있는지 확인(숫자) : " + wantedCourse.size());
                 // 이것마저 없을 경우 에러를 반환
-                if (wantedCourse == null){
+                if (wantedCourse == null || wantedCourse.isEmpty()){
                     log.warn("이것마저 없을 경우 에러를 반환.(일단 null 반환) -> 못찾음");
                     //                throw new RuntimeException("not enough data so no recommendation!");
                     return null;
@@ -680,7 +681,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             meal = getRestaurantNum(secondCourse.getStartTime(), secondCourse.getEndTime());
             for (int i = 0; i < meal.length; i++) if (meal[i]) num++;
 //            log.info("breakfast = " + meal[0] + " | lunch = " + meal[1] + " | dinner = " + meal[2] + " | else = " + meal[3]);
-            restaurants = getRestaurantFromApi(mainCoordinate, num);
+            restaurants = getRestaurantFromDB(mainCoordinate, num);
 //            log.info("실제로 가져온 음식점 수 : " + restaurants.size());
         }
         // 최적화 알고리즘 적용(순서 결정)
@@ -940,23 +941,22 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     private List<PlaceDto> getRestaurantFromDB(Double[] mainCoordinate, int num) {
         int cnt = 0;
         List<PlaceDto> places = new ArrayList<>();
-        List<Place> restaurants = restaurantRepository.findRandomRestaurantByLocationAndRadius(mainCoordinate[0], mainCoordinate[1], 300);
-        for(Place restaurant : restaurants){
+        List<Restaurant> restaurants = restaurantRepository.findRandomRestaurantByLocationAndRadius(mainCoordinate[0], mainCoordinate[1], 300);
+        for(Restaurant restaurant : restaurants){
             PlaceDto place = PlaceDto.builder()
                     .placeName(restaurant.getPlaceName())
-                    .categoryName(restaurant.getCategoryName())
+                    .categoryName(restaurant.getCategoryCode())
                     .addressName(restaurant.getAddressName())
                     .x(restaurant.getX())
                     .y(restaurant.getY())
-                    .phoneNumber(restaurant.getPhoneNumber())
                     .build();
-//            if (places.stream().anyMatch(p -> p.getCategoryName().equals(String.valueOf(restaurant.getCategoryName()))))
-//                continue;
+            if (places.stream().anyMatch(p -> p.getCategoryName().equals(String.valueOf(restaurant.getCategoryCode()))))
+                continue;
             places.add(place);
             cnt++;
             if (cnt >= num) {
                 for (PlaceDto rest : places)
-                    rest.setCategoryName("음식점");
+                    rest.setCategoryName(restaurant.getCategoryName());
                 return places;
             }
         }
