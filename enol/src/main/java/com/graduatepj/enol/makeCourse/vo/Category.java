@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor
-@Entity(name = "Category")
+@Entity(name = "category")
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

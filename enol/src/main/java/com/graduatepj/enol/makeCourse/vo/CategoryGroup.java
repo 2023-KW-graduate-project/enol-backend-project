@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor
-@Entity(name = "Category_group")
+@Entity(name = "category_group")
 public class CategoryGroup {
 
     @Id

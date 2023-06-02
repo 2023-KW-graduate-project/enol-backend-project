@@ -25,6 +25,8 @@ public class SecondCourse {
 //    public SecondCourse(CourseDto selectedCourse) {
 //        this.selectedCourse = selectedCourse;
 //    }
+    
+    // history를 위한 course_id, rating 추가해야 함
 
     public SecondCourse(CourseDto selectedCourse, List<String> course) {
         this.selectedCourse = selectedCourse;

@@ -41,7 +41,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     private final PlaceRepository placeRepository;
     private final RestaurantRepository restaurantRepository;
     private static final int CATEGORY_NUM = 62;
-    private static final int FILTER_RADIUS = 200;
+    private static final double FILTER_RADIUS = 0.2;
 
     private final CategoryRepository categoryRepository;
     private final CourseV2Repository courseV2Repository;
@@ -65,6 +65,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
         /** 인자값이 잘 들어왔는지 확인하는 로그 시작 */
         log.info("--- Show courseRequest ---");
+        log.info("courseRequest.getUserCode = {}", courseRequest.getUserCode());
         log.info("courseRequest.getNumPeople = {}", courseRequest.getNumPeople());
         log.info("courseRequest.getMemberIdList = {}", courseRequest.getMemberIdList());
         log.info("courseRequest.isMealCheck = {}", courseRequest.isMealCheck());
@@ -682,7 +683,8 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             meal = getRestaurantNum(secondCourse.getStartTime(), secondCourse.getEndTime());
             for (int i = 0; i < meal.length; i++) if (meal[i]) num++;
 //            log.info("breakfast = " + meal[0] + " | lunch = " + meal[1] + " | dinner = " + meal[2] + " | else = " + meal[3]);
-            restaurants = getRestaurantFromDB(mainCoordinate, num);
+//            restaurants = getRestaurantFromDB(mainCoordinate, num);
+            restaurants = getRestaurantFromApi(mainCoordinate, num);
 //            log.info("실제로 가져온 음식점 수 : " + restaurants.size());
         }
         // 최적화 알고리즘 적용(순서 결정)
@@ -891,6 +893,8 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 if (i == duplicatesCountMap.size() - 1) {
                     mainCoordinate[0] = s.getX();
                     mainCoordinate[1] = s.getY();
+                    System.out.println(s.getAddressName());
+                    System.out.println(mainCoordinate[0].toString() + " " + mainCoordinate[1].toString());
                     return course;
                 }
             }
@@ -941,8 +945,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
     private List<PlaceDto> getRestaurantFromDB(Double[] mainCoordinate, int num) {
         int cnt = 0;
+        System.out.println(mainCoordinate[0].toString() + " " + mainCoordinate[1].toString());
         List<PlaceDto> places = new ArrayList<>();
-        List<Restaurant> restaurants = restaurantRepository.findRandomRestaurantByLocationAndRadius(mainCoordinate[0], mainCoordinate[1], 300);
+        List<Restaurant> restaurants = restaurantRepository.findRandomRestaurantByLocationAndRadius(mainCoordinate[0], mainCoordinate[1], FILTER_RADIUS);
         for(Restaurant restaurant : restaurants){
             PlaceDto place = PlaceDto.builder()
                     .placeName(restaurant.getPlaceName())
@@ -967,7 +972,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     private List<PlaceDto> getRestaurantFromApi(Double[] mainCoordinate, int num) {
         int cnt = 0;
         RestTemplate restTemplate = new RestTemplate();
-        String url = "https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=" + mainCoordinate[0] + "&y=" + mainCoordinate[1] + "&radius=" + 300;
+        String url = "https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=" + mainCoordinate[0] + "&y=" + mainCoordinate[1] + "&radius=" + 200;
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "KakaoAK " + apikey);
         HttpEntity<?> entity = new HttpEntity<>(headers);
@@ -1141,7 +1146,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         if (drinkPlace.isEmpty()) {
             if (restaurants.isEmpty()) {
                 // 일반형만 있는 경우
-//                log.info("일반형만 있는 경우");
+                log.info("일반형만 있는 경우");
                 for (List<PlaceDto> otherPerm : otherPermutations) {
                     candidateCourse.addAll(otherPerm);
                     calculateDistance = calculateDistance(candidateCourse);
@@ -1152,7 +1157,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 }
             } else {
                 // 일반형 + 식사체크
-//                log.info("일반형 + 식사체크");
+                log.info("일반형 + 식사체크");
                 for (List<PlaceDto> otherPerm : otherPermutations) {
                     for (List<PlaceDto> restPerm : restaurantPermutations) {
                         candidateCourse = makeCandidateCourse(otherPerm, null, restPerm, partition, mealCheck, startTime);
@@ -1168,7 +1173,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         } else if (otherPlace.isEmpty()) {
             if (restaurants.isEmpty()) {
                 // 음주형만 있는 경우
-//                log.info("음주형만 있는 경우");
+                log.info("음주형만 있는 경우");
                 for (List<PlaceDto> drinkPerm : drinkPermutations) {
                     candidateCourse.addAll(drinkPerm);
                     calculateDistance = calculateDistance(candidateCourse);
@@ -1179,7 +1184,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 }
             } else {
                 // 음주형 + 식사체크
-//                log.info("음주형 + 식사체크");
+                log.info("음주형 + 식사체크");
                 for (List<PlaceDto> drinkPerm : drinkPermutations) {
                     for (List<PlaceDto> restPerm : restaurantPermutations) {
                         candidateCourse = makeCandidateCourse(null, drinkPerm, restPerm, partition, mealCheck, startTime);
@@ -1193,7 +1198,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             }
         } else if (restaurants.isEmpty()) {
             // 일반형 + 음주형
-//            log.info("일반형 + 음주형");
+            log.info("일반형 + 음주형");
             for (List<PlaceDto> otherPerm : otherPermutations) {
                 for (List<PlaceDto> drinkPerm : drinkPermutations) {
                     candidateCourse.addAll(otherPerm);
@@ -1207,7 +1212,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             }
         } else {
             // 일반형 + 음주형 + 식사체크
-//            log.info("일반형 + 음주형 + 식사체크");
+            log.info("일반형 + 음주형 + 식사체크");
             for (List<PlaceDto> otherPerm : otherPermutations) {
                 for (List<PlaceDto> drinkPerm : drinkPermutations) {
                     for (List<PlaceDto> restPerm : restaurantPermutations) {
@@ -1221,11 +1226,11 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 }
             }
         }
-//        System.out.print("결과물 -> ");
-//        for (int i = 0; i < finalCourse.size(); i++) {
-//            System.out.print(i + "번째 가게 : " + finalCourse.get(i).getPlaceName() + " 코드 : " + finalCourse.get(i).getCategoryName() + " | ");
-//        }
-//        System.out.println();
+        System.out.print("결과물 -> ");
+        for (int i = 0; i < finalCourse.size(); i++) {
+            System.out.print(i + "번째 가게 : " + finalCourse.get(i).getPlaceName() + " 코드 : " + finalCourse.get(i).getCategoryName() + " | ");
+        }
+        System.out.println();
 
 
         return finalCourse;

@@ -12,6 +12,6 @@ import java.util.List;
 public interface CategoryRepository extends JpaRepository<Category, String> {
 
     // categorygroupcode에 속하는 categoryName를 보여주는 메서드 - 확인
-    @Query(value = "select c.category_name from Category c where c.category_Group_Code=:categoryGroupCode", nativeQuery = true)
+    @Query(value = "select c.category_name from category c where c.category_Group_Code=:categoryGroupCode", nativeQuery = true)
     List<String> findCategoryNameByCategoryGroupCode(@Param("categoryGroupCode") String categoryGroupCode);
 }

@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.List;
 
-@Entity(name = "category")
+@Entity(name = "Category") // category -> Category로 수정
 @Getter
 @ToString
 public class CourseTest {

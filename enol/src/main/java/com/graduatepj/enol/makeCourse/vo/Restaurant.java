@@ -19,7 +19,7 @@ public class Restaurant {
     private String categoryName;
     @Column(name="place_name")
     private String placeName;
-    @Column(name="category_code")
+    @Column(name="category_name")
     private String categoryCode;
     @Column(name="avg_rating")
     private double rating;

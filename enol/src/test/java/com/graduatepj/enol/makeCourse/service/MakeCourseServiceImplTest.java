@@ -2,7 +2,9 @@ package com.graduatepj.enol.makeCourse.service;
 import com.graduatepj.enol.makeCourse.dao.*;
 import com.graduatepj.enol.makeCourse.dto.CourseDto;
 import com.graduatepj.enol.makeCourse.dto.CourseRequest;
+import com.graduatepj.enol.makeCourse.dto.PlaceDto;
 import com.graduatepj.enol.makeCourse.dto.SecondCourse;
+import com.graduatepj.enol.makeCourse.vo.CategoryPurpose;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
 import com.graduatepj.enol.member.dao.UserHistoryRepository;
 import com.graduatepj.enol.member.dao.UserMarkRepository;
@@ -20,6 +22,8 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 @SpringBootTest
 class MakeCourseServiceImplTest {
     @Autowired
@@ -71,9 +75,17 @@ class MakeCourseServiceImplTest {
 
         MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository, memberService);
 
-        List<String> memberList = new ArrayList<>();
-        memberList.add("kim1");
-        memberList.add("kim2");
+
+
+
+//        List<String> memberList = new ArrayList<>();
+//        memberList.add("kim1");
+//        memberList.add("kim2");
+        String userCode = "강태호#01";
+
+        List<String> friendList = new ArrayList<>();
+        friendList.add("김재한#01");
+        friendList.add("이영원#01");
 
         List<Integer> keywordList = new ArrayList<>();
         keywordList.add(0);
@@ -96,8 +108,9 @@ class MakeCourseServiceImplTest {
         goalList.add(0);
 
         CourseRequest courseRequest = new CourseRequest();
+        courseRequest.setUserCode(userCode);
         courseRequest.setNumPeople(2);
-        courseRequest.setMemberIdList(memberList);
+        courseRequest.setMemberIdList(friendList);
         courseRequest.setMealCheck(true);
         courseRequest.setStartTime(18);
         courseRequest.setFinishTime(24);
@@ -145,9 +158,11 @@ class MakeCourseServiceImplTest {
         //given(어떤 데이터가 있을때)
         MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository, memberService);
 
-        List<String> memberList = new ArrayList<>();
-        memberList.add("kim1");
-        memberList.add("kim2");
+        String userCode = "강태호#01";
+
+        List<String> friendList = new ArrayList<>();
+        friendList.add("김재한#01");
+        friendList.add("이영원#01");
 
         List<Integer> keywordList = new ArrayList<>();
         keywordList.add(0);
@@ -170,8 +185,9 @@ class MakeCourseServiceImplTest {
         goalList.add(0);
 
         CourseRequest courseRequest = new CourseRequest();
+        courseRequest.setUserCode(userCode);
         courseRequest.setNumPeople(2);
-        courseRequest.setMemberIdList(memberList);
+        courseRequest.setMemberIdList(friendList);
         courseRequest.setMealCheck(true);
         courseRequest.setStartTime(17);
         courseRequest.setFinishTime(24);
@@ -187,6 +203,8 @@ class MakeCourseServiceImplTest {
 
         //when(어떤 동작을 하게되면)
         SecondCourse secondCourse = makeCourseServiceImpl.secondCourseFiltering(courseDto);
+
+
 
         //then(어떤 결과가 나와야한다)
         System.out.println("secondCourse.getSelectedCourse().getCategoryGroupCode1 = " + secondCourse.getSelectedCourse().getCategoryGroupCode1());
@@ -211,6 +229,20 @@ class MakeCourseServiceImplTest {
         System.out.println("secondCourse.getCategoryGroupCode = " + secondCourse.getCategoryGroupCodes());
         System.out.println("secondCourse.getStartTime = " + secondCourse.getStartTime());
         System.out.println("secondCourse.getStartTime = " + secondCourse.getEndTime());
+
+        System.out.println("-----------------------------------------");
+
+        List<PlaceDto> finalCourse = makeCourseServiceImpl.finalCourseFiltering(secondCourse);
+
+        System.out.println("finalCourse.size = " + finalCourse.size());
+        for (PlaceDto placeDto: finalCourse) {
+            System.out.println("");
+            System.out.println("finalCourse.getCategoryName = " + placeDto.getCategoryName());
+            System.out.println("finalCourse.getPlaceName = " + placeDto.getPlaceName());
+            System.out.println("finalCourse.getTime = " + placeDto.getTime());
+            System.out.println("finalCourse.getAddressName = " + placeDto.getAddressName());
+            System.out.println("");
+        }
 
     }
 
@@ -486,7 +518,10 @@ class MakeCourseServiceImplTest {
     @Test
     void getCategoryPlaceListTest() { // mySql
 //        System.out.println(categoryPurposeRepository.findAll());
-        System.out.println(categoryPurposeRepository.findById("수영장"));
+        Optional<CategoryPurpose> categoryPurposesList = categoryPurposeRepository.findById("수영장");
+
+
+        System.out.println(categoryPurposesList);
         //given(어떤 데이터가 있을때)
         //when(어떤 동작을 하게되면)
         //then(어떤 결과가 나와야한다)

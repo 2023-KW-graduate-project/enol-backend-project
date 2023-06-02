@@ -35,7 +35,7 @@ public interface CategoryPurposeRepository extends JpaRepository<CategoryPurpose
     List<String> findCategoryCodeByCategoryGroupCode(@Param("categoryGroupCode") String categoryGroupCode);
 
     // 카테고리 그룹이 맞고 한 개라도 목적이 1인 CategoryPurpose를 가져오는 메서드 - 목적들만 리스트로 가져오는 메서드가 안돼서 이걸로 수정 - 확인
-    @Query(value = "select * from Category_Purpose cp where cp.category_group_code=:categoryGroupCode AND ((:walk=1 AND cp.walk=1) OR (:socializing=1 AND cp.socializing=1) OR (:niceAtmosphere=1 AND cp.nice_atmosphere=1) OR (:healing=1 AND cp.healing=1) OR (:drinking=1 AND cp.drinking=1) OR (:unusual=1 AND cp.unusual=1) OR (:active=1 AND cp.active=1) OR (:daily=1 AND cp.daily=1) OR (:summer=1 AND cp.summer=1) OR (:culturalLife=1 AND cp.cultural_life=1))", nativeQuery = true)
+    @Query(value = "select * from category_purpose cp where cp.category_group_code=:categoryGroupCode AND ((:walk=1 AND cp.walk=1) OR (:socializing=1 AND cp.socializing=1) OR (:niceAtmosphere=1 AND cp.nice_atmosphere=1) OR (:healing=1 AND cp.healing=1) OR (:drinking=1 AND cp.drinking=1) OR (:unusual=1 AND cp.unusual=1) OR (:active=1 AND cp.active=1) OR (:daily=1 AND cp.daily=1) OR (:summer=1 AND cp.summer=1) OR (:culturalLife=1 AND cp.cultural_life=1))", nativeQuery = true)
     List<CategoryPurpose> findByCategoryGroupCode(@Param("categoryGroupCode") String categoryGroupCode, @Param("walk") Integer walk, @Param("socializing") Integer socializing, @Param("niceAtmosphere") Integer niceAtmosphere, @Param("healing") Integer healing, @Param("drinking") Integer drinking, @Param("unusual") Integer unusual, @Param("active") Integer active, @Param("daily") Integer daily, @Param("summer") Integer summer, @Param("culturalLife") Integer culturalLife);
 
 }
