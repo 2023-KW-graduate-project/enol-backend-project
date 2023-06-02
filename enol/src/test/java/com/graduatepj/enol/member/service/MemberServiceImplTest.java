@@ -1,22 +1,21 @@
 package com.graduatepj.enol.member.service;
 
-import com.graduatepj.enol.member.dao.HistoryRepository;
-import com.graduatepj.enol.member.dao.MemberRepository;
+import com.graduatepj.enol.member.dao.UserHistoryRepository;
 import com.graduatepj.enol.member.dao.UserMarkRepository;
 import com.graduatepj.enol.member.dao.UserRepository;
+import com.graduatepj.enol.member.vo.History;
 import com.graduatepj.enol.member.vo.User;
+import com.graduatepj.enol.member.vo.UserMark;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 class MemberServiceImplTest {
     @Autowired
-    private HistoryRepository historyRepository;
+    private UserHistoryRepository userHistoryRepository;
     @Autowired
     private UserMarkRepository userMarkRepository;
     @Autowired
@@ -26,9 +25,10 @@ class MemberServiceImplTest {
 
     @Test
     void historyRepositoryTest(){
-        //given(어떤 데이터가 있을때)
-        //when(어떤 동작을 하게되면)
-        //then(어떤 결과가 나와야한다)
+        List<History> historyList = userHistoryRepository.findAll();
+        for(History history: historyList){
+            System.out.println(history.toString());
+        }
     }
 
     @Test
@@ -40,9 +40,10 @@ class MemberServiceImplTest {
 
     @Test
     void userMarkRepositoryTest(){
-        //given(어떤 데이터가 있을때)
-        //when(어떤 동작을 하게되면)
-        //then(어떤 결과가 나와야한다)
+        List<UserMark> userMarkList = userMarkRepository.findAll();
+        for(UserMark userMark: userMarkList){
+            System.out.println(userMark.toString());
+        }
     }
 
     @Test

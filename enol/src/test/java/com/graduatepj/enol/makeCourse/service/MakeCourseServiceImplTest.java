@@ -4,7 +4,7 @@ import com.graduatepj.enol.makeCourse.dto.CourseDto;
 import com.graduatepj.enol.makeCourse.dto.CourseRequest;
 import com.graduatepj.enol.makeCourse.dto.SecondCourse;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
-import com.graduatepj.enol.member.dao.HistoryRepository;
+import com.graduatepj.enol.member.dao.UserHistoryRepository;
 import com.graduatepj.enol.member.dao.UserMarkRepository;
 import com.graduatepj.enol.member.dao.UserRepository;
 import com.graduatepj.enol.member.service.MemberService;
@@ -45,7 +45,7 @@ class MakeCourseServiceImplTest {
     @Autowired
     private UserMarkRepository userMarkRepository;
     @Autowired
-    private HistoryRepository historyRepository;
+    private UserHistoryRepository userHistoryRepository;
 
 
     @Resource(name = "memberService")
@@ -507,7 +507,7 @@ class MakeCourseServiceImplTest {
         }
         System.out.println();
 
-        List<History> historyList = historyRepository.findAll();
+        List<History> historyList = userHistoryRepository.findAll();
         for(History history : historyList) {
             System.out.println(history.toString());
             System.out.println(history.getCourse().size());

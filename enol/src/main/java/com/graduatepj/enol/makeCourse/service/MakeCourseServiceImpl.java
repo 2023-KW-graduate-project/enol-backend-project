@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Service
+@Service("makeCourseService")
 @RequiredArgsConstructor
 public class MakeCourseServiceImpl implements MakeCourseService {
 
@@ -47,7 +47,6 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     private final CourseV2Repository courseV2Repository;
     private final CategoryPurposeRepository categoryPurposeRepository;
 
-    @Resource(name = "memberService")
     private final MemberService memberService;
 
     // 실제로 해야할 것

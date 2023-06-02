@@ -7,7 +7,6 @@ import com.graduatepj.enol.member.dao.*;
 import com.graduatepj.enol.member.dto.HistoryDto;
 import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.dto.UserPreferenceDto;
-import com.graduatepj.enol.member.vo.Member;
 import com.graduatepj.enol.member.vo.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Service("memberService")
 @Slf4j
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService{
@@ -25,11 +24,9 @@ public class MemberServiceImpl implements MemberService{
 
     private final MemberRepository memberRepository; // jpa 사용할 repository
 
-    private final HistoryRepository historyRepository;
+    private final UserHistoryRepository userHistoryRepository;
 
     private final UserMarkRepository userMarkRepository;
-
-    private final UserPreferenceRepository userPreferenceRepository;
 
     private final UserRepository userRepository;
 
@@ -114,6 +111,33 @@ public class MemberServiceImpl implements MemberService{
                 userCode = userName+"#0"+idx;
                 sameUserCode = userRepository.findUserCode(userCode);
                 idx++;
+            }
+            log.info("In makeUserCode 2 - userCode = {}", userCode);
+        }
+        return userCode;
+    }
+
+    private String makeUserCode2(String userName) {
+        int idx = 1;
+        String userCode = userName+"#0"+idx;
+        List<String> sameUserCode = userRepository.findUserCodeByName(userName);
+        if(sameUserCode.size()==0) {
+            log.info("In makeUserCode 1 - userCode = {}", userCode);
+        }
+        else {
+            int maxNumber=0;
+            for(String code : sameUserCode){
+                String numberStr = userCode.substring(userCode.lastIndexOf("#") + 1);
+                int number = Integer.parseInt(numberStr);
+
+                if (number > maxNumber) {
+                    maxNumber = number;
+                }
+            }
+            if(maxNumber<10){
+                userCode=userName+"#0"+maxNumber;
+            }else{
+                userCode=userName+"#"+maxNumber;
             }
             log.info("In makeUserCode 2 - userCode = {}", userCode);
         }
@@ -350,13 +374,13 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     public UserPreferenceDto getPreferencesById(String userCode){
-        return UserPreferenceDto.from(userRepository.findById(userCode)
+        return UserPreferenceDto.from(userRepository.findByUserCode(userCode)
                 .orElseThrow(() -> new RuntimeException("getPreferencesById method failed")));
     }
 
     @Override
     public HistoryDto getHistoryById(String userCode){
-        return HistoryDto.from(historyRepository.findById(userCode)
+        return HistoryDto.from(userHistoryRepository.findByUserCode(userCode)
                 .orElseThrow(() -> new RuntimeException("getHistoryById method failed")));
     }
 
@@ -371,7 +395,7 @@ public class MemberServiceImpl implements MemberService{
     }
 
     private UserDto getUserInfo(String userCode){
-        return UserDto.from(userRepository.findById(userCode)
+        return UserDto.from(userRepository.findByUserCode(userCode)
                 .orElseThrow(() -> new RuntimeException("getUserInfo method failed")));
     }
 

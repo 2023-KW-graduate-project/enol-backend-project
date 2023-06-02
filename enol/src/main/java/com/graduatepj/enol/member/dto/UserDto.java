@@ -25,10 +25,19 @@ public class UserDto {
     private double prefUnique;
     private double prefActivity;
 
+    // pw는 제외
     public static UserDto from(User user) {
         return UserDto.builder()
+                .userCode(user.getUserCode())
                 .id(user.getId())
                 .name(user.getName())
+                .addressName(user.getAddressName())
+                .email(user.getEmail())
+                .birthDate(user.getBirthDate())
+                .prefFatigue(user.getPrefFatigue())
+                .prefUnique(user.getPrefUnique())
+                .prefActivity(user.getPrefActivity())
+                .gender(user.getGender())
                 .build();
     }
 

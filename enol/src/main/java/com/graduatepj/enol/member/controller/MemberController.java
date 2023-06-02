@@ -1,5 +1,6 @@
 package com.graduatepj.enol.member.controller;
 
+import com.graduatepj.enol.makeCourse.dto.PlaceDto;
 import com.graduatepj.enol.member.dto.HistoryDto;
 import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.service.MemberService;
@@ -172,13 +173,13 @@ public class MemberController {
 
     // 즐겨찾기 장소 보여주기
     @PostMapping("/bookmark/place")
-    public ResponseEntity<List<UserDto>> showBookmarkPlace(@RequestBody String userCode) {
+    public ResponseEntity<List<PlaceDto>> showBookmarkPlace(@RequestBody String userCode) {
         return ResponseEntity.ok(memberService.getBookmarkPlaceById(userCode));
     }
 
     // 즐겨찾기 코스 보여주기
     @PostMapping("/bookmark/course")
-    public ResponseEntity<List<UserDto>> showBookmarkCourse(@RequestBody String userCode) {
+    public ResponseEntity<List<List<PlaceDto>>> showBookmarkCourse(@RequestBody String userCode) {
         return ResponseEntity.ok(memberService.getBookmarkCourseById(userCode));
     }
 
