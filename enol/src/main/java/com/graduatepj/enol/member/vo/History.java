@@ -1,9 +1,6 @@
 package com.graduatepj.enol.member.vo;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.Filter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -14,6 +11,7 @@ import java.util.List;
 
 @ToString
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "user_history")
@@ -35,14 +33,17 @@ public class History {
     private List<HistoryCourse> course;
 
     @Getter
-    public class HistoryCourse {
+    @ToString
+    @Builder
+    @AllArgsConstructor
+    public static class HistoryCourse {
         @Field("course_id")
-        private List<String> courseId;
+        private String courseId;
 
         @Field("place_ids")
-        private List<String> placeIds;
+        private List<Long> placeIds;
 
         @Field("rating")
-        private List<Double> rating;
+        private Double rating;
     }
 }

@@ -2,11 +2,13 @@ package com.graduatepj.enol.makeCourse.vo;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor
+@ToString
 @Entity(name = "restaurant")
 public class Restaurant {
     /** id */

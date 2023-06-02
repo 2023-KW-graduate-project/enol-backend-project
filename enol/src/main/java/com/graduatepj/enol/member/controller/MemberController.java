@@ -1,6 +1,7 @@
 package com.graduatepj.enol.member.controller;
 
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
+import com.graduatepj.enol.member.dto.FriendDto;
 import com.graduatepj.enol.member.dto.HistoryDto;
 import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.service.MemberService;
@@ -167,7 +168,7 @@ public class MemberController {
 
     // 친구목록 보여주기
     @PostMapping("/friendlist")
-    public ResponseEntity<List<UserDto>> showFriendList(@RequestBody String userCode) {
+    public ResponseEntity<List<FriendDto>> showFriendList(@RequestBody String userCode) {
         return ResponseEntity.ok(memberService.getFriendsList(userCode));
     }
 

@@ -2,11 +2,13 @@ package com.graduatepj.enol.member.service;
 
 import com.graduatepj.enol.makeCourse.dao.CourseV2Repository;
 import com.graduatepj.enol.makeCourse.dao.PlaceRepository;
+import com.graduatepj.enol.makeCourse.dao.RestaurantRepository;
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
+import com.graduatepj.enol.makeCourse.vo.CourseV2;
+import com.graduatepj.enol.makeCourse.vo.Restaurant;
 import com.graduatepj.enol.member.dao.*;
-import com.graduatepj.enol.member.dto.HistoryDto;
-import com.graduatepj.enol.member.dto.UserDto;
-import com.graduatepj.enol.member.dto.UserPreferenceDto;
+import com.graduatepj.enol.member.dto.*;
+import com.graduatepj.enol.member.vo.History;
 import com.graduatepj.enol.member.vo.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,8 @@ public class MemberServiceImpl implements MemberService{
     private final CourseV2Repository courseV2Repository;
 
     private final PlaceRepository placeRepository;
+
+    private final RestaurantRepository restaurantRepository;
 
 
     /**
@@ -120,14 +124,14 @@ public class MemberServiceImpl implements MemberService{
     private String makeUserCode2(String userName) {
         int idx = 1;
         String userCode = userName+"#0"+idx;
-        List<String> sameUserCode = userRepository.findUserCodeByName(userName);
+        List<User> sameUserCode = userRepository.findUserCodeByName(userName);
         if(sameUserCode.size()==0) {
             log.info("In makeUserCode 1 - userCode = {}", userCode);
         }
         else {
             int maxNumber=0;
-            for(String code : sameUserCode){
-                String numberStr = userCode.substring(userCode.lastIndexOf("#") + 1);
+            for(User code : sameUserCode){
+                String numberStr = code.getUserCode().substring(userCode.lastIndexOf("#") + 1);
                 int number = Integer.parseInt(numberStr);
 
                 if (number > maxNumber) {
@@ -351,56 +355,106 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     public List<List<PlaceDto>> getBookmarkCourseById(String userCode){
-        // 뭘 저장하려는건지는 모르겠다마는 여기 수정해야할듯?
-        List<Long> courseIds = userMarkRepository.findCoursesById(userCode);
-        for(Long id : courseIds){
-
-        }
+//        // 뭘 저장하려는건지는 모르겠다마는 여기 수정해야할듯?
+//        List<String> courseIds = getUserMarkById(userCode).getCourseIds();
+//        List<BookmarkCourseDto> bookmarkCourseList = new ArrayList<>();
+//        if(courseIds==null){
+//            return bookmarkCourseList;
+//        }
+//        for(String id : courseIds){
+//            CourseV2 course = courseV2Repository.findById(id)
+//                    .orElseThrow(() -> new RuntimeException("코스를 찾을 수 없습니다."));
+//
+//        }
         return null;
     }
 
-    // 여기도 어떤식으로 저장되어있는지를 잘 모르겠음
+    // 장소 즐겨찾기
     @Override
     public List<PlaceDto> getBookmarkPlaceById(String userCode){
-        List<Long> placeIds = userMarkRepository.findplacesById(userCode);
+        List<Long> placeIds = getUserMarkById(userCode).getPlaceIds();
         List<PlaceDto> places=new ArrayList<>();
+        if(placeIds == null){
+            return places;
+        }
         for(Long id:placeIds){
             places.add(PlaceDto.fromEntity(
                     placeRepository.findById(id)
-                            .orElseThrow(() -> new RuntimeException("findById failed"))));
+                            .orElseThrow(() -> new RuntimeException("가게정보를 찾을 수 없습니다."))));
         }
         return places;
     }
 
+    // 속성 가져오기
     @Override
     public UserPreferenceDto getPreferencesById(String userCode){
         return UserPreferenceDto.from(userRepository.findByUserCode(userCode)
                 .orElseThrow(() -> new RuntimeException("getPreferencesById method failed")));
     }
 
+    // 히스토리 보여주기
+    // History에서 course_id는 필요없어 보여서 제외, number와 각 placeId에 해당하는 가게정보 및 코스에 대해 평가했던 평점 반환
     @Override
     public HistoryDto getHistoryById(String userCode){
-        return HistoryDto.from(userHistoryRepository.findByUserCode(userCode)
-                .orElseThrow(() -> new RuntimeException("getHistoryById method failed")));
+        HistoryDto historyList = new HistoryDto();
+        List<HistoryDto.HistoryCourseDto> course = new ArrayList<>();
+        History history = userHistoryRepository.findByUserCode(userCode)
+                .orElseThrow(() -> new RuntimeException("getHistoryById method failed"));
+        for (int i = 0; i < history.getNumber(); i++) {
+            History.HistoryCourse historyCourse = history.getCourse().get(i);
+            HistoryDto.HistoryCourseDto historyCourseDto = new HistoryDto.HistoryCourseDto();
+            for(Long placeId : historyCourse.getPlaceIds()){
+                PlaceDto placeDto = PlaceDto.fromEntity(placeRepository.findById(placeId).orElse(null));
+                if(placeDto == null){
+                    Restaurant restaurant = restaurantRepository.findById(placeId)
+                            .orElseThrow(() -> new RuntimeException("가게정보를 찾을 수 없습니다."));
+                    placeDto = PlaceDto.builder()
+                            .placeName(restaurant.getPlaceName())
+                            .categoryName(restaurant.getCategoryCode())
+                            .addressName(restaurant.getAddressName())
+                            .x(restaurant.getX())
+                            .y(restaurant.getY())
+                            .build();
+                }
+                historyCourseDto.getPlaces().add(placeDto);
+            }
+            course.add(historyCourseDto);
+        }
+        historyList.setNumber(history.getNumber());
+        historyList.setCourse(course);
+        return historyList;
     }
 
+    // 친구목록 보여주기
     @Override
-    public List<UserDto> getFriendsList(String userCode){
-        List<String> friendsCode = getFriendsById(userCode);
-        List<UserDto> friendList=new ArrayList<>();
+    public List<FriendDto> getFriendsList(String userCode){
+        List<String> friendsCode = getUserMarkById(userCode)
+                .getFriendCodes();
+        List<FriendDto> friendList=new ArrayList<>();
+        if(friendsCode==null){
+            return friendList;
+        }
         for(String code:friendsCode){
-            friendList.add(getUserInfo(code));
+            UserDto user = getUserInfo(code);
+            FriendDto friend = FriendDto.builder()
+                    .name(user.getName())
+                    .userCode(user.getUserCode())
+                    .build();
+            friendList.add(friend);
         }
         return friendList;
     }
 
     private UserDto getUserInfo(String userCode){
         return UserDto.from(userRepository.findByUserCode(userCode)
-                .orElseThrow(() -> new RuntimeException("getUserInfo method failed")));
+                .orElseThrow(() -> new RuntimeException("유저정보를 불러올 수 없습니다.")));
     }
 
     @Override
-    public List<String> getFriendsById(String userCode){
-        return userMarkRepository.findFriendCodesById(userCode);
+    public UserMarkDto getUserMarkById(String userCode){
+        return UserMarkDto.from(userMarkRepository.findUserMarkByUserCode(userCode)
+                .orElseThrow(() -> new RuntimeException("친구목록을 불러올 수 없습니다.")));
     }
+
+
 }

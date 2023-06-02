@@ -1,14 +1,12 @@
 package com.graduatepj.enol.makeCourse.service;
 import com.graduatepj.enol.makeCourse.dao.*;
-import com.graduatepj.enol.makeCourse.dto.CourseDto;
-import com.graduatepj.enol.makeCourse.dto.CourseRequest;
-import com.graduatepj.enol.makeCourse.dto.PlaceDto;
-import com.graduatepj.enol.makeCourse.dto.SecondCourse;
+import com.graduatepj.enol.makeCourse.dto.*;
 import com.graduatepj.enol.makeCourse.vo.CategoryPurpose;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
 import com.graduatepj.enol.member.dao.UserHistoryRepository;
 import com.graduatepj.enol.member.dao.UserMarkRepository;
 import com.graduatepj.enol.member.dao.UserRepository;
+import com.graduatepj.enol.member.dto.UserPreferenceDto;
 import com.graduatepj.enol.member.service.MemberService;
 import com.graduatepj.enol.member.vo.History;
 import com.graduatepj.enol.member.vo.User;
@@ -232,10 +230,10 @@ class MakeCourseServiceImplTest {
 
         System.out.println("-----------------------------------------");
 
-        List<PlaceDto> finalCourse = makeCourseServiceImpl.finalCourseFiltering(secondCourse);
+        CourseResponse finalCourse = makeCourseService.finalCourseFiltering(secondCourse);
 
-        System.out.println("finalCourse.size = " + finalCourse.size());
-        for (PlaceDto placeDto: finalCourse) {
+        System.out.println("finalCourse.size = " + finalCourse.getPlaceDto().size());
+        for (PlaceDto placeDto: finalCourse.getPlaceDto()) {
             System.out.println("");
             System.out.println("finalCourse.getCategoryName = " + placeDto.getCategoryName());
             System.out.println("finalCourse.getPlaceName = " + placeDto.getPlaceName());
@@ -557,12 +555,18 @@ class MakeCourseServiceImplTest {
         //then(어떤 결과가 나와야한다)
     }
     // 음식점 개수 구하는 메소드 유닛 테스트 -> private이라 따로 해보기
-    @Test
-    void getRestaurantNumTest() {
-        //given(어떤 데이터가 있을때)
-        //when(어떤 동작을 하게되면)
-        //then(어떤 결과가 나와야한다)
-    }
+//    @Test
+//    void getPreferenceTest() {
+//        // userPreferenceDto에서 속성 값 가져오기
+//        List<UserPreferenceDto> userPreferenceList = new ArrayList<>();
+//
+//        String userCode = "강태호#01";
+//
+//        userPreferenceList.add(memberService.getPreferencesById(courseRequest.getUserCode()));
+//        for(int i=0; i<courseRequest.getMemberIdList().size(); i++) {
+//            userPreferenceList.add(memberService.getPreferencesById(courseRequest.getMemberIdList().get(i)));
+//        }
+//    }
     // 파티션 구하기 메소드 유닛 테스트 -> private이라 따로 해보기
     @Test
     void getPartitionTest() {
@@ -577,4 +581,13 @@ class MakeCourseServiceImplTest {
         //when(어떤 동작을 하게되면)
         //then(어떤 결과가 나와야한다)
     }
+
+    @Test
+    void getRestaurantTest() {
+        double x=126.924174994475;
+        double y = 37.5543229794441;
+        System.out.println(restaurantRepository.findRandomRestaurantByLocationAndRadius(x, y, 0.02));
+    }
+
+
 }

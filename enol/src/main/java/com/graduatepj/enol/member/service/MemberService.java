@@ -1,11 +1,8 @@
 package com.graduatepj.enol.member.service;
 
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
-import com.graduatepj.enol.member.dto.HistoryDto;
-import com.graduatepj.enol.member.dto.UserDto;
-import com.graduatepj.enol.member.dto.UserPreferenceDto;
+import com.graduatepj.enol.member.dto.*;
 import com.graduatepj.enol.member.vo.User;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -64,8 +61,8 @@ public interface MemberService {
     public abstract List<PlaceDto> getBookmarkPlaceById(String userCode);
     public abstract UserPreferenceDto getPreferencesById(String userCode);
     public abstract HistoryDto getHistoryById(String userCode);
-    public abstract List<UserDto> getFriendsList(String userCode);
+    public abstract List<FriendDto> getFriendsList(String userCode);
 
-    public abstract List<String> getFriendsById(String userCode);
+    public abstract UserMarkDto getUserMarkById(String userCode);
 }
 
