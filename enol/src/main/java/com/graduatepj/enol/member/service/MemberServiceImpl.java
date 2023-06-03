@@ -423,6 +423,15 @@ public class MemberServiceImpl implements MemberService{
         return places;
     }
 
+    @Override
+    public String addBookmarkPlace(BookmarkPlaceDto bookmarkPlaceDto){
+        UserMark userMark = userMarkRepository.findUserMarkByUserCode(bookmarkPlaceDto.getUserCode())
+                .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
+        userMark.getPlaceIds().add(bookmarkPlaceDto.getPlaceId());
+        userMarkRepository.save(userMark);
+        return "해당 장소를 즐겨찾기에 추가했습니다.";
+    }
+
     // 속성 가져오기
     @Override
     public UserPreferenceDto getPreferencesById(String userCode){

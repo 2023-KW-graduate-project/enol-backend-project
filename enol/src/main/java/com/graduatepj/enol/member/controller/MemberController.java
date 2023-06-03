@@ -1,10 +1,7 @@
 package com.graduatepj.enol.member.controller;
 
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
-import com.graduatepj.enol.member.dto.FriendDto;
-import com.graduatepj.enol.member.dto.FriendRequestDto;
-import com.graduatepj.enol.member.dto.HistoryDto;
-import com.graduatepj.enol.member.dto.UserDto;
+import com.graduatepj.enol.member.dto.*;
 import com.graduatepj.enol.member.service.MemberService;
 import com.graduatepj.enol.member.vo.Member;
 import com.graduatepj.enol.member.vo.User;
@@ -195,6 +192,12 @@ public class MemberController {
     @PostMapping("/bookmark/place")
     public ResponseEntity<List<PlaceDto>> showBookmarkPlace(@RequestBody String userCode) {
         return ResponseEntity.ok(memberService.getBookmarkPlaceById(userCode));
+    }
+
+    // 즐겨찾기 장소 추가하기
+    @PutMapping("/bookmark/place/add")
+    public ResponseEntity<String> addBookmarkPlace(@RequestBody BookmarkPlaceDto bookmarkPlaceDto){
+        return ResponseEntity.ok(memberService.addBookmarkPlace(bookmarkPlaceDto));
     }
 
     // 즐겨찾기 코스 보여주기

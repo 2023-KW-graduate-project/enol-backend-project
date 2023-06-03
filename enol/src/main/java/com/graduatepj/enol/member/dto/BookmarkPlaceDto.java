@@ -10,4 +10,8 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class BookmarkPlaceDto {
+
+    private String userCode;
+
+    private Long placeId;
 }

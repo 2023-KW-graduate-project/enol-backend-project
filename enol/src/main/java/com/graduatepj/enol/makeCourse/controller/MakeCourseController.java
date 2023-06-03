@@ -31,7 +31,7 @@ public class MakeCourseController {
     }
 
     // 코스 추천 후 평점 받기
-    @PutMapping
+    @PutMapping("/rating")
     public ResponseEntity<String> courseRating(@RequestBody CourseRating courseRating){
         return ResponseEntity.ok(makeCourseService.courseRating(courseRating));
     }

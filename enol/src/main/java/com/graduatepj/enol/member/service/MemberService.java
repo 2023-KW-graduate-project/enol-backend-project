@@ -59,6 +59,7 @@ public interface MemberService {
     public abstract List<User> showMembers();
     public abstract List<List<PlaceDto>> getBookmarkCourseById(String userCode);
     public abstract List<PlaceDto> getBookmarkPlaceById(String userCode);
+    public abstract String addBookmarkPlace(BookmarkPlaceDto bookmarkPlaceDto);
     public abstract UserPreferenceDto getPreferencesById(String userCode);
     public abstract HistoryDto getHistoryById(String userCode);
     public abstract List<FriendDto> getFriendsList(String userCode);
