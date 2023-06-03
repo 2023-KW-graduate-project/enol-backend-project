@@ -18,6 +18,7 @@ public class SecondCourse {
     private int startTime;
     private int endTime;
     private String courseId;
+    private double rating;
     private String userCode;
 
     // 추가
@@ -43,5 +44,10 @@ public class SecondCourse {
 
         this.startTime = selectedCourse.getStartTime();
         this.endTime = selectedCourse.getFinishTime();
+
+        this.courseId = selectedCourse.getCourseId();
+        this.userCode = selectedCourse.getUserCode();
+
+        this.rating = selectedCourse.getRate();
     }
 }

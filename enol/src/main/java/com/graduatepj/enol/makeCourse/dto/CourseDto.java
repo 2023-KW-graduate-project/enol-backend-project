@@ -77,6 +77,7 @@ public class CourseDto {
                 .activity(course.getActivity())
                 .time(course.getTime())
                 .rate(course.getRate())
+                .courseId(course.getId())
                 .build();
     }
 
@@ -95,6 +96,10 @@ public class CourseDto {
 
     private int startTime;
     private int FinishTime;
+
+    // 코스 아이디 추가
+    private String courseId;
+    private String userCode; // userCode 담기
 
     public CourseDto() {
     } // 기본 생성자

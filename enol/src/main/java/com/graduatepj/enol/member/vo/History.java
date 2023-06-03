@@ -33,6 +33,7 @@ public class History {
     private List<HistoryCourse> course;
 
     @Getter
+    @Setter
     @ToString
     @Builder
     @AllArgsConstructor

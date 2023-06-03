@@ -31,14 +31,14 @@ public class LoginServiceImpl implements LoginService<Member>{
      * @return
      */
     @Override
-    public String Login(UserDto userDto) { // 로그인 성공한 유저의 userCode만 넘기기
+    public User Login(UserDto userDto) { // 로그인 성공한 유저의 userCode만 넘기기
         log.info("--- login serviceImpl START ---");
 
         log.info("userCode = {}", userDto.getUserCode());
         log.info("input memberId={}", userDto.getId());
         log.info("input password={}", userDto.getPw());
 
-        List<User> userList = userRepository.findByUserId(userDto.getId()); // id가 같은 모든 리스트 가져오기 - 있으면 1개만 나올 것
+        List<User> userList = userRepository.findAllById(userDto.getId()); // id가 같은 모든 리스트 가져오기 - 있으면 1개만 나올 것
         log.info("userList.size = {}", userList.size());
         if (userList.size() == 1) { // 1개만 발견했으면 정상 작동
             if (userList.get(0).getPw().equals(userDto.getPw())) { // 비밀번호까지 맞으면 로그인
@@ -51,7 +51,8 @@ public class LoginServiceImpl implements LoginService<Member>{
                 log.info("user Activity = {}", userList.get(0).getPrefActivity());
                 log.info("-------------------");
                 log.info("--- login success in LoginServiceimpl ---");
-                return userList.get(0).getUserCode();
+                log.info("--- return User ---");
+                return userList.get(0);
             } else { // 비밀번호 틀렸어도 null 반환
                 log.info("--- login password fail in LoginServiceimpl ---");
                 return null;

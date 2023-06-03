@@ -34,8 +34,6 @@ public class CourseRequest {
     // 필수 장소(미선택시 C열 기준 우선순위 선정) - D열 카테고리
     private String wantedCategory;
 
-    // 필터링 사용 목적(수치 필터링)
-    private List<Integer> courseKeywords; // 6개
 
     // 필터링 사용 목적(컷)
     private List<Integer> goals; // 10개

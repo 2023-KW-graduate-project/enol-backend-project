@@ -10,10 +10,12 @@ import com.graduatepj.enol.member.dao.*;
 import com.graduatepj.enol.member.dto.*;
 import com.graduatepj.enol.member.vo.History;
 import com.graduatepj.enol.member.vo.User;
+import com.graduatepj.enol.member.vo.UserMark;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +79,10 @@ public class MemberServiceImpl implements MemberService{
         String userCode = makeUserCode(userDto.getName()); // userCode 중복되지 않게 만드는 메서드
         newUser.setUserCode(userCode);
 
+        LocalDate localDate = LocalDate.now(); // 현재 날짜 생성
+        String nowDate = localDate.toString(); // String으로 형 변환
+        newUser.setJoinDate(nowDate);
+
         // save 할 정보 확인
         log.info("--- Show newUser START ---");
         log.info("newUser.getUserCode = {}", newUser.getUserCode());
@@ -87,12 +93,25 @@ public class MemberServiceImpl implements MemberService{
         log.info("newUser.getAddressName = {}", newUser.getAddressName());
         log.info("newUser.getBirthDate = {}", newUser.getBirthDate());
         log.info("newUser.getGender = {}", newUser.getGender());
+        log.info("newUser.getJoinDate = {}", newUser.getJoinDate()); // 현재 날짜 추가
         log.info("newUser.getPrefFatigue = {}", newUser.getPrefFatigue());
         log.info("newUser.getPrefUnique = {}", newUser.getPrefUnique());
         log.info("newUser.getPrefActivity = {}", newUser.getPrefActivity());
         log.info("--- Show newUser END ---");
 
-        userRepository.save(newUser);
+        userRepository.save(newUser); // user 테이블에 저장
+
+        // userMark 테이블에 저장 - userCode만 넣고 나머지는 빈 값
+        UserMark userMark = new UserMark();
+        userMark.setUserCode(newUser.getUserCode());
+        userMarkRepository.save(userMark);
+
+        // userHistory 테이블에 저장 - userCode와 number=0만 넣고 나머지는 빈값
+        History history = new History();
+        history.setUserCode(newUser.getUserCode());
+        history.setNumber(0);
+        userHistoryRepository.save(history);
+
         log.info("--- Save New User Success ---");
         return newUser;
     }
@@ -102,26 +121,26 @@ public class MemberServiceImpl implements MemberService{
      * @param userName
      * @return
      */
-    private String makeUserCode(String userName) {
-        int idx = 1;
-        String userCode = userName+"#0"+idx;
-        List<String> sameUserCode = userRepository.findUserCode(userCode);
-        if(sameUserCode.size()==0) {
-            log.info("In makeUserCode 1 - userCode = {}", userCode);
-        }
-        else {
-            idx = 2;
-            while(sameUserCode.size()!=0) {
-                userCode = userName+"#0"+idx;
-                sameUserCode = userRepository.findUserCode(userCode);
-                idx++;
-            }
-            log.info("In makeUserCode 2 - userCode = {}", userCode);
-        }
-        return userCode;
-    }
+//    private String makeUserCode2(String userName) {
+//        int idx = 1;
+//        String userCode = userName+"#0"+idx;
+//        List<String> sameUserCode = userRepository.findUserCode(userCode);
+//        if(sameUserCode.size()==0) {
+//            log.info("In makeUserCode 1 - userCode = {}", userCode);
+//        }
+//        else {
+//            idx = 2;
+//            while(sameUserCode.size()!=0) {
+//                userCode = userName+"#0"+idx;
+//                sameUserCode = userRepository.findUserCode(userCode);
+//                idx++;
+//            }
+//            log.info("In makeUserCode 2 - userCode = {}", userCode);
+//        }
+//        return userCode;
+//    }
 
-    private String makeUserCode2(String userName) {
+    private String makeUserCode(String userName) {
         int idx = 1;
         String userCode = userName+"#0"+idx;
         List<User> sameUserCode = userRepository.findUserCodeByName(userName);
@@ -172,9 +191,9 @@ public class MemberServiceImpl implements MemberService{
         log.info("userRequest.getPrefActivity = {}", userDto.getPrefActivity());
         log.info("--- Show userRequest END ---");
 
-        List<User> userList = userRepository.findId(userDto.getEmail(), userDto.getName(), userDto.getBirthDate(), userDto.getGender());
+        List<User> userList = userRepository.findByEmailAndNameAndBirthDateAndGender(userDto.getEmail(), userDto.getName(), userDto.getBirthDate(), userDto.getGender());
         log.info("userList.size = {}", userList.size());
-        if(userList.size()==0) { // 1개만 있는 경우 해당 id 반환
+        if(userList.size()==1) { // 1개만 있는 경우 해당 id 반환
             log.info("find User Id = {}", userList.get(0).getId());
             return userList.get(0);
         }
@@ -205,7 +224,7 @@ public class MemberServiceImpl implements MemberService{
         log.info("userRequest.getPrefActivity = {}", userDto.getPrefActivity());
         log.info("--- Show userRequest END ---");
 
-        List<User> userList = userRepository.findPw(userDto.getId(), userDto.getEmail(), userDto.getName(), userDto.getBirthDate(), userDto.getGender());
+        List<User> userList = userRepository.findByIdAndEmailAndNameAndBirthDateAndGender(userDto.getId(), userDto.getEmail(), userDto.getName(), userDto.getBirthDate(), userDto.getGender());
 
         log.info("userList.size = {}", userList.size());
         if(userList.size()==1) { // 1개 딱 찾으면 해당 객체 반환
@@ -241,7 +260,7 @@ public class MemberServiceImpl implements MemberService{
         log.info("userRequest.getPrefActivity = {}", userDto.getPrefActivity());
         log.info("--- Show userRequest END ---");
 
-        List<User> userList = userRepository.findByUserId(userDto.getId());
+        List<User> userList = userRepository.findAllById(userDto.getId());
         log.info("userList.size = {}", userList.size());
         if(userList.size()==1) { // id에 해당하는 User가 한개이면 거기 비밀번호만 수정해주면 됨
             User changeUser = new User();
@@ -288,7 +307,7 @@ public class MemberServiceImpl implements MemberService{
         log.info("userRequest.getPrefActivity = {}", userDto.getPrefActivity());
         log.info("--- Show userRequest END ---");
 
-        List<User> userList = userRepository.findByUserId(userDto.getId()); // id로 회원 정보 가져오기
+        List<User> userList = userRepository.findAllById(userDto.getId()); // id로 회원 정보 가져오기
         log.info("userList.size = {}", userList.size());
         if(userList.size()==1) {
             User modifyUser = new User();
@@ -329,11 +348,27 @@ public class MemberServiceImpl implements MemberService{
         log.info("userRequest.getPrefActivity = {}", userDto.getPrefActivity());
         log.info("--- Show userRequest END ---");
 
-        List<User> userList = userRepository.findByUserId(userDto.getId());
+        List<User> userList = userRepository.findAllById(userDto.getId());
         log.info("userList.size = {}", userList.size());
         if(userList.size()==1) {
             log.info("--- DELETE USER {} ---", userDto.getId());
-            userRepository.delete(userList.get(0));
+            userRepository.delete(userList.get(0)); // User 에서 제거
+
+            // UserMark에서 제거
+            List<UserMark> userMarkList = userMarkRepository.findAllByUserCode(userDto.getUserCode()); // 메서드 만들어야 함
+            if(userMarkList.size()==1) {
+                log.info("--- DELETE USERMARK {} ---", userDto.getId());
+                userMarkRepository.delete(userMarkList.get(0));
+            }
+
+            // History에서 제거
+            List<History> historyList = userHistoryRepository.findAllByUserCode(userDto.getUserCode()); // 메서드 만들어야 함
+            if(historyList.size()==1) {
+                log.info("--- DELETE USER HISTORY {} ---", userDto.getId());
+                userHistoryRepository.delete(historyList.get(0));
+            }
+
+
             return true;
         }
 

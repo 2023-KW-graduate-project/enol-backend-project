@@ -75,25 +75,24 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         log.info("courseRequest.getStartTime = {}, FinishTime = {}", courseRequest.getStartTime(), courseRequest.getFinishTime());
         log.info("courseRequest.getWantedCategoryGroup = {}", courseRequest.getWantedCategoryGroup());
         log.info("courseRequest.getWantedCategory = {}", courseRequest.getWantedCategory());
-        log.info("courseRequest.getCourseKeywords = {}", courseRequest.getCourseKeywords());
         log.info("courseRequest.getCourseGoals = {}", courseRequest.getGoals());
         log.info("--- END courseRequest ---");
         /** 인자값이 잘 들어왔는지 확인하는 로그 끝 */
 
         /** Member List 가져와서 평균 내기 */ // member 테이블 나온 user대로 수정
         // 멤버 데이터 가져오기 - 약속에 함께하는 멤버 리스트 생성
-        // member DB 나오는대로 수정해야 할수도 - ID가 아니라 코드가 pk이면 pk로 find해야 하므로 - 일단 놔둠
-        /** 이 부분 user로 맞춰서 수정하기 */
-        /** 이 부분 user로 맞춰서 수정하기 */
-        
         // user 바뀐 테이블대로 속성값 가져와서 평균 객체 만드는 부분 만들어야함
 
         // userPreferenceDto에서 속성 값 가져오기
         List<UserPreferenceDto> userPreferenceList = new ArrayList<>();
 
-        userPreferenceList.add(memberService.getPreferencesById(courseRequest.getUserCode()));
-        for(int i=0; i<courseRequest.getMemberIdList().size(); i++) {
-            userPreferenceList.add(memberService.getPreferencesById(courseRequest.getMemberIdList().get(i)));
+        userPreferenceList.add(memberService.getPreferencesById(courseRequest.getUserCode())); // userCode에 해당하는 현재 접속 사용자
+        log.info("courseRequest.getMemberIdList.Size = {}", courseRequest.getMemberIdList().size());
+        if(courseRequest.getMemberIdList().size() > 0) {
+            for(int i=0; i<courseRequest.getMemberIdList().size(); i++) { // 친구 선택한거 없으면 null포인터 에러뜸 -> size가 0이 아닐때만 돌아가도록 수정 필요
+                userPreferenceList.add(memberService.getPreferencesById(courseRequest.getMemberIdList().get(i))); // 친구 리스트에 있는 친구들 추가
+            }
+
         }
 
         // 로그로 멤버 리스트 확인
@@ -122,46 +121,6 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         log.info("avgUserPreference.getPreferActivity() = {}", avgUserPreference.getPrefActivity());
         log.info("--- Show avgUserPreference feature END!!! --- ");
         /** avgUserPreference List 가져와서 평균 내기 끝 */
-        /** 이 부분 user로 맞춰서 수정하기 끝 */
-
-
-//        List<MemberDto> memberList = courseMemberRepository
-//                .findAllByIdIn(courseRequest.getMemberIdList())
-//                .stream()
-//                .map(member -> (MemberDto.fromEntity(member)))
-//                .collect(Collectors.toList());
-//
-//        // 로그로 멤버 리스트 확인
-//        log.info("--- memberList Start! --- ");
-//        for(MemberDto memberDto : memberList) {
-//            log.info("Member List = ");
-//            log.info("memberDto.getMemberId = {}", memberDto.getMemberId());
-//            log.info("memberDto.getMemberName = {}", memberDto.getMemberName());
-//            log.info("memberDto.getBirthday = {}", memberDto.getBirthday());
-//            log.info("memberDto.getGender = {}", memberDto.getGender());
-//            log.info("memberDto.getFatigability = {}", memberDto.getFatigability());
-//            log.info("memberDto.getSpecification = {}", memberDto.getSpecification());
-//            log.info("memberDto.getActivity = {}", memberDto.getActivity());
-//        }
-//        log.info("--- memberList END! --- ");
-//
-//
-//        // 멤버들의 특성치 평균 구하기 - 약속에 함께하는 멤버 전체의 피로도, 특이도, 활동성의 평균 값 구하기
-//        MemberDto avgMember = new MemberDto();
-//        if (!memberList.isEmpty()) {
-//            avgMember.setFatigability(memberList.stream().mapToInt(MemberDto::getFatigability).sum() / memberList.size());
-//            avgMember.setSpecification(memberList.stream().mapToInt(MemberDto::getSpecification).sum() / memberList.size());
-//            avgMember.setActivity(memberList.stream().mapToInt(MemberDto::getActivity).sum() / memberList.size());
-//        }
-//
-//        // 로그로 멤버들의 특성치 평균 확인
-//        log.info("--- Show avgMember feature Start!!! --- ");
-//        log.info("avgMember.getFatigability() = {}", avgMember.getFatigability());
-//        log.info("avgMember.getActivity() = {}", avgMember.getActivity());
-//        log.info("avgMember.getSpecification() = {}", avgMember.getSpecification());
-//        log.info("--- Show avgMember feature END!!! --- ");
-//        /** Member List 가져와서 평균 내기 끝 */
-
 
         /** 시간, 목적, 키워드로 필터링한 CourseV2를 DB에서 가져오기 */
         // 시간에 따라 코스에 속할 카테고리 개수 정하기 - 최대 main 4개나 sub 4개
@@ -223,7 +182,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         if(dawnDrink == false && totalTime <= 12) {
             log.info("--- dawnDrink = {}, totalTime = {} ---", dawnDrink, totalTime);
             for(int i = 0; i < filteringCourse.size(); i++) {
-                log.info("filteringCourse.get({}) = {}, filteringCourse.get({}).getTime() = {}, range = 3", i, filteringCourse.get(i).getId(), i , filteringCourse.get(i).getTime());
+//                log.info("filteringCourse.get({}) = {}, filteringCourse.get({}).getTime() = {}, range = 3", i, filteringCourse.get(i).getId(), i , filteringCourse.get(i).getTime());
                 if( ( (totalTime - 3) <= filteringCourse.get(i).getTime() ) && ( filteringCourse.get(i).getTime() <= (totalTime + 3) ) ) { // 1시간 선택에 필수 카테고리 있고 목적이 필수 카테고리에 포함되지 않으면 하나도 필터링되지 않게 되므로 메인인 3시간을 더하여 목적에 맞는 카테고리 1개 이상은 들어가도록 하기 위해 3시간을 오차범위로 설정
                     continue; // 패스
                 }
@@ -242,7 +201,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         else if (dawnDrink == false && totalTime>12) {
             log.info("--- dawnDrink = {}, totalTime = {} ---", dawnDrink, totalTime);
             for(int i = 0; i < filteringCourse.size(); i++) {
-                log.info("filteringCourse.get({}) = {}, filteringCourse.get({}).getTime() = {}, 10 <= time", i, filteringCourse.get(i).getId(), i , filteringCourse.get(i).getTime());
+//                log.info("filteringCourse.get({}) = {}, filteringCourse.get({}).getTime() = {}, 10 <= time", i, filteringCourse.get(i).getId(), i , filteringCourse.get(i).getTime());
                 if( 10 <= filteringCourse.get(i).getTime() ) { // 필수 장소가 서브인 경우가 있을 수 있으므로 최소 10시간부터로 확인
                     continue; // 패스
                 }
@@ -262,7 +221,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         else if(dawnDrink==true && totalTime<=12) { // 시간 오차범위 3시간으로 늘림
             log.info("--- dawnDrink = {}, totalTime = {} ---", dawnDrink, totalTime);
             for(int i = 0; i < filteringCourse.size(); i++) {
-                log.info("filteringCourse.get({}) = {}, filteringCourse.get({}).getTime() = {}, range = 3", i, filteringCourse.get(i).getId(), i , filteringCourse.get(i).getTime());
+//                log.info("filteringCourse.get({}) = {}, filteringCourse.get({}).getTime() = {}, range = 3", i, filteringCourse.get(i).getId(), i , filteringCourse.get(i).getTime());
                 if( ( (totalTime - 3) <= filteringCourse.get(i).getTime() ) && ( filteringCourse.get(i).getTime() <= (totalTime + 3) ) ) { // 시간 오차 범위 3시간 안에 들면 - 12시간인데 서브를 필수 장소로 선택하면 맥시멈 10시간이므로
                     continue; // 패스
                 }
@@ -282,7 +241,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         else if(dawnDrink = true && totalTime > 12) { // 술만 4개 나와야 함
             log.info("--- dawnDrink = {}, totalTime = {} ---", dawnDrink, totalTime);
             for(int i = 0; i < filteringCourse.size(); i++) {;
-                log.info("filteringCourse.get({}) = {}, filteringCourse.get({}).getTime() = {}, 10 <= time", i, filteringCourse.get(i).getId(), i , filteringCourse.get(i).getTime());
+//                log.info("filteringCourse.get({}) = {}, filteringCourse.get({}).getTime() = {}, 10 <= time", i, filteringCourse.get(i).getId(), i , filteringCourse.get(i).getTime());
 //                if( 10 <= filteringCourse.get(i).getTime() ) { // 필수 장소가 서브인 경우가 있을 수 있으므로 최소 10시간부터로 확인
                 if( filteringCourse.get(i).getTime() == 4 ) { // 필수 장소가 서브인 경우가 있을 수 있으므로 최소 10시간부터로 확인
                     continue; // 패스
@@ -363,6 +322,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         selectedCourse.setWantedCategoryGroup(courseRequest.getWantedCategoryGroup()); // 필수 카테고리 그룹 저장
         selectedCourse.setWantedCategory(courseRequest.getWantedCategory()); // 필수 카테고리 저장
 
+        selectedCourse.setUserCode(courseRequest.getUserCode()); // userCode 저장
+
+
 
         /** wantedCategory 없는 경우 우선순위로 주장소 정하기 */
         if (selectedCourse.getWantedCategory() == null) { // 필수 카테고리 없는 경우 우선순위에 따라 코스의 주 카테고리 지정
@@ -401,6 +363,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
         // 코사인 유사도 평가로 뽑은 1개에서 최종 우선순위 순으로 정렬된 한 개의 코스 틀
         log.info("--- cosine Similarity selectedCourse START ---");
+        log.info("selectedCourse.getCourseId = {}", selectedCourse.getCourseId()); // courseId 추가 - history 용
+        log.info("selectedCourse.getUserCode = {}", selectedCourse.getUserCode()); // userCode 추가 - history 용
+
         log.info("selectedCourse.getCategoryGroupCode1 = {}", selectedCourse.getCategoryGroupCode1());
         log.info("selectedCourse.getCategoryGroupCode2 = {}", selectedCourse.getCategoryGroupCode2());
         log.info("selectedCourse.getCategoryGroupCode3 = {}", selectedCourse.getCategoryGroupCode3());
@@ -506,6 +471,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         selectedCourse.setFinishTime(courseRequest.getFinishTime());
         log.info("selectedCourse.startTime = {}", selectedCourse.getStartTime());
         log.info("selectedCourse.finishTime = {}", selectedCourse.getFinishTime());
+
         return selectedCourse; // 다 거르고 최종 필터링된 selectedCourse 하나만 반환
     }
 
@@ -574,6 +540,10 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             course.add(firstCourse.getCategoryGroupCode4()); // null이 아닌 경우에만 추가
 
         SecondCourse secondCourse = new SecondCourse(firstCourse, course); // firstCourse로 나온 CourseDto로 SecondCoures의 CourseDto selectedCourse 채움
+        log.info("SecondCourse.getCourseId = {}", secondCourse.getCourseId()); // courseId 추가 - history 용
+        log.info("SecondCourse.getUserCode = {}", secondCourse.getUserCode()); // userCode 추가 - history 용
+        log.info("SecondCourse.getRating = {}", secondCourse.getRating());
+
         log.info("SecondCourse.getSelectedCourse.getCategoryGroupCode1 = {}", secondCourse.getSelectedCourse().getCategoryGroupCode1());
         log.info("SecondCourse.getSelectedCourse.getCategoryGroupCode2 = {}", secondCourse.getSelectedCourse().getCategoryGroupCode2());
         log.info("SecondCourse.getSelectedCourse.getCategoryGroupCode3 = {}", secondCourse.getSelectedCourse().getCategoryGroupCode3());

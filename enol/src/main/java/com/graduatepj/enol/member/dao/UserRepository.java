@@ -27,6 +27,7 @@ public interface UserRepository extends MongoRepository<User, String> { // 여�
 
     // 쿼리문(2)
     List<User> findByEmailAndNameAndBirthDateAndGender(String email, String name, String birthDate, String gender);
+
     // 비밀번호 찾기에서 아이디 같은 것만 가져오는 쿼리문
 //    @Query(value = "select * from user u where u.id=:id AND u.email=:email AND u.name=:name AND u.birth_date=:birthDate AND u.gender=:gender", nativeQuery = true)
     @Query(value = "{'id' : ?0, 'email' : ?1, 'name' : ?2, 'birthDate' : ?3, 'gender' : ?4}")
@@ -34,10 +35,12 @@ public interface UserRepository extends MongoRepository<User, String> { // 여�
 
     // 쿼리문(3)
     List<User> findByIdAndEmailAndNameAndBirthDateAndGender(String id, String email, String name, String birthDate, String gender);
+
     // 아이디가 같은 User 객체를 가져오는 쿼리문
 //    @Query(value = "SELECT * FROM user u WHERE u.id=:id", nativeQuery = true)
     @Query(value = "{'id' : ?0}")
     List<User> findByUserId(@Param("id") String id);
+
     // 쿼리문(4)
     List<User> findAllById(String id);
 

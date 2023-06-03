@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,6 @@ class MakeCourseServiceImplTest {
     @Autowired
     private UserHistoryRepository userHistoryRepository;
 
-
     @Resource(name = "memberService")
     private MemberService memberService;
 
@@ -71,7 +71,7 @@ class MakeCourseServiceImplTest {
         // given
 
 
-        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository, memberService);
+        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository, userHistoryRepository, memberService);
 
 
 
@@ -85,13 +85,6 @@ class MakeCourseServiceImplTest {
         friendList.add("김재한#01");
         friendList.add("이영원#01");
 
-        List<Integer> keywordList = new ArrayList<>();
-        keywordList.add(0);
-        keywordList.add(0);
-        keywordList.add(0);
-        keywordList.add(1);
-        keywordList.add(0);
-        keywordList.add(0);
 
         List<Integer> goalList = new ArrayList<>();
         goalList.add(1);
@@ -116,7 +109,6 @@ class MakeCourseServiceImplTest {
         courseRequest.setWantedCategory(null);
 //        courseRequest.setWantedCategoryGroup("EM1");
 //        courseRequest.setWantedCategory("CB");
-        courseRequest.setCourseKeywords(keywordList);
         courseRequest.setGoals(goalList);
 
 
@@ -154,7 +146,7 @@ class MakeCourseServiceImplTest {
     @Test
     void secondCourseTest() {
         //given(어떤 데이터가 있을때)
-        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository, memberService);
+        MakeCourseServiceImpl makeCourseServiceImpl = new MakeCourseServiceImpl(courseMemberRepository, placeRepository, restaurantRepository, categoryRepository, courseV2Repository, categoryPurposeRepository, userHistoryRepository, memberService);
 
         String userCode = "강태호#01";
 
@@ -162,13 +154,7 @@ class MakeCourseServiceImplTest {
         friendList.add("김재한#01");
         friendList.add("이영원#01");
 
-        List<Integer> keywordList = new ArrayList<>();
-        keywordList.add(0);
-        keywordList.add(0);
-        keywordList.add(0);
-        keywordList.add(1);
-        keywordList.add(0);
-        keywordList.add(0);
+
 
         List<Integer> goalList = new ArrayList<>();
         goalList.add(1);
@@ -188,12 +174,11 @@ class MakeCourseServiceImplTest {
         courseRequest.setMemberIdList(friendList);
         courseRequest.setMealCheck(true);
         courseRequest.setStartTime(17);
-        courseRequest.setFinishTime(24);
-        courseRequest.setWantedCategoryGroup(null);
-        courseRequest.setWantedCategory(null);
-//        courseRequest.setWantedCategoryGroup("EM1");
-//        courseRequest.setWantedCategory("CB");
-        courseRequest.setCourseKeywords(keywordList);
+        courseRequest.setFinishTime(18);
+//        courseRequest.setWantedCategoryGroup(null);
+//        courseRequest.setWantedCategory(null);
+        courseRequest.setWantedCategoryGroup("RM3");
+        courseRequest.setWantedCategory("공원");
         courseRequest.setGoals(goalList);
 
 
@@ -205,6 +190,8 @@ class MakeCourseServiceImplTest {
 
 
         //then(어떤 결과가 나와야한다)
+        System.out.println("secondCourse.getCourseId = " + secondCourse.getCourseId());
+        System.out.println("secondCourse.getUserCode = " + secondCourse.getUserCode());
         System.out.println("secondCourse.getSelectedCourse().getCategoryGroupCode1 = " + secondCourse.getSelectedCourse().getCategoryGroupCode1());
         System.out.println("secondCourse.getSelectedCourse().getCategoryGroupCode2 = " + secondCourse.getSelectedCourse().getCategoryGroupCode2());
         System.out.println("secondCourse.getSelectedCourse().getCategoryGroupCode3 = " + secondCourse.getSelectedCourse().getCategoryGroupCode3());
@@ -230,17 +217,17 @@ class MakeCourseServiceImplTest {
 
         System.out.println("-----------------------------------------");
 
-        CourseResponse finalCourse = makeCourseService.finalCourseFiltering(secondCourse);
-
-        System.out.println("finalCourse.size = " + finalCourse.getPlaceDto().size());
-        for (PlaceDto placeDto: finalCourse.getPlaceDto()) {
-            System.out.println("");
-            System.out.println("finalCourse.getCategoryName = " + placeDto.getCategoryName());
-            System.out.println("finalCourse.getPlaceName = " + placeDto.getPlaceName());
-            System.out.println("finalCourse.getTime = " + placeDto.getTime());
-            System.out.println("finalCourse.getAddressName = " + placeDto.getAddressName());
-            System.out.println("");
-        }
+//        CourseResponse finalCourse = makeCourseService.finalCourseFiltering(secondCourse);
+//
+//        System.out.println("finalCourse.size = " + finalCourse.getPlaceDto().size());
+//        for (PlaceDto placeDto: finalCourse.getPlaceDto()) {
+//            System.out.println("");
+//            System.out.println("finalCourse.getCategoryName = " + placeDto.getCategoryName());
+//            System.out.println("finalCourse.getPlaceName = " + placeDto.getPlaceName());
+//            System.out.println("finalCourse.getTime = " + placeDto.getTime());
+//            System.out.println("finalCourse.getAddressName = " + placeDto.getAddressName());
+//            System.out.println("");
+//        }
 
     }
 
@@ -589,5 +576,12 @@ class MakeCourseServiceImplTest {
         System.out.println(restaurantRepository.findRandomRestaurantByLocationAndRadius(x, y, 0.02));
     }
 
+    @Test
+    void dateCalcTest() { // joinDate 추가하기 위한 날짜 계산 테스트
+        LocalDate localDate = LocalDate.now();
+        String ld = localDate.toString();
+        System.out.println("localDate = " + ld);
+
+    }
 
 }

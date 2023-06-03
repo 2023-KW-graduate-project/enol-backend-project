@@ -1,5 +1,6 @@
 package com.graduatepj.enol.member.dao;
 
+import com.graduatepj.enol.member.vo.History;
 import com.graduatepj.enol.member.vo.UserMark;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -12,5 +13,7 @@ public interface UserMarkRepository extends MongoRepository<UserMark, String> {
     List<UserMark> findFriendCodesById(String userCode);
 
     Optional<UserMark> findUserMarkByUserCode(String userCode);
+
+    List<UserMark> findAllByUserCode(String userCode);
 
 }
