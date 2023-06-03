@@ -11,4 +11,6 @@ public interface UserHistoryRepository extends MongoRepository<History, String> 
     Optional<History> findByUserCode(String userCode);
 
     List<History> findAllByUserCode(String userCode);
+
+
 }

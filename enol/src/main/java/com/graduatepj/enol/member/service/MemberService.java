@@ -64,5 +64,9 @@ public interface MemberService {
     public abstract List<FriendDto> getFriendsList(String userCode);
 
     public abstract UserMarkDto getUserMarkById(String userCode);
+
+    public abstract String deleteFriend(FriendRequestDto friendRequestDto);
+    public abstract String addFriend(FriendRequestDto friendRequestDto);
+    public abstract FriendDto searchFriend(String friendCode);
 }
 

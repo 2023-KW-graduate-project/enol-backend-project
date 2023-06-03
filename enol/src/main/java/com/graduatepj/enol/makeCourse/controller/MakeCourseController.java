@@ -3,13 +3,11 @@ package com.graduatepj.enol.makeCourse.controller;
 import com.graduatepj.enol.makeCourse.dto.CourseRequest;
 import com.graduatepj.enol.makeCourse.dto.CourseResponse;
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
+import com.graduatepj.enol.makeCourse.dto.CourseRating;
 import com.graduatepj.enol.makeCourse.service.MakeCourseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,6 +29,14 @@ public class MakeCourseController {
     public ResponseEntity<CourseResponse> createCustomCourse(@RequestBody CourseRequest requestData) {
         return ResponseEntity.ok(makeCourseService.MakeCourse(requestData));
     }
+
+    // 코스 추천 후 평점 받기
+    @PutMapping
+    public ResponseEntity<String> courseRating(@RequestBody CourseRating courseRating){
+        return ResponseEntity.ok(makeCourseService.courseRating(courseRating));
+    }
+
+
 
     // 프론트 테스트용
     @PostMapping("/test")

@@ -10,6 +10,7 @@ import com.graduatepj.enol.makeCourse.vo.CourseV2;
 import com.graduatepj.enol.makeCourse.vo.Place;
 import com.graduatepj.enol.makeCourse.vo.Restaurant;
 import com.graduatepj.enol.member.dao.UserHistoryRepository;
+import com.graduatepj.enol.member.dto.HistoryDto;
 import com.graduatepj.enol.member.dto.UserPreferenceDto;
 import com.graduatepj.enol.member.service.MemberService;
 import com.graduatepj.enol.member.vo.History;
@@ -19,6 +20,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -28,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -667,21 +671,26 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         // 최적화(노가다 순열)
         finalCourse = optimizeCourse(wantedCourse, restaurants, partition, meal, secondCourse.getStartTime());
         // 히스토리에 추가
-        saveHistory(finalCourse, secondCourse.getCourseId(), secondCourse.getUserCode());
+        finalCourse.setHistoryTime(saveHistory(finalCourse, secondCourse.getCourseId(), secondCourse.getUserCode()));
         return finalCourse;
     }
 
-    private Void saveHistory(CourseResponse finalCourse, String courseId, String userCode){
+    private String saveHistory(CourseResponse finalCourse, String courseId, String userCode){
         History history = userHistoryRepository.findByUserCode(userCode)
                 .orElseThrow(() -> new RuntimeException("해당 유저의 히스토리 정보를 찾을 수 없습니다."));
+        String order = LocalDateTime.now().toString();
         List<Long> placeIds = new ArrayList<>();
         for(PlaceDto place : finalCourse.getPlaceDto()){
-            placeIds.add((long) place.getId());
+            placeIds.add(place.getId());
+        }
+        if(history.getNumber()==30){
+            history.getCourse().remove(0);
+            history.setNumber(history.getNumber()-1);
         }
         history.setNumber(history.getNumber()+1);
-        history.getCourse().add(new History.HistoryCourse(courseId, placeIds, 0.0));
+        history.getCourse().add(new History.HistoryCourse(order, courseId, placeIds, 0.0));
         userHistoryRepository.save(history);
-        return null;
+        return order;
     }
 
     // 프론트 테스트용
@@ -1293,5 +1302,21 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         }else{
             return 0;
         }
+    }
+
+    @Override
+    public String courseRating(CourseRating courseRating){
+        History history = userHistoryRepository.findByUserCode(courseRating.getUserCode())
+                .orElseThrow(() -> new RuntimeException("해당 히스토리 정보를 찾을 수 없습니다."));
+        List<History.HistoryCourse> historyCourses = history.getCourse();
+        for (int i = historyCourses.size()-1; i >= 0; i--) {
+            History.HistoryCourse historyCourse = historyCourses.get(i);
+            if (historyCourse.getOrder().equals(courseRating.getOrder())) {
+                historyCourse.setRating(courseRating.getRating());
+                break;
+            }
+        }
+        userHistoryRepository.save(history);
+        return "히스토리 평점을 성공적으로 입력했습니다.";
     }
 }

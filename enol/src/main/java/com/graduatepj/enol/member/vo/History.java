@@ -38,6 +38,9 @@ public class History {
     @Builder
     @AllArgsConstructor
     public static class HistoryCourse {
+
+        @Field("order")
+        private String order;
         @Field("course_id")
         private String courseId;
 

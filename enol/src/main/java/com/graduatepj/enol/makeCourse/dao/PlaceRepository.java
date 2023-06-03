@@ -1,6 +1,7 @@
 package com.graduatepj.enol.makeCourse.dao;
 
 import com.graduatepj.enol.makeCourse.vo.Place;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +15,9 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     List<Place> findAllByCategoryName(String categoryCode);
     // 별점순으로 가져오는 쿼리문
     List<Place> findAllByCategoryNameOrderByRatingDesc(String wantedCategoryName);
+
+    // 별점순으로 원하는 개수만큼 가져오는 쿼리문
+    List<Place> findAllByCategoryNameOrderByRatingDesc(String wantedCategoryName, Pageable pageable);
 
     // 좌표를 기준으로 가장 가까운 categoryName의 가게 가져오기
     @Query(value = "SELECT * FROM place WHERE place.category_name = :categoryName ORDER BY ST_Distance(POINT(:longitude, :latitude), POINT(place.x, place.y)) LIMIT 1", nativeQuery = true)

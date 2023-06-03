@@ -1,8 +1,15 @@
 package com.graduatepj.enol.member.service;
 
+import com.graduatepj.enol.makeCourse.dao.PlaceRepository;
+import com.graduatepj.enol.makeCourse.dto.CourseRating;
+import com.graduatepj.enol.makeCourse.dto.CourseResponse;
+import com.graduatepj.enol.makeCourse.dto.PlaceDto;
+import com.graduatepj.enol.makeCourse.service.MakeCourseService;
+import com.graduatepj.enol.makeCourse.service.MakeCourseServiceImpl;
 import com.graduatepj.enol.member.dao.UserHistoryRepository;
 import com.graduatepj.enol.member.dao.UserMarkRepository;
 import com.graduatepj.enol.member.dao.UserRepository;
+import com.graduatepj.enol.member.dto.FriendRequestDto;
 import com.graduatepj.enol.member.dto.UserPreferenceDto;
 import com.graduatepj.enol.member.vo.History;
 import com.graduatepj.enol.member.vo.User;
@@ -12,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 class MemberServiceImplTest {
@@ -22,11 +30,16 @@ class MemberServiceImplTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private PlaceRepository placeRepository;
+    @Autowired
     private MemberService memberService;
+    @Autowired
+    private MakeCourseServiceImpl makeCourseService;
 
     @Test
     void historyRepositoryTest(){
         String userCode = "최종혁#01";
+        CourseRating courseRating = new CourseRating(userCode, 3.7, "2023-02-02");
 
         List<History> historyList = userHistoryRepository.findAll();
         for(History history: historyList){
@@ -34,6 +47,11 @@ class MemberServiceImplTest {
         }
 
         System.out.println(memberService.getHistoryById(userCode));
+        System.out.println(makeCourseService.courseRating(courseRating));
+        historyList = userHistoryRepository.findAll();
+        for(History history: historyList){
+            System.out.println(history.toString());
+        }
     }
 
     @Test
@@ -45,10 +63,17 @@ class MemberServiceImplTest {
 
     @Test
     void userMarkRepositoryTest(){
+        String userCode="이영원#01";
+        FriendRequestDto friendRequestDto = new FriendRequestDto(userCode, "이영원#02");
         List<UserMark> userMarkList = userMarkRepository.findAll();
         for(UserMark userMark: userMarkList){
             System.out.println(userMark.toString());
         }
+        System.out.println(memberService.getFriendsList(userCode));
+        System.out.println(memberService.addFriend(friendRequestDto));
+        System.out.println(memberService.getFriendsList(userCode));
+        System.out.println(memberService.deleteFriend(friendRequestDto));
+        System.out.println(memberService.getFriendsList(userCode));
     }
 
     @Test
@@ -127,6 +152,18 @@ class MemberServiceImplTest {
 //        System.out.println("findCourseIdsByUserCode");
 //        System.out.println(userMarkRepository.findCourseIdsByUserCode(userCode));
 
+    }
+
+    @Test
+    void saveHistoryTest(){
+        int placeCount = (int) (Math.random() * 5) + 1;  // 1에서 5 사이의 랜덤한 개수
+        List<PlaceDto> testCourseList = placeRepository
+                .findRandomPlaces(placeCount)
+                .stream()
+                .map(PlaceDto::fromEntity)
+                .collect(Collectors.toList());
+//        CourseResponse courseResponse = new CourseResponse(testCourseList);
+//        makeCourseService.saveHistory(courseResponse, "A_1", "이영원#02");
     }
 
 

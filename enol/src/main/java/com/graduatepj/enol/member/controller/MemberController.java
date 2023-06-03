@@ -2,6 +2,7 @@ package com.graduatepj.enol.member.controller;
 
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
 import com.graduatepj.enol.member.dto.FriendDto;
+import com.graduatepj.enol.member.dto.FriendRequestDto;
 import com.graduatepj.enol.member.dto.HistoryDto;
 import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.service.MemberService;
@@ -172,6 +173,24 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getFriendsList(userCode));
     }
 
+    // 친구 삭제
+    @PutMapping("/friend/delete")
+    public ResponseEntity<String> deleteFriend(@RequestBody FriendRequestDto friendRequestDto){
+        return ResponseEntity.ok(memberService.deleteFriend(friendRequestDto));
+    }
+
+    // 친구 추가
+    @PutMapping("/friend/add")
+    public ResponseEntity<String> addFriend(@RequestBody FriendRequestDto friendRequestDto){
+        return ResponseEntity.ok(memberService.addFriend(friendRequestDto));
+    }
+
+    // 친구 검색
+    @PostMapping("/friend/search")
+    public ResponseEntity<FriendDto> searchFriend(@RequestBody String friendCode){
+        return ResponseEntity.ok(memberService.searchFriend(friendCode));
+    }
+
     // 즐겨찾기 장소 보여주기
     @PostMapping("/bookmark/place")
     public ResponseEntity<List<PlaceDto>> showBookmarkPlace(@RequestBody String userCode) {
@@ -183,6 +202,4 @@ public class MemberController {
     public ResponseEntity<List<List<PlaceDto>>> showBookmarkCourse(@RequestBody String userCode) {
         return ResponseEntity.ok(memberService.getBookmarkCourseById(userCode));
     }
-
-
 }

@@ -15,9 +15,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.text.Collator;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 @Service("memberService")
 @Slf4j
@@ -438,12 +441,15 @@ public class MemberServiceImpl implements MemberService{
         for (int i = 0; i < history.getNumber(); i++) {
             History.HistoryCourse historyCourse = history.getCourse().get(i);
             HistoryDto.HistoryCourseDto historyCourseDto = new HistoryDto.HistoryCourseDto();
+            historyCourseDto.setPlaces(new ArrayList<>());
+            historyCourseDto.setPlaceIds(new ArrayList<>());
             for(Long placeId : historyCourse.getPlaceIds()){
                 PlaceDto placeDto = PlaceDto.fromEntity(placeRepository.findById(placeId).orElse(null));
                 if(placeDto == null){
                     Restaurant restaurant = restaurantRepository.findById(placeId)
                             .orElseThrow(() -> new RuntimeException("가게정보를 찾을 수 없습니다."));
                     placeDto = PlaceDto.builder()
+                            .id(restaurant.getId())
                             .placeName(restaurant.getPlaceName())
                             .categoryName(restaurant.getCategoryCode())
                             .addressName(restaurant.getAddressName())
@@ -451,8 +457,11 @@ public class MemberServiceImpl implements MemberService{
                             .y(restaurant.getY())
                             .build();
                 }
+                historyCourseDto.getPlaceIds().add(placeId);
                 historyCourseDto.getPlaces().add(placeDto);
             }
+            historyCourseDto.setOrder(historyCourse.getOrder());
+            historyCourseDto.setRating(historyCourse.getRating());
             course.add(historyCourseDto);
         }
         historyList.setNumber(history.getNumber());
@@ -474,6 +483,7 @@ public class MemberServiceImpl implements MemberService{
             FriendDto friend = FriendDto.builder()
                     .name(user.getName())
                     .userCode(user.getUserCode())
+                    .gender((user.getGender()))
                     .build();
             friendList.add(friend);
         }
@@ -491,5 +501,38 @@ public class MemberServiceImpl implements MemberService{
                 .orElseThrow(() -> new RuntimeException("친구목록을 불러올 수 없습니다.")));
     }
 
+    @Override
+    public String deleteFriend(FriendRequestDto friendRequestDto){
+        UserMark userMark = userMarkRepository.findUserMarkByUserCode(friendRequestDto.getUserCode())
+                .orElseThrow(() -> new RuntimeException("해당 유저의 히스토리를 불러올 수 없습니다."));
+        userMark.getFriendCodes().remove(friendRequestDto.getFriendCode());
+        userMark.getFriendCodes().sort(Collator.getInstance(new Locale("ko", "KOREA")));
+        userMarkRepository.save(userMark);
+        return "친구삭제를 성공했습니다.";
+    }
+
+    @Override
+    public String addFriend(FriendRequestDto friendRequestDto){
+        if(userMarkRepository.findUserMarkByUserCode(friendRequestDto.getFriendCode()).isEmpty()){
+            throw new RuntimeException("해당 친구 유저가 존재하지 않습니다.");
+        }else if(friendRequestDto.getUserCode().equals(friendRequestDto.getFriendCode())){
+            throw new RuntimeException("자기 자신은 추가할 수 없습니다.");
+        }
+        UserMark userMark = userMarkRepository.findUserMarkByUserCode(friendRequestDto.getUserCode())
+                .orElseThrow(() -> new RuntimeException("해당 유저의 히스토리를 불러올 수 없습니다."));
+        if(userMark.getFriendCodes().contains(friendRequestDto.getFriendCode())){
+            throw new RuntimeException("해당 유저와 이미 친구입니다.");
+        }
+        userMark.getFriendCodes().add(friendRequestDto.getFriendCode());
+        userMark.getFriendCodes().sort(Collator.getInstance(new Locale("ko", "KOREA")));
+        userMarkRepository.save(userMark);
+        return "친구추가를 성공했습니다.";
+    }
+
+    @Override
+    public FriendDto searchFriend(String friendCode){
+        return FriendDto.from(userRepository.findByUserCode(friendCode)
+                .orElseThrow(() -> new RuntimeException("친구를 찾을 수 없습니다.")));
+    }
 
 }

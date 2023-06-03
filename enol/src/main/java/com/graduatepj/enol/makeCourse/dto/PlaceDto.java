@@ -12,8 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class PlaceDto {
-    private int id;
+    private Long id;
     private String categoryName;
     private String placeName;
     private double rating;

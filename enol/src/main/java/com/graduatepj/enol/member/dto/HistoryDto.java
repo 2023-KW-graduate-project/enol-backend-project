@@ -23,9 +23,11 @@ public class HistoryDto {
     @Getter
     @Setter
     @Builder
+    @ToString
     @AllArgsConstructor
     @NoArgsConstructor
     public static class HistoryCourseDto {
+        private String order;
         private List<Long> placeIds;
         private List<PlaceDto> places;
         private double rating;

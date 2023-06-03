@@ -22,4 +22,6 @@ public interface MakeCourseService {
     public abstract CourseResponse finalCourseFiltering(SecondCourse secondCourse);
 
     public abstract List<PlaceDto> testCourse();
+
+    public abstract String courseRating(CourseRating courseRating);
 }
