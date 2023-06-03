@@ -1,5 +1,6 @@
 package com.graduatepj.enol.member.dao;
 
+import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.vo.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -17,7 +18,7 @@ public interface UserRepository extends MongoRepository<User, String> { // 여�
     List<String> findUserCode(@Param("userCode") String userCode);
 
     // 쿼리문(1)
-    List<String> findUserCodeByName(String userName);
+    List<User> findUserCodeByName(String userName);
 
     // 아이디 찾기에서 같은 아이디만 가져오는 쿼리문
 //    @Query(value = "select * from user u where u.email = :email AND u.name=:name AND u.birth_date=:birthDate AND u.gender=:gender", nativeQuery = true)

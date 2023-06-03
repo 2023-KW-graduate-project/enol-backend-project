@@ -17,6 +17,8 @@ public class SecondCourse {
     private Boolean mealCheck;
     private int startTime;
     private int endTime;
+    private String courseId;
+    private String userCode;
 
     // 추가
     private String wantedCategoryGroupCode;

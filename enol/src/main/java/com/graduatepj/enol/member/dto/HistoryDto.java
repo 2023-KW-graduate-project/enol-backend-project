@@ -1,12 +1,10 @@
 package com.graduatepj.enol.member.dto;
 
+import com.graduatepj.enol.makeCourse.dto.PlaceDto;
 import com.graduatepj.enol.member.vo.History;
 import com.graduatepj.enol.member.vo.History.HistoryCourse;
 import com.graduatepj.enol.member.vo.UserPreference;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
@@ -14,21 +12,31 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class HistoryDto {
     private int number;
 
-    // 안에는 courseId, categoryCode, rating 순으로 있음
-//    private List<String> course;
+    private List<HistoryCourseDto> course;
 
-
-    private List<HistoryCourse> course;
-
-
-    public static HistoryDto from(History history) {
-        return HistoryDto.builder()
-                .number(history.getNumber())
-                .course(history.getCourse())
-                .build();
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class HistoryCourseDto {
+        private List<Long> placeIds;
+        private List<PlaceDto> places;
+        private double rating;
     }
 }
+
+
+
+//    public static HistoryDto from(History history) {
+//        return HistoryDto.builder()
+//                .number(history.getNumber())
+//                .course(history.getCourse())
+//                .build();
+//    }

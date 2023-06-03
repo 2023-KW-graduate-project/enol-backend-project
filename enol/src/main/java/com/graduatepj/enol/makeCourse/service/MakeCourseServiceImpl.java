@@ -9,8 +9,10 @@ import com.graduatepj.enol.makeCourse.vo.CategoryPurpose;
 import com.graduatepj.enol.makeCourse.vo.CourseV2;
 import com.graduatepj.enol.makeCourse.vo.Place;
 import com.graduatepj.enol.makeCourse.vo.Restaurant;
+import com.graduatepj.enol.member.dao.UserHistoryRepository;
 import com.graduatepj.enol.member.dto.UserPreferenceDto;
 import com.graduatepj.enol.member.service.MemberService;
+import com.graduatepj.enol.member.vo.History;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -46,15 +48,16 @@ public class MakeCourseServiceImpl implements MakeCourseService {
     private final CategoryRepository categoryRepository;
     private final CourseV2Repository courseV2Repository;
     private final CategoryPurposeRepository categoryPurposeRepository;
+    private final UserHistoryRepository userHistoryRepository;
 
     private final MemberService memberService;
 
     // 실제로 해야할 것
     @Override
-    public List<PlaceDto> MakeCourse(CourseRequest courseRequest) {
+    public CourseResponse MakeCourse(CourseRequest courseRequest) {
         CourseDto firstCourse = firstCourseFiltering(courseRequest);
         SecondCourse secondCourse = secondCourseFiltering(firstCourse);
-        List<PlaceDto> finalCourse = finalCourseFiltering(secondCourse);
+        CourseResponse finalCourse = finalCourseFiltering(secondCourse);
         return finalCourse;
     }
 
@@ -638,10 +641,11 @@ public class MakeCourseServiceImpl implements MakeCourseService {
 
     // 실제 가게들 선택 및 최적화 알고리즘 적용
     @Override
-    public List<PlaceDto> finalCourseFiltering(SecondCourse secondCourse) {
+    public CourseResponse finalCourseFiltering(SecondCourse secondCourse) {
         int num = 0;
         boolean[] meal= new boolean[]{false, false, false, false};
         int[] partition;
+        CourseResponse finalCourse;
         Double[] mainCoordinate = new Double[]{0.0, 0.0};
         List<PlaceDto> restaurants = new ArrayList<>();
         // wantedCategory 데이터를 전부 별점순으로 가져오기(내림차순)
@@ -683,15 +687,31 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             meal = getRestaurantNum(secondCourse.getStartTime(), secondCourse.getEndTime());
             for (int i = 0; i < meal.length; i++) if (meal[i]) num++;
 //            log.info("breakfast = " + meal[0] + " | lunch = " + meal[1] + " | dinner = " + meal[2] + " | else = " + meal[3]);
-//            restaurants = getRestaurantFromDB(mainCoordinate, num);
-            restaurants = getRestaurantFromApi(mainCoordinate, num);
+            restaurants = getRestaurantFromDB(mainCoordinate, num);
+//            restaurants = getRestaurantFromApi(mainCoordinate, num);
 //            log.info("실제로 가져온 음식점 수 : " + restaurants.size());
         }
         // 최적화 알고리즘 적용(순서 결정)
         // 식사 앞뒤로 몇개의 가게 들어갈지 구하는 메소드
         partition = getPartition(wantedCourse, secondCourse.getStartTime(), secondCourse.getEndTime());
         // 최적화(노가다 순열)
-        return optimizeCourse(wantedCourse, restaurants, partition, meal, secondCourse.getStartTime());
+        finalCourse = optimizeCourse(wantedCourse, restaurants, partition, meal, secondCourse.getStartTime());
+        // 히스토리에 추가
+        saveHistory(finalCourse, secondCourse.getCourseId(), secondCourse.getUserCode());
+        return finalCourse;
+    }
+
+    private Void saveHistory(CourseResponse finalCourse, String courseId, String userCode){
+        History history = userHistoryRepository.findByUserCode(userCode)
+                .orElseThrow(() -> new RuntimeException("해당 유저의 히스토리 정보를 찾을 수 없습니다."));
+        List<Long> placeIds = new ArrayList<>();
+        for(PlaceDto place : finalCourse.getPlaceDto()){
+            placeIds.add((long) place.getId());
+        }
+        history.setNumber(history.getNumber()+1);
+        history.getCourse().add(new History.HistoryCourse(courseId, placeIds, 0.0));
+        userHistoryRepository.save(history);
+        return null;
     }
 
     // 프론트 테스트용
@@ -1116,11 +1136,12 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         return partTime;
     }
 
-    private List<PlaceDto> optimizeCourse(List<PlaceDto> wantedCourse, List<PlaceDto> restaurants, int[] partition, boolean[] mealCheck, int startTime) {
+    private CourseResponse optimizeCourse(List<PlaceDto> wantedCourse, List<PlaceDto> restaurants, int[] partition, boolean[] mealCheck, int startTime) {
         List<PlaceDto> drinkPlace = new ArrayList<>();
         List<PlaceDto> otherPlace = new ArrayList<>();
         List<PlaceDto> finalCourse = new ArrayList<>();
         List<PlaceDto> candidateCourse = new ArrayList<>();
+        CourseResponse courseResponse = new CourseResponse();
 
         double minDistance = Double.MAX_VALUE;
         double calculateDistance = 0.0;
@@ -1152,8 +1173,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                     calculateDistance = calculateDistance(candidateCourse);
                     if (minDistance > calculateDistance) {
                         minDistance = calculateDistance;
-                        finalCourse = candidateCourse;
+                        finalCourse = new ArrayList<>(candidateCourse);
                     }
+                    candidateCourse.clear();
                 }
             } else {
                 // 일반형 + 식사체크
@@ -1165,7 +1187,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                         calculateDistance = calculateDistance(candidateCourse);
                         if (minDistance > calculateDistance) {
                             minDistance = calculateDistance;
-                            finalCourse = candidateCourse;
+                            finalCourse = new ArrayList<>(candidateCourse);
                         }
                     }
                 }
@@ -1179,8 +1201,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                     calculateDistance = calculateDistance(candidateCourse);
                     if (minDistance > calculateDistance) {
                         minDistance = calculateDistance;
-                        finalCourse = candidateCourse;
+                        finalCourse = new ArrayList<>(candidateCourse);
                     }
+                    candidateCourse.clear();
                 }
             } else {
                 // 음주형 + 식사체크
@@ -1191,7 +1214,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                         calculateDistance = calculateDistance(candidateCourse);
                         if (minDistance > calculateDistance) {
                             minDistance = calculateDistance;
-                            finalCourse = candidateCourse;
+                            finalCourse = new ArrayList<>(candidateCourse);
                         }
                     }
                 }
@@ -1206,8 +1229,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                     calculateDistance = calculateDistance(candidateCourse);
                     if (minDistance > calculateDistance) {
                         minDistance = calculateDistance;
-                        finalCourse = candidateCourse;
+                        finalCourse = new ArrayList<>(candidateCourse);
                     }
+                    candidateCourse.clear();
                 }
             }
         } else {
@@ -1220,7 +1244,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                         calculateDistance = calculateDistance(candidateCourse);
                         if (minDistance > calculateDistance) {
                             minDistance = calculateDistance;
-                            finalCourse = candidateCourse;
+                            finalCourse = new ArrayList<>(candidateCourse);
                         }
                     }
                 }
@@ -1231,9 +1255,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             System.out.print(i + "번째 가게 : " + finalCourse.get(i).getPlaceName() + " 코드 : " + finalCourse.get(i).getCategoryName() + " | ");
         }
         System.out.println();
+        courseResponse.setPlaceDto(finalCourse);
 
-
-        return finalCourse;
+        return courseResponse;
     }
 
     private List<PlaceDto> makeCandidateCourse(List<PlaceDto> otherPerm, List<PlaceDto> drinkPerm, List<PlaceDto> restPerm, int[] partition, boolean[] mealCheck, int startTime) {

@@ -23,7 +23,7 @@ public class UserMark {
     @Field("friend_codes")
     private List<String> friendCodes;
     @Field("place_ids")
-    private List<String> placeIds;
+    private List<Long> placeIds;
     @Field("course_ids")
     private List<String> courseIds;
 }

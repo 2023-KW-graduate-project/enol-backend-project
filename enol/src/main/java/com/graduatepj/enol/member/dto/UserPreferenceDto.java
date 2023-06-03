@@ -14,6 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class UserPreferenceDto {
     private double prefFatigue;
     private double prefSpecificity;
