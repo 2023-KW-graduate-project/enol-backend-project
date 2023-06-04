@@ -160,14 +160,14 @@ public class MemberController {
 
     // 히스토리 보여주기
     @PostMapping("/history")
-    public ResponseEntity<HistoryDto> showHistory(@RequestBody String userCode) {
-        return ResponseEntity.ok(memberService.getHistoryById(userCode));
+    public ResponseEntity<HistoryDto> showHistory(@RequestBody UserCodeDto userCode) {
+        return ResponseEntity.ok(memberService.getHistoryById(userCode.getUserCode()));
     }
 
     // 친구목록 보여주기
     @PostMapping("/friendlist")
-    public ResponseEntity<List<FriendDto>> showFriendList(@RequestBody String userCode) {
-        return ResponseEntity.ok(memberService.getFriendsList(userCode));
+    public ResponseEntity<List<FriendDto>> showFriendList(@RequestBody UserCodeDto userCode) {
+        return ResponseEntity.ok(memberService.getFriendsList(userCode.getUserCode()));
     }
 
     // 친구 삭제
@@ -184,14 +184,14 @@ public class MemberController {
 
     // 친구 검색
     @PostMapping("/friend/search")
-    public ResponseEntity<FriendDto> searchFriend(@RequestBody String friendCode){
-        return ResponseEntity.ok(memberService.searchFriend(friendCode));
+    public ResponseEntity<FriendDto> searchFriend(@RequestBody UserCodeDto friendCode){
+        return ResponseEntity.ok(memberService.searchFriend(friendCode.getUserCode()));
     }
 
     // 즐겨찾기 장소 보여주기
     @PostMapping("/bookmark/place")
-    public ResponseEntity<List<PlaceDto>> showBookmarkPlace(@RequestBody String userCode) {
-        return ResponseEntity.ok(memberService.getBookmarkPlaceById(userCode));
+    public ResponseEntity<List<PlaceDto>> showBookmarkPlace(@RequestBody UserCodeDto userCode) {
+        return ResponseEntity.ok(memberService.getBookmarkPlaceById(userCode.getUserCode()));
     }
 
     // 즐겨찾기 장소 추가하기
@@ -202,7 +202,7 @@ public class MemberController {
 
     // 즐겨찾기 코스 보여주기
     @PostMapping("/bookmark/course")
-    public ResponseEntity<List<List<PlaceDto>>> showBookmarkCourse(@RequestBody String userCode) {
-        return ResponseEntity.ok(memberService.getBookmarkCourseById(userCode));
+    public ResponseEntity<List<List<PlaceDto>>> showBookmarkCourse(@RequestBody UserCodeDto userCode) {
+        return ResponseEntity.ok(memberService.getBookmarkCourseById(userCode.getUserCode()));
     }
 }

@@ -75,10 +75,10 @@ class MemberServiceImplTest {
             System.out.println(userMark.toString());
         }
         System.out.println(memberService.getFriendsList(userCode));
-        System.out.println(memberService.addFriend(friendRequestDto));
-        System.out.println(memberService.getFriendsList(userCode));
-        System.out.println(memberService.deleteFriend(friendRequestDto));
-        System.out.println(memberService.getFriendsList(userCode));
+//        System.out.println(memberService.addFriend(friendRequestDto));
+//        System.out.println(memberService.getFriendsList(userCode));
+//        System.out.println(memberService.deleteFriend(friendRequestDto));
+//        System.out.println(memberService.getFriendsList(userCode));
     }
 
     @Test

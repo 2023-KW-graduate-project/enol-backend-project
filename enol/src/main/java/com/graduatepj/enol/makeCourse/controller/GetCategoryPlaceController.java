@@ -1,5 +1,6 @@
 package com.graduatepj.enol.makeCourse.controller;
 
+import com.graduatepj.enol.makeCourse.dto.CategoryNameDto;
 import com.graduatepj.enol.makeCourse.dto.PlaceDto;
 import com.graduatepj.enol.makeCourse.service.GetCategoryPlaceService;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,8 @@ public class GetCategoryPlaceController {
     private final GetCategoryPlaceService getCategoryPlaceService;
 
     @PostMapping
-    public ResponseEntity<List<PlaceDto>> getCategoryPlace(@RequestBody String categoryName){
-        return ResponseEntity.ok(getCategoryPlaceService.getCategoryPlace(categoryName));
+    public ResponseEntity<List<PlaceDto>> getCategoryPlace(@RequestBody CategoryNameDto categoryName){
+        return ResponseEntity.ok(getCategoryPlaceService.getCategoryPlace(categoryName.getCategoryName()));
     }
 
 

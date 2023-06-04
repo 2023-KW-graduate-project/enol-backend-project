@@ -19,6 +19,9 @@ public class GetCategoryPlaceService {
 
     public List<PlaceDto> getCategoryPlace(String categoryName){
         Pageable pageable = PageRequest.of(0, 15);
-        return PlaceDto.fromEntityList(placeRepository.findAllByCategoryNameOrderByRatingDesc(categoryName, pageable));
+        log.info(categoryName);
+        List<PlaceDto> places = PlaceDto.fromEntityList(placeRepository.findAllByCategoryNameOrderByRatingDesc(categoryName, pageable));
+        log.info(places.toString());
+        return places;
     }
 }
