@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +42,8 @@ public class LoginServiceImpl implements LoginService<Member>{
         List<User> userList = userRepository.findAllById(userDto.getId()); // id가 같은 모든 리스트 가져오기 - 있으면 1개만 나올 것
         log.info("userList.size = {}", userList.size());
         if (userList.size() == 1) { // 1개만 발견했으면 정상 작동
+            LocalDate localDate = LocalDate.now(); // 현재 날짜 생성
+            String nowDate = localDate.toString(); // String으로 형 변환
             if (userList.get(0).getPw().equals(userDto.getPw())) { // 비밀번호까지 맞으면 로그인
                 log.info("--- login User ---");
                 log.info("userCode = {}", userList.get(0).getUserCode());
@@ -57,6 +60,8 @@ public class LoginServiceImpl implements LoginService<Member>{
                 log.info("user Activity = {}", userList.get(0).getPrefActivity());
                 log.info("-------------------");
                 log.info("--- login success in LoginServiceimpl ---");
+                userList.get(0).setLastDate(nowDate);
+                log.info("Update userLastDate = {}", userList.get(0).getLastDate());
                 log.info("--- return User ---");
                 return userList.get(0);
             } else { // 비밀번호 틀렸어도 null 반환

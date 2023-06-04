@@ -72,7 +72,7 @@ public class MemberServiceImpl implements MemberService{
         newUser.setPw(userDto.getPw());
         newUser.setName(userDto.getName());
 //        newUser.setAddressName(userDto.getAddressName());
-        newUser.setAddressName(""); // 입력 안받기로 했으므로 빈 문자열 넣기로 수정
+        newUser.setAddressName(" "); // 입력 안받기로 했으므로 공백 넣기로 수정
         newUser.setEmail(userDto.getEmail());
         newUser.setGender(userDto.getGender());
         newUser.setBirthDate(userDto.getBirthDate());
@@ -125,13 +125,13 @@ public class MemberServiceImpl implements MemberService{
         History.HistoryCourse historyCourse = new History.HistoryCourse();
 //        String historyCourseCourseId = "";
         List<Long> historyCoursePlaceIds = new ArrayList<>();
-        double historyCourseRating = 0.0;
+//        double historyCourseRating = 0.0;
 
 
-        historyCourse.setCourseId(""); // 빈 string으로 채우기
+        historyCourse.setCourseId(" "); // 빈 string으로 채우기
         historyCourse.setPlaceIds(historyCoursePlaceIds); // 빈 리스트로 채우기
-        historyCourse.setRating(historyCourseRating); // 0.0으로 초기화
-        historyCourse.setOrder(""); // 빈 string으로 채우기
+        historyCourse.setRating(0.0); // 0.0으로 초기화
+        historyCourse.setOrder(" "); // 빈 string으로 채우기
 
         historyCourseList.add(historyCourse);
 
@@ -299,9 +299,9 @@ public class MemberServiceImpl implements MemberService{
             changeUser.set_id(userList.get(0).get_id()); // _id 안넣으면 save에서 바뀌는게 아니라 새로 추가됨
             changeUser.setUserCode(userDto.getUserCode());
             changeUser.setId(userDto.getId());
-            changeUser.setPw(changePW);
+            changeUser.setPw(changePW); // 변경할 패스워드로
             changeUser.setName(userDto.getName());
-            changeUser.setAddressName(userDto.getAddressName());
+            changeUser.setAddressName(userList.get(0).getAddressName()); // " "
             changeUser.setEmail(userDto.getEmail());
             changeUser.setBirthDate(userDto.getBirthDate());
             changeUser.setGender(userDto.getGender());
@@ -354,7 +354,7 @@ public class MemberServiceImpl implements MemberService{
             modifyUser.setPw(userDto.getPw());
             modifyUser.setName(userDto.getName());
             modifyUser.setEmail(userDto.getEmail());
-            modifyUser.setAddressName(userDto.getAddressName());
+            modifyUser.setAddressName(userList.get(0).getAddressName());
             modifyUser.setGender(userDto.getGender());
             modifyUser.setBirthDate(userDto.getBirthDate());
             modifyUser.setJoinDate(userList.get(0).getJoinDate());
