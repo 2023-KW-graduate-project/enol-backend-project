@@ -180,7 +180,8 @@ public class MakeCourseServiceImpl implements MakeCourseService {
             totalTime = 10; // 최대 drink 3개*3시간+main 3시간 1개 = 12시간 / 최소 drink 3개*3시간 9시간
         } else { // DrinkNum==4
             drinkFiltering(filteringCourse, drinkNum);
-            totalTime = 12; // drink만 4개*3시간=12시간
+            totalTime = 4; // drink만 4개*3시간=12시간 // 원래 drink 1시간이니까 4로 바꿔야 할수도
+//            totalTime = 12; // drink만 4개*3시간=12시간 // 원래 drink 1시간이니까 4로 바꿔야 할수도
         }
 
         if(dawnDrink == false && totalTime <= 12) {
@@ -242,7 +243,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 }
             }
         }
-        else if(dawnDrink = true && totalTime > 12) { // 술만 4개 나와야 함
+        else if(dawnDrink = true && (totalTime > 12 || totalTime == 4)) { // 술만 4개 나와야 함 - 음주 1시간씩 총 4개면 4시간이므로 totalTime==4
             log.info("--- dawnDrink = {}, totalTime = {} ---", dawnDrink, totalTime);
             for(int i = 0; i < filteringCourse.size(); i++) {;
 //                log.info("filteringCourse.get({}) = {}, filteringCourse.get({}).getTime() = {}, 10 <= time", i, filteringCourse.get(i).getId(), i , filteringCourse.get(i).getTime());
