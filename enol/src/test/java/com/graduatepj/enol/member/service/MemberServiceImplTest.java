@@ -1,5 +1,6 @@
 package com.graduatepj.enol.member.service;
 
+import com.graduatepj.enol.login.service.LoginService;
 import com.graduatepj.enol.makeCourse.dao.PlaceRepository;
 import com.graduatepj.enol.makeCourse.dto.CourseRating;
 import com.graduatepj.enol.makeCourse.dto.CourseResponse;
@@ -10,6 +11,7 @@ import com.graduatepj.enol.member.dao.UserHistoryRepository;
 import com.graduatepj.enol.member.dao.UserMarkRepository;
 import com.graduatepj.enol.member.dao.UserRepository;
 import com.graduatepj.enol.member.dto.FriendRequestDto;
+import com.graduatepj.enol.member.dto.UserDto;
 import com.graduatepj.enol.member.dto.UserPreferenceDto;
 import com.graduatepj.enol.member.vo.History;
 import com.graduatepj.enol.member.vo.User;
@@ -34,7 +36,10 @@ class MemberServiceImplTest {
     @Autowired
     private MemberService memberService;
     @Autowired
-    private MakeCourseServiceImpl makeCourseService;
+    private MakeCourseService makeCourseService;
+
+    @Autowired
+    private LoginService loginService;
 
     @Test
     void historyRepositoryTest(){
@@ -164,6 +169,61 @@ class MemberServiceImplTest {
                 .collect(Collectors.toList());
 //        CourseResponse courseResponse = new CourseResponse(testCourseList);
 //        makeCourseService.saveHistory(courseResponse, "A_1", "이영원#02");
+    }
+
+    @Test
+    void checkUserTest() {
+        UserDto userDto = new UserDto();
+        userDto.setName("test2");
+        userDto.setEmail("test2@test2.com");
+        userDto.setBirthDate("000102");
+        userDto.setGender("남성");
+
+        User user = memberService.checkUserId(userDto);
+    }
+
+    @Test
+    void loginTest() {
+        UserDto userDto = new UserDto();
+        userDto.setId("test2");
+        userDto.setPw("qwer1234!");
+
+        User user = loginService.Login(userDto);
+    }
+
+    @Test
+    void joinTest() {
+        UserDto userDto = new UserDto();
+        userDto.setId("kim");
+        userDto.setPw("qwer1234!");
+        userDto.setName("kjh");
+        userDto.setAddressName("");
+        userDto.setEmail("kjh@naver.com");
+        userDto.setBirthDate("980120");
+        userDto.setPrefFatigue(30);
+        userDto.setPrefUnique(60);
+        userDto.setPrefActivity(50);
+
+        User user = memberService.joinUser(userDto);
+    }
+
+    @Test
+    void changePwTest() {
+        UserDto userDto = new UserDto();
+        userDto.setUserCode("kjh#01");
+        userDto.setId("kim");
+        userDto.setPw("qwer1234!");
+        userDto.setName("kjh");
+        userDto.setAddressName("");
+        userDto.setEmail("kjh@naver.com");
+        userDto.setGender("남성");
+        userDto.setBirthDate("980120");
+        userDto.setPrefFatigue(30);
+        userDto.setPrefUnique(60);
+        userDto.setPrefActivity(50);
+
+        String changePw = "q1w2e3r4@";
+        User user = memberService.ChangeUserPassword(userDto, changePw);
     }
 
 

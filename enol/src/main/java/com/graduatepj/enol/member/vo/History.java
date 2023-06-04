@@ -36,6 +36,7 @@ public class History {
     @Setter
     @ToString
     @Builder
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class HistoryCourse {
 

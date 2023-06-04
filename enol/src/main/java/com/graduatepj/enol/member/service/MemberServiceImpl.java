@@ -85,6 +85,7 @@ public class MemberServiceImpl implements MemberService{
         LocalDate localDate = LocalDate.now(); // 현재 날짜 생성
         String nowDate = localDate.toString(); // String으로 형 변환
         newUser.setJoinDate(nowDate);
+        newUser.setLastDate(nowDate); // lastDate도 null 안주기 위해 일단 joinDate와 같도록
 
         // save 할 정보 확인
         log.info("--- Show newUser START ---");
@@ -94,9 +95,10 @@ public class MemberServiceImpl implements MemberService{
         log.info("newUser.getName = {}", newUser.getName());
         log.info("newUser.getEmail = {}", newUser.getEmail());
         log.info("newUser.getAddressName = {}", newUser.getAddressName());
-        log.info("newUser.getBirthDate = {}", newUser.getBirthDate());
         log.info("newUser.getGender = {}", newUser.getGender());
+        log.info("newUser.getBirthDate = {}", newUser.getBirthDate());
         log.info("newUser.getJoinDate = {}", newUser.getJoinDate()); // 현재 날짜 추가
+        log.info("newUser.getLastDate = {}", newUser.getLastDate()); // 현재 날짜 추가
         log.info("newUser.getPrefFatigue = {}", newUser.getPrefFatigue());
         log.info("newUser.getPrefUnique = {}", newUser.getPrefUnique());
         log.info("newUser.getPrefActivity = {}", newUser.getPrefActivity());
@@ -106,13 +108,34 @@ public class MemberServiceImpl implements MemberService{
 
         // userMark 테이블에 저장 - userCode만 넣고 나머지는 빈 값
         UserMark userMark = new UserMark();
+        List<String> courseIds = new ArrayList<>();
+        List<Long> placeIds = new ArrayList<>();
+        List<String> friendCodes = new ArrayList<>();
         userMark.setUserCode(newUser.getUserCode());
+
+        userMark.setCourseIds(courseIds); // 빈 리스트로 채우기
+        userMark.setPlaceIds(placeIds); // 빈 리스트로 채우기
+        userMark.setFriendCodes(friendCodes); // 빈 리스트로 채우기
         userMarkRepository.save(userMark);
 
         // userHistory 테이블에 저장 - userCode와 number=0만 넣고 나머지는 빈값
         History history = new History();
+        List<History.HistoryCourse> historyCourseList = new ArrayList<>();
+        History.HistoryCourse historyCourse = new History.HistoryCourse();
+        String historyCourseCourseId = "";
+        List<Long> historyCoursePlaceIds = new ArrayList<>();
+        double historyCourseRating = 0.0;
+
+        historyCourseList.add(historyCourse);
+
+        historyCourse.setCourseId(historyCourseCourseId);
+        historyCourse.setPlaceIds(historyCoursePlaceIds);
+        historyCourse.setRating(historyCourseRating);
+
         history.setUserCode(newUser.getUserCode());
         history.setNumber(0);
+
+        history.setCourse(historyCourseList);
         userHistoryRepository.save(history);
 
         log.info("--- Save New User Success ---");
@@ -195,7 +218,9 @@ public class MemberServiceImpl implements MemberService{
         log.info("--- Show userRequest END ---");
 
         List<User> userList = userRepository.findByEmailAndNameAndBirthDateAndGender(userDto.getEmail(), userDto.getName(), userDto.getBirthDate(), userDto.getGender());
-        log.info("userList.size = {}", userList.size());
+        log.info("userList.size = {}, (userList.size()==1) = {}", userList.size(), (userList.size()==1));
+        log.info("userList.get(0) = {}", userList.get(0));
+        log.info("userList.get(0).getId = {}", userList.get(0).getId());
         if(userList.size()==1) { // 1개만 있는 경우 해당 id 반환
             log.info("find User Id = {}", userList.get(0).getId());
             return userList.get(0);
@@ -267,6 +292,8 @@ public class MemberServiceImpl implements MemberService{
         log.info("userList.size = {}", userList.size());
         if(userList.size()==1) { // id에 해당하는 User가 한개이면 거기 비밀번호만 수정해주면 됨
             User changeUser = new User();
+            changeUser.set_id(userList.get(0).get_id());
+            changeUser.setUserCode(userDto.getUserCode());
             changeUser.setId(userDto.getId());
             changeUser.setPw(changePW);
             changeUser.setName(userDto.getName());
@@ -274,11 +301,13 @@ public class MemberServiceImpl implements MemberService{
             changeUser.setEmail(userDto.getEmail());
             changeUser.setBirthDate(userDto.getBirthDate());
             changeUser.setGender(userDto.getGender());
+            changeUser.setJoinDate(userList.get(0).getJoinDate());
+            changeUser.setLastDate(userList.get(0).getLastDate());
             changeUser.setPrefFatigue(userDto.getPrefFatigue());
             changeUser.setPrefUnique(userDto.getPrefUnique());
             changeUser.setPrefActivity(userDto.getPrefActivity());
 
-            userRepository.save(changeUser);
+            userRepository.save(changeUser); // id 때문에 새로운 객체가 생김
             log.info("changePassword success");
             return changeUser;
         }
@@ -298,6 +327,7 @@ public class MemberServiceImpl implements MemberService{
         log.info("--- modifyMemberInfo memberServiceImpl START ---");
         // 입력된 정보 확인
         log.info("--- Show userRequest START ---");
+        log.info("userRequest.getUserCode = {}", userDto.getUserCode());
         log.info("userRequest.getMemberId = {}", userDto.getId());
         log.info("userRequest.getpw = {}", userDto.getPw());
         log.info("userRequest.getName = {}", userDto.getName());
@@ -314,13 +344,16 @@ public class MemberServiceImpl implements MemberService{
         log.info("userList.size = {}", userList.size());
         if(userList.size()==1) {
             User modifyUser = new User();
+            modifyUser.setUserCode(userDto.getUserCode());
             modifyUser.setId(userDto.getId());
             modifyUser.setPw(userDto.getPw());
             modifyUser.setName(userDto.getName());
             modifyUser.setEmail(userDto.getEmail());
+            modifyUser.setAddressName(userDto.getAddressName());
             modifyUser.setGender(userDto.getGender());
             modifyUser.setBirthDate(userDto.getBirthDate());
-            modifyUser.setAddressName(userDto.getAddressName());
+            modifyUser.setJoinDate(userList.get(0).getJoinDate());
+            modifyUser.setLastDate(userList.get(0).getLastDate());
             modifyUser.setPrefFatigue(userDto.getPrefFatigue());
             modifyUser.setPrefUnique(userDto.getPrefUnique());
             modifyUser.setPrefActivity(userDto.getPrefActivity());

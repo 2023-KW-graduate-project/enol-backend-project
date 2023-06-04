@@ -46,6 +46,12 @@ public class LoginServiceImpl implements LoginService<Member>{
                 log.info("userCode = {}", userList.get(0).getUserCode());
                 log.info("userID = {}", userList.get(0).getId());
                 log.info("userPW = {}", userList.get(0).getPw());
+                log.info("userName = {}", userList.get(0).getName());
+                log.info("userAddress = {}", userList.get(0).getAddressName());
+                log.info("usrEmail = {}", userList.get(0).getEmail());
+                log.info("userBirthDate = {}", userList.get(0).getBirthDate());
+                log.info("userJoinDate = {}", userList.get(0).getJoinDate());
+                log.info("userLastDate = {}", userList.get(0).getLastDate());
                 log.info("user Fatigue = {}", userList.get(0).getPrefFatigue());
                 log.info("user Unique = {}", userList.get(0).getPrefUnique());
                 log.info("user Activity = {}", userList.get(0).getPrefActivity());
