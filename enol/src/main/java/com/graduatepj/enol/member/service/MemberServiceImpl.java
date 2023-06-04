@@ -71,7 +71,8 @@ public class MemberServiceImpl implements MemberService{
         newUser.setId(userDto.getId());
         newUser.setPw(userDto.getPw());
         newUser.setName(userDto.getName());
-        newUser.setAddressName(userDto.getAddressName());
+//        newUser.setAddressName(userDto.getAddressName());
+        newUser.setAddressName(""); // 입력 안받기로 했으므로 빈 문자열 넣기로 수정
         newUser.setEmail(userDto.getEmail());
         newUser.setGender(userDto.getGender());
         newUser.setBirthDate(userDto.getBirthDate());
@@ -122,20 +123,22 @@ public class MemberServiceImpl implements MemberService{
         History history = new History();
         List<History.HistoryCourse> historyCourseList = new ArrayList<>();
         History.HistoryCourse historyCourse = new History.HistoryCourse();
-        String historyCourseCourseId = "";
+//        String historyCourseCourseId = "";
         List<Long> historyCoursePlaceIds = new ArrayList<>();
         double historyCourseRating = 0.0;
 
-        historyCourseList.add(historyCourse);
 
-        historyCourse.setCourseId(historyCourseCourseId);
-        historyCourse.setPlaceIds(historyCoursePlaceIds);
-        historyCourse.setRating(historyCourseRating);
+        historyCourse.setCourseId(""); // 빈 string으로 채우기
+        historyCourse.setPlaceIds(historyCoursePlaceIds); // 빈 리스트로 채우기
+        historyCourse.setRating(historyCourseRating); // 0.0으로 초기화
+        historyCourse.setOrder(""); // 빈 string으로 채우기
+
+        historyCourseList.add(historyCourse);
 
         history.setUserCode(newUser.getUserCode());
         history.setNumber(0);
 
-        history.setCourse(historyCourseList);
+        history.setCourse(historyCourseList); // HistoryCourse로 채우기
         userHistoryRepository.save(history);
 
         log.info("--- Save New User Success ---");
@@ -276,6 +279,7 @@ public class MemberServiceImpl implements MemberService{
 
         // 입력된 정보 확인
         log.info("--- Show userRequest START ---");
+        log.info("userRequest.getUserCode = {}", userDto.getUserCode());
         log.info("userRequest.getMemberId = {}", userDto.getId());
         log.info("userRequest.getpw = {}", userDto.getPw());
         log.info("userRequest.getName = {}", userDto.getName());
@@ -292,7 +296,7 @@ public class MemberServiceImpl implements MemberService{
         log.info("userList.size = {}", userList.size());
         if(userList.size()==1) { // id에 해당하는 User가 한개이면 거기 비밀번호만 수정해주면 됨
             User changeUser = new User();
-            changeUser.set_id(userList.get(0).get_id());
+            changeUser.set_id(userList.get(0).get_id()); // _id 안넣으면 save에서 바뀌는게 아니라 새로 추가됨
             changeUser.setUserCode(userDto.getUserCode());
             changeUser.setId(userDto.getId());
             changeUser.setPw(changePW);
@@ -344,6 +348,7 @@ public class MemberServiceImpl implements MemberService{
         log.info("userList.size = {}", userList.size());
         if(userList.size()==1) {
             User modifyUser = new User();
+            modifyUser.set_id(userList.get(0).get_id());
             modifyUser.setUserCode(userDto.getUserCode());
             modifyUser.setId(userDto.getId());
             modifyUser.setPw(userDto.getPw());
@@ -372,6 +377,7 @@ public class MemberServiceImpl implements MemberService{
 
         // 입력된 정보 확인
         log.info("--- Show userRequest START ---");
+        log.info("usreRequest.getUserCode = {}", userDto.getUserCode());
         log.info("userRequest.getMemberId = {}", userDto.getId());
         log.info("userRequest.getpw = {}", userDto.getPw());
         log.info("userRequest.getName = {}", userDto.getName());
@@ -392,13 +398,15 @@ public class MemberServiceImpl implements MemberService{
 
             // UserMark에서 제거
             List<UserMark> userMarkList = userMarkRepository.findAllByUserCode(userDto.getUserCode()); // 메서드 만들어야 함
+            log.info("userMarkList.size = {}, userDto.userCode = {}", userMarkList.size(), userDto.getUserCode());
             if(userMarkList.size()==1) {
-                log.info("--- DELETE USERMARK {} ---", userDto.getId());
+                log.info("--- DELETE USER MARK {} ---", userDto.getId());
                 userMarkRepository.delete(userMarkList.get(0));
             }
 
             // History에서 제거
             List<History> historyList = userHistoryRepository.findAllByUserCode(userDto.getUserCode()); // 메서드 만들어야 함
+            log.info("history.size = {}, userDto.userCode = {}", historyList.size(), userDto.getUserCode());
             if(historyList.size()==1) {
                 log.info("--- DELETE USER HISTORY {} ---", userDto.getId());
                 userHistoryRepository.delete(historyList.get(0));
