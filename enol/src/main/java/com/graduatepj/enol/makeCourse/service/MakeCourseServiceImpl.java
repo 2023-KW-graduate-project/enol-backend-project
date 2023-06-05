@@ -625,16 +625,42 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         List<PlaceDto> restaurants = new ArrayList<>();
         // wantedCategory 데이터를 전부 별점순으로 가져오기(내림차순)
         List<PlaceDto> wantedCategoryPlaceList = getCategoryPlaceList(secondCourse.getWantedCategoryName());
+
+        log.info("wantedCategoryName = {}", secondCourse.getWantedCategoryName()); // 추가한 로그
+        log.info("wantedCategoryPlaceList.get(0).getCategoryName = {}", wantedCategoryPlaceList.get(0).getCategoryName());
+        log.info("wantedCategoryPlaceList.get(0).getPlaceName = {}", wantedCategoryPlaceList.get(0).getPlaceName());
+
         log.info("wantedCategory 개수 : " + wantedCategoryPlaceList.size());
+
+        log.info("secondCourse.courseId = {}", secondCourse.getCourseId());
+        log.info("secondCourse.세부장소0 = {}", secondCourse.getDetailCategoryNames().get(0));
+        log.info("secondCourse.새부장소1 = {}", secondCourse.getDetailCategoryNames().get(1));
+//        log.info("secondCourse.세부장소2 = {}", secondCourse.getDetailCategoryNames().get(2));
+
         // 카테고리를 돌려보면서 하나하나 반경 기준으로 가져오기.
         List<PlaceDto> wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 1, mainCoordinate);
+//        List<PlaceDto> wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 1, mainCoordinate); // 원래거
         log.info("선정된 wantedCourse 있는지 확인(숫자) : " + (wantedCourse!=null?wantedCourse.size():"null"));
+
+        // 추가한 로그
+        if(wantedCourse != null){
+            log.info("wantedCourse = {}", wantedCourse.toString()); // 추가한 로그
+        }
+
         // 만약 결과가 없다면 두번째 우선순위 카테고리 데이터를 전부 별점순으로 가져오기(내림차순)
         if(secondCourse.getDetailCategoryNames().size()>1){
             if (wantedCourse == null || wantedCourse.isEmpty()) {
                 log.info("주 카테고리를 기준으로 결과가 나오지 않았다. 차선책 진행");
                 wantedCategoryPlaceList = getCategoryPlaceList(secondCourse.getDetailCategoryNames().get(1));
                 wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 2, mainCoordinate);
+//                wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 2, mainCoordinate); // 원래거
+
+                // 추가한 로그
+                if(wantedCourse != null){
+                    log.info("wantedCourse = {}", wantedCourse.toString()); // 추가한 로그
+                }
+
+
                 // 가장 가까운 wantedCategory를 코스에 포함
                 wantedCourse.add(PlaceDto.
                         fromEntity(placeRepository
@@ -865,24 +891,71 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         List<PlaceDto> course = new ArrayList<>();
         Map<String, Integer> duplicatesCountMap = new HashMap<>();
 
+        // 추가한 로그
+        log.info("--- In getFinalCourse ---");
+        log.info("wantedCategoryPlaceList.get(0).getCategoryName = {}", wantedCategoryPlaceList.get(0).getCategoryName());
+        log.info("wantedCategoryPlaceList.get(0).getPlaceName = {}", wantedCategoryPlaceList.get(0).getPlaceName());
+
+        log.info("wantedCategory 개수 : " + wantedCategoryPlaceList.size());
+
+        log.info("secondCourse.courseId = {}", secondCourse.getCourseId());
+        log.info("secondCourse.세부장소0 = {}", secondCourse.getDetailCategoryNames().get(0));
+        log.info("secondCourse.새부장소1 = {}", secondCourse.getDetailCategoryNames().get(1));
+        // 추가한 로그
+
         // 코드 : 중복 수의 킷값 쌍 만들기
         for (String code : secondCourse.getDetailCategoryNames()) {
             duplicatesCountMap.put(code, duplicatesCountMap.getOrDefault(code, 0) + 1);
         }
 
         for (PlaceDto s : wantedCategoryPlaceList) {
+
             course.clear();
+            course.add(0, s); // 우선순위 가장 높은 부분 추가하기 위해 추가한 부분
+
             for (int i = start; i < duplicatesCountMap.size(); i++) {
                 String categoryCode = secondCourse.getDetailCategoryNames().get(i);
+
+                // 추가한 로그
+                log.info("categoryCode In getFinal in for 1 = {}", categoryCode);
 
                 List<PlaceDto> places = PlaceDto.fromEntityList(
                                 placeRepository.findHighestRatedPlaceByCategoryAndLocationAndRadius(
                                         categoryCode, s.getX(), s.getY(), FILTER_RADIUS, duplicatesCountMap.get(categoryCode)));
 
+                // 추가한 로그
+                log.info("places.size 1 = {}", places.size());
+                if(places.size()>0) {
+                    log.info("places.get(0).getCategoryName = {}", places.get(0).getCategoryName());
+                    log.info("places.get(0).getPlaceName = {}", places.get(0).getPlaceName());
+                    log.info("places.get(0).getAddressName = {}", places.get(0).getAddressName());
+                }
+
+
                 // 만족하지 못했을 경우 다음 주 카테고리 가게로 이동, 만족했을 경우 가져온 모든것을 course에 넣는다.
                 if (places == null || places.size()<duplicatesCountMap.get(categoryCode)) {
+
+                    // 추가한 로그
+                    log.info("categoryCode In getFinal in for 2 = {}", categoryCode);
+                    // 추가한 로그
+                    log.info("places.size 2 = {}", places.size());
+                    if(places.size()>0) {
+                        log.info("places.get(0).getCategoryName = {}", places.get(0).getCategoryName());
+                        log.info("places.get(0).getPlaceName = {}", places.get(0).getPlaceName());
+                        log.info("places.get(0).getAddressName = {}", places.get(0).getAddressName());
+                    }
+
                     break;
                 }else{
+
+                    // 추가한 로그
+                    log.info("places.size 3 = {}", places.size());
+                    if(places.size()>0) {
+                        log.info("places.get(0).getCategoryName = {}", places.get(0).getCategoryName());
+                        log.info("places.get(0).getPlaceName = {}", places.get(0).getPlaceName());
+                        log.info("places.get(0).getAddressName = {}", places.get(0).getAddressName());
+                    }
+
                     course.addAll(places);
                 }
 

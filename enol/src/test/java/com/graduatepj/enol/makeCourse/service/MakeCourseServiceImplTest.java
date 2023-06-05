@@ -173,12 +173,12 @@ class MakeCourseServiceImplTest {
         courseRequest.setNumPeople(2);
         courseRequest.setMemberIdList(friendList);
         courseRequest.setMealCheck(true);
-        courseRequest.setStartTime(17);
-        courseRequest.setFinishTime(18);
-//        courseRequest.setWantedCategoryGroup(null);
-//        courseRequest.setWantedCategory(null);
-        courseRequest.setWantedCategoryGroup("RM3");
-        courseRequest.setWantedCategory("공원");
+        courseRequest.setStartTime(20);
+        courseRequest.setFinishTime(5);
+        courseRequest.setWantedCategoryGroup(null);
+        courseRequest.setWantedCategory(null);
+//        courseRequest.setWantedCategoryGroup("RM3");
+//        courseRequest.setWantedCategory("공원");
         courseRequest.setGoals(goalList);
 
 
@@ -217,17 +217,20 @@ class MakeCourseServiceImplTest {
 
         System.out.println("-----------------------------------------");
 
-//        CourseResponse finalCourse = makeCourseService.finalCourseFiltering(secondCourse);
-//
-//        System.out.println("finalCourse.size = " + finalCourse.getPlaceDto().size());
-//        for (PlaceDto placeDto: finalCourse.getPlaceDto()) {
-//            System.out.println("");
-//            System.out.println("finalCourse.getCategoryName = " + placeDto.getCategoryName());
-//            System.out.println("finalCourse.getPlaceName = " + placeDto.getPlaceName());
-//            System.out.println("finalCourse.getTime = " + placeDto.getTime());
-//            System.out.println("finalCourse.getAddressName = " + placeDto.getAddressName());
-//            System.out.println("");
-//        }
+        // getFinalCourse에서 해당 하는 카테고리들이 다 포함되는지 확인하기
+
+        CourseResponse finalCourse = makeCourseService.finalCourseFiltering(secondCourse);
+
+        System.out.println("finalCourse.size = " + finalCourse.getPlaceDto().size());
+
+        for (PlaceDto placeDto: finalCourse.getPlaceDto()) {
+            System.out.println("");
+            System.out.println("finalCourse.getCategoryName = " + placeDto.getCategoryName());
+            System.out.println("finalCourse.getPlaceName = " + placeDto.getPlaceName());
+            System.out.println("finalCourse.getTime = " + placeDto.getTime());
+            System.out.println("finalCourse.getAddressName = " + placeDto.getAddressName());
+            System.out.println("");
+        }
 
     }
 
