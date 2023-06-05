@@ -625,14 +625,14 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         List<PlaceDto> restaurants = new ArrayList<>();
         // wantedCategory 데이터를 전부 별점순으로 가져오기(내림차순)
         List<PlaceDto> wantedCategoryPlaceList = getCategoryPlaceList(secondCourse.getWantedCategoryName());
-//        log.info("wantedCategory 개수 : " + wantedCategoryPlaceList.size());
+        log.info("wantedCategory 개수 : " + wantedCategoryPlaceList.size());
         // 카테고리를 돌려보면서 하나하나 반경 기준으로 가져오기.
         List<PlaceDto> wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 1, mainCoordinate);
-//        log.info("선정된 wantedCourse 있는지 확인(숫자) : " + (wantedCourse!=null?wantedCourse.size():"null"));
+        log.info("선정된 wantedCourse 있는지 확인(숫자) : " + (wantedCourse!=null?wantedCourse.size():"null"));
         // 만약 결과가 없다면 두번째 우선순위 카테고리 데이터를 전부 별점순으로 가져오기(내림차순)
         if(secondCourse.getDetailCategoryNames().size()>1){
             if (wantedCourse == null || wantedCourse.isEmpty()) {
-//                log.info("주 카테고리를 기준으로 결과가 나오지 않았다. 차선책 진행");
+                log.info("주 카테고리를 기준으로 결과가 나오지 않았다. 차선책 진행");
                 wantedCategoryPlaceList = getCategoryPlaceList(secondCourse.getDetailCategoryNames().get(1));
                 wantedCourse = getFinalCourse(secondCourse, wantedCategoryPlaceList, 2, mainCoordinate);
                 // 가장 가까운 wantedCategory를 코스에 포함
@@ -642,29 +642,26 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                                         secondCourse.getWantedCategoryName(),
                                         mainCoordinate[0],
                                         mainCoordinate[1])));
-//                log.info("선정된 wantedCourse 있는지 확인(숫자) : " + wantedCourse.size());
+                log.info("선정된 wantedCourse 있는지 확인(숫자) : " + wantedCourse.size());
                 // 이것마저 없을 경우 에러를 반환
                 if (wantedCourse == null || wantedCourse.isEmpty()){
-                    log.warn("이것마저 없을 경우 에러를 반환.(일단 null 반환) -> 못찾음");
-                    //                throw new RuntimeException("not enough data so no recommendation!");
-                    return null;
+                    log.info("이것마저 없을 경우 에러를 반환.(일단 null 반환) -> 못찾음");
+                    throw new RuntimeException("not enough data so no recommendation!");
                 }
-
-
             }
         }
         if(wantedCourse==null){
-            log.warn("이것마저 없을 경우 에러를 반환.(일단 null 반환) -> 이건 왜 없지?");
-            return null;
+            log.info("이것마저 없을 경우 에러를 반환.(일단 null 반환) -> 이건 왜 없지?");
+            throw new RuntimeException("not enough data so no recommendation!");
         }
         // 아침 : 8시~10시 점심 : 12시~2시 저녁 : 6시~8시에 노는시간이 걸쳐있을 경우, 식사 포함. 안걸쳐있으면 그냥 하나만 추가.
         if (secondCourse.getMealCheck()) {
             meal = getRestaurantNum(secondCourse.getStartTime(), secondCourse.getEndTime());
             for (int i = 0; i < meal.length; i++) if (meal[i]) num++;
-//            log.info("breakfast = " + meal[0] + " | lunch = " + meal[1] + " | dinner = " + meal[2] + " | else = " + meal[3]);
+            log.info("breakfast = " + meal[0] + " | lunch = " + meal[1] + " | dinner = " + meal[2] + " | else = " + meal[3]);
             restaurants = getRestaurantFromDB(mainCoordinate, num);
 //            restaurants = getRestaurantFromApi(mainCoordinate, num);
-//            log.info("실제로 가져온 음식점 수 : " + restaurants.size());
+            log.info("실제로 가져온 음식점 수 : " + restaurants.size());
         }
         // 최적화 알고리즘 적용(순서 결정)
         // 식사 앞뒤로 몇개의 가게 들어갈지 구하는 메소드
@@ -905,6 +902,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 return course;
             }
         }
+        log.info("여기서 걸렸습니다.");
         return null;
     }
 
@@ -950,6 +948,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         List<Restaurant> restaurants = restaurantRepository.findRandomRestaurantByLocationAndRadius(mainCoordinate[0], mainCoordinate[1], FILTER_RADIUS);
         for(Restaurant restaurant : restaurants){
             PlaceDto place = PlaceDto.builder()
+                    .id(restaurant.getId())
                     .placeName(restaurant.getPlaceName())
                     .categoryName(restaurant.getCategoryCode())
                     .addressName(restaurant.getAddressName())
@@ -1126,6 +1125,9 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         double minDistance = Double.MAX_VALUE;
         double calculateDistance = 0.0;
 
+        log.info("partition " + partition[0] + " " + partition[1] + " " +partition[2] + " " +partition[3]);
+        log.info("meal " + mealCheck[0] + " " + mealCheck[1] + " " +mealCheck[2] + " " +mealCheck[3]);
+
         List<List<PlaceDto>> drinkPermutations = new ArrayList<>();
         List<List<PlaceDto>> otherPermutations = new ArrayList<>();
         List<List<PlaceDto>> restaurantPermutations = new ArrayList<>();
@@ -1151,6 +1153,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 for (List<PlaceDto> otherPerm : otherPermutations) {
                     candidateCourse.addAll(otherPerm);
                     calculateDistance = calculateDistance(candidateCourse);
+                    log.info(candidateCourse.toString()+"의 길이는 " + calculateDistance);
                     if (minDistance > calculateDistance) {
                         minDistance = calculateDistance;
                         finalCourse = new ArrayList<>(candidateCourse);
@@ -1165,6 +1168,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                         candidateCourse = makeCandidateCourse(otherPerm, null, restPerm, partition, mealCheck, startTime);
 //                        candidateCourse.addAll(otherPerm);
                         calculateDistance = calculateDistance(candidateCourse);
+                        log.info(candidateCourse.toString()+"의 길이는 " + calculateDistance);
                         if (minDistance > calculateDistance) {
                             minDistance = calculateDistance;
                             finalCourse = new ArrayList<>(candidateCourse);
@@ -1179,6 +1183,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                 for (List<PlaceDto> drinkPerm : drinkPermutations) {
                     candidateCourse.addAll(drinkPerm);
                     calculateDistance = calculateDistance(candidateCourse);
+                    log.info(candidateCourse.toString()+"의 길이는 " + calculateDistance);
                     if (minDistance > calculateDistance) {
                         minDistance = calculateDistance;
                         finalCourse = new ArrayList<>(candidateCourse);
@@ -1192,6 +1197,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                     for (List<PlaceDto> restPerm : restaurantPermutations) {
                         candidateCourse = makeCandidateCourse(null, drinkPerm, restPerm, partition, mealCheck, startTime);
                         calculateDistance = calculateDistance(candidateCourse);
+                        log.info(candidateCourse.toString()+"의 길이는 " + calculateDistance);
                         if (minDistance > calculateDistance) {
                             minDistance = calculateDistance;
                             finalCourse = new ArrayList<>(candidateCourse);
@@ -1207,6 +1213,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                     candidateCourse.addAll(otherPerm);
                     candidateCourse.addAll(drinkPerm);
                     calculateDistance = calculateDistance(candidateCourse);
+                    log.info(candidateCourse.toString()+"의 길이는 " + calculateDistance);
                     if (minDistance > calculateDistance) {
                         minDistance = calculateDistance;
                         finalCourse = new ArrayList<>(candidateCourse);
@@ -1222,6 +1229,7 @@ public class MakeCourseServiceImpl implements MakeCourseService {
                     for (List<PlaceDto> restPerm : restaurantPermutations) {
                         candidateCourse = makeCandidateCourse(otherPerm, drinkPerm, restPerm, partition, mealCheck, startTime);
                         calculateDistance = calculateDistance(candidateCourse);
+                        log.info(candidateCourse.toString()+"의 길이는 " + calculateDistance);
                         if (minDistance > calculateDistance) {
                             minDistance = calculateDistance;
                             finalCourse = new ArrayList<>(candidateCourse);
@@ -1303,6 +1311,21 @@ public class MakeCourseServiceImpl implements MakeCourseService {
         }else{
             return 0;
         }
+    }
+
+    // 음주형 개수를 이제 비율로 결정
+    private int getDrinkNum2(int start, int end){
+        int totalTime=end-start;
+        int drinkTime=end-22;
+        int otherTime=totalTime-drinkTime;
+        int drinkNum=0;
+        if(otherTime==0){
+            drinkNum=drinkTime;
+        }else{
+            drinkNum=drinkTime/otherTime;
+        }
+        if(drinkNum>=4) drinkNum=4;
+        return drinkNum;
     }
 
     @Override

@@ -20,7 +20,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     List<Place> findAllByCategoryNameOrderByRatingDesc(String wantedCategoryName, Pageable pageable);
 
     // 좌표를 기준으로 가장 가까운 categoryName의 가게 가져오기
-    @Query(value = "SELECT * FROM place WHERE place.category_name = :categoryName ORDER BY ST_Distance(POINT(:longitude, :latitude), POINT(place.x, place.y)) LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM place WHERE place.category_name = :categoryName ORDER BY ( 6371 * acos( cos( radians(:latitude) ) * cos( radians( y ) ) * cos( radians( x ) - radians(:longitude) ) + sin( radians(:latitude) ) * sin( radians( y ) ) ) ) LIMIT 1", nativeQuery = true)
     Place findNearestPlaceByCategoryNameAndLocation(@Param("categoryName") String categoryName, @Param("longitude") double longitude, @Param("latitude") double latitude);
 
     // 골라진 가게들 중에서 랜덤으로 limit개의 가게를 가져오는 쿼리문

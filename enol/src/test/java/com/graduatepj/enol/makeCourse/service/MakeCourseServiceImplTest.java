@@ -584,4 +584,14 @@ class MakeCourseServiceImplTest {
 
     }
 
+    @Test
+    void nearestTest() {
+        String categoryName="와인바";
+        double x=126.910290832908;
+        double y = 37.6045544570542;
+        PlaceDto place = PlaceDto.fromEntity(placeRepository.findNearestPlaceByCategoryNameAndLocation(categoryName, x, y));
+        System.out.println(place);
+
+    }
+
 }
