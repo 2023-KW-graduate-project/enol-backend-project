@@ -122,23 +122,23 @@ public class MemberServiceImpl implements MemberService{
         // userHistory 테이블에 저장 - userCode와 number=0만 넣고 나머지는 빈값
         History history = new History();
         List<History.HistoryCourse> historyCourseList = new ArrayList<>();
-        History.HistoryCourse historyCourse = new History.HistoryCourse();
+//        History.HistoryCourse historyCourse = new History.HistoryCourse();
 //        String historyCourseCourseId = "";
-        List<Long> historyCoursePlaceIds = new ArrayList<>();
+//        List<Long> historyCoursePlaceIds = new ArrayList<>();
 //        double historyCourseRating = 0.0;
 
 
-        historyCourse.setCourseId(" "); // 빈 string으로 채우기
-        historyCourse.setPlaceIds(historyCoursePlaceIds); // 빈 리스트로 채우기
-        historyCourse.setRating(0.0); // 0.0으로 초기화
-        historyCourse.setOrder(" "); // 빈 string으로 채우기
+//        historyCourse.setCourseId(" "); // 빈 string으로 채우기
+//        historyCourse.setPlaceIds(historyCoursePlaceIds); // 빈 리스트로 채우기
+//        historyCourse.setRating(0.0); // 0.0으로 초기화
+//        historyCourse.setOrder(" "); // 빈 string으로 채우기
 
-        historyCourseList.add(historyCourse);
+//        historyCourseList.add(historyCourse);
 
         history.setUserCode(newUser.getUserCode());
         history.setNumber(0);
 
-        history.setCourse(historyCourseList); // HistoryCourse로 채우기
+        history.setCourse(historyCourseList); // HistoryCourse로 채우기 - 그냥 빈 HistoryCourse로 채우기로 수정
         userHistoryRepository.save(history);
 
         log.info("--- Save New User Success ---");
